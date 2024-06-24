@@ -1,0 +1,3 @@
+/^(?!http[s]?)(?!www\.?).*\..+$/g
+without https/http\
+

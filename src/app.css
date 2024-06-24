@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Fixel';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/FixelText-Regular.woff2') format('woff2')
+}
+@font-face {
+  font-family: 'Fixel';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/FixelText-Bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Fixel';
+  font-weight: 200;
+  src: url('/fonts/FixelText-Light.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Fixel';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/FixelText-Medium.woff2') format('woff2')
+}
+@font-face {
+  font-family: 'Fixel';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/FixelText-SemiBold.woff2') format('woff2')
+}
+@font-face {
+  font-family: 'Fixel Display';
+  font-weight: 700;
+  src: url('/fonts/FixelDisplay-SemiBold.woff2') format('woff2');
+}
+
+
+ 
+@layer base {
+  :root {
+    --background: 0 0% 89%;
+    --foreground: 210 17.3% 19.6%;
+    --card: 0 0% 89%;
+    --card-foreground: 210 17.3% 19.6%;
+    --popover: 0 0% 89%;
+    --popover-foreground: 210 17.3% 19.6%;
+    --primary: 156 64% 42%;
+    --primary-foreground: 0 100% 96.8%;
+    --secondary: 210 25% 96.1%;
+    --secondary-foreground: 210 17.3% 19.6%;
+    --muted: 210 25% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 210 25% 96.1%;
+    --accent-foreground: 210 17.3% 19.6%;
+    --destructive: 0 100% 64.7%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 210 28.6% 91.8%;
+    --input: 210 28.6% 91.8%;
+    --ring: 156 64% 42%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 249 30% 5%;
+    --foreground: 0 0% 90%;
+    --card: 248 32% 10%;
+    --card-foreground: 0 0% 90%;
+    --popover: 249 30% 5%;
+    --popover-foreground: 0 0% 90%;
+    --primary: 154 73% 59%;
+    --primary-foreground: 105.7 76.1% 13.7%;
+    --secondary: 247 26% 13%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15.1%;
+    --muted-foreground: 222 10.1% 63.9%;
+    --accent: 0 0% 18%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 348.6 69.2% 38.4%;
+    --destructive-foreground: 0 85.7% 97.3%;
+    --border: 247 26% 13%;
+    --input: 247 26% 13%;
+    --ring: 157.3 100% 33.3%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  a {
+    @apply underline underline-offset-4 font-semibold hover:outline outline-offset-4 rounded hover:text-primary focus:ring-ring focus:ring-offset-2 focus:ring-primary focus:ring-opacity-50;
+  }
+}
