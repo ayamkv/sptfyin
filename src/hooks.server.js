@@ -1,9 +1,9 @@
 import PocketBase from 'pocketbase'
 import { serializeNonPOJOs } from '$lib/utils.js';
-import { POCKETURL } from '$env/static/private'
+let publicUrl = import.meta.env.VITE_POCKETBASE_URL;
 
 export const handle = async ({ event, resolve }) =>  {
-    event.locals.pb = new PocketBase(POCKETURL);
+    event.locals.pb = new PocketBase(publicUrl);
     event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '')
 
     if (event.locals.pb.authStore.isValid) {

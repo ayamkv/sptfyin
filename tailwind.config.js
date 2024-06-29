@@ -56,8 +56,10 @@ const config = {
 			},
 			fontFamily: {
 				primary: ['Fixel', 'sans-serif'],
-				display: ['Fixel Display', 'sans-serif'],
-				sans: [...fontFamily.sans]
+				sans: [...fontFamily.sans],
+				'jak-display': [
+					'Plus Jakarta Display Bold', 'sans-serif'
+				],
 			}
 		}
 	},

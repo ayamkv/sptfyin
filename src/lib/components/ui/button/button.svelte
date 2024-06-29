@@ -6,10 +6,12 @@
 	export let variant = "default";
 	export let size = "default";
 	export let builders = [];
+	export let ref = null;
 	export { className as class };
 </script>
 
 <ButtonPrimitive.Root
+	bind:this={ref}
 	{builders}
 	class={cn(buttonVariants({ variant, size, className }))}
 	type="button"

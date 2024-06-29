@@ -2,3 +2,7 @@
 
 
 <slot />
+
+<style>
+    
+</style>

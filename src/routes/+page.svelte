@@ -9,6 +9,8 @@
     import * as Accordion from "$lib/components/ui/accordion";
     import 'iconify-icon';
     import * as AlertDialog from "$lib/components/ui/alert-dialog";
+    import { strings } from "$lib/localization/languages/en.json"
+    import { onMount } from "svelte";
     const ua = navigator.userAgent.toLowerCase();
     const isIOS = ua.includes("iphone os") || (ua.includes("mac os") && navigator.maxTouchPoints > 0);
     const isAndroid = ua.includes("android");
@@ -16,7 +18,7 @@
     const isSafari = ua.includes("safari/");
     const isFirefox = ua.includes("firefox/");
     const isOldFirefox = ua.includes("firefox/") && ua.split("firefox/")[1].split('.')[0] < 103;
-	import { onMount } from "svelte";
+	
     // import { z } from "zod";
     // import SuperDebug from "sveltekit-superforms";
     // import { zodClient } from "sveltekit-superforms/adapters";
@@ -44,51 +46,88 @@
     // const { form: formData, enhance } = form;
     let inputText
     let isError = false;
+    let alertDialogTitle = ''
+    let alertDialogDescription = ''
+    let errorIconDefault = 'fluent-emoji:crying-cat'
+    let errorIcon = errorIconDefault
+    let focus1 = false;
+    let theButton
 
     function findUrl(str) {
-        const regex = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/g;
+        const regex = /^(https:\/\/[a-z]+\.spotify\.com\/)(.*)$/mg;
         let urls = str.match(regex);
         return urls ? urls[0] : null;
     }
 
-    async function handlePaste() {
-        try {
-            // Request permission to access the clipboard
-            const permission = await navigator.permissions.query({ name: 'clipboard-read' });
+    async function handlePaste(event) {
+    try {
+      // Request permission to access the clipboard
+      const permission = await navigator.permissions.query({ name: 'clipboard-read' });
 
-            if (permission.state === 'granted' || permission.state === 'prompt') {
-                // Read from the clipboard
-                const text = await navigator.clipboard.readText();
-                let clipboardContent = text;
+      if (permission.state === 'granted' || permission.state === 'prompt') {
+        // Read from the clipboard
+        const text = await navigator.clipboard.readText();
+        let clipboardContent = text;
 
-                console.log(clipboardContent)
-                console.log(findUrl(clipboardContent))
-                inputText = findUrl(clipboardContent)
-            // } else {
-            //     alert('Clipboard access denied');
-            }
-        } catch (e) {
-            let error = String(e).toLowerCase();
+        console.log(clipboardContent);
+        console.log(findUrl(clipboardContent));
+        setTimeout(() => {
+        inputText = findUrl(clipboardContent);
 
-            if (error.includes("denied")) isError = true;
-            console.error('Failed to read clipboard: ', error);
-            if (error.includes("function") && isFirefox) alert('Firefox does not support clipboard access');
-            if (error.includes("dismissed") || isIOS) alert('Sorry! IOS Safari does not support clipboard access 😔')
+        focus1 = true;
 
-            
+        if (inputText === null) {
+          setTimeout(() => {
+            // alert('No Spotify URL found in clipboard');
+            isError = true;
+            alertDialogTitle = strings.ErrorClipboardNoSpotifyURLTitle;
+            alertDialogDescription = strings.ErrorClipboardNoSpotifyURLDesc;
+            errorIcon = strings.ErrorClipboardNoSpotifyURLIcon;
+            console.log(alertDialogTitle, alertDialogDescription)
+          }, 1);
         }
-    }
 
+        
+        }, 4);
+      } else {
+        isError = true;
+        errorIcon = errorIconDefault;
+        alertDialogTitle = strings.ErrorClipboardPermTitle;
+        alertDialogDescription = strings.ErrorClipboardPermissionDesc;
+        
+        // alert('Clipboard access denied');
+      }
+    } catch (e) {
+      let error = String(e).toLowerCase();
+
+      if (error.includes("denied")) isError = true;
+      console.error('Failed to read clipboard: ', error);
+      if (error.includes("function") && isFirefox) alert('Firefox does not support clipboard access');
+      if (error.includes("dismissed") || isIOS) alert('Sorry! iOS Safari does not support clipboard access 😔');
+    }
+  }
   
     // onMount(() => {
-    //     handlePaste();
+    //     console.log(strings)
     // });
+    function escapeSelectHandle() {
+        onMount(() => { 
+          setTimeout(() => {
+            theButton.focus()
+          }, 40);
+        });
+        console.log('something is selected');
+    }
 
+    // onMount(() => {
+    //   escapeSelectHandle();
+    // })
 
 
     let selected = { value: "sptfy.in", label: "Default: sptfy.in"}
     const domainList = [
     { value: "sptfy.in", label: "sptfy.in" },
+    { value: "profile.sptfy.in", label: "profile.sptfy.in" },
     { value: "playlist.sptfy.in", label: "playlist.sptfy.in" },
     { value: "podcast.sptfy.in", label: "podcast.sptfy.in" },
     { value: "album.sptfy.in", label: "album.sptfy.in" },
@@ -104,20 +143,16 @@
 
 <div class="flex flex-col items-center justify-center min-h-screen gap-6 bg-background p-10 -translate-y-8">
 
-     
+
 <AlertDialog.Root bind:open={isError}>
     <AlertDialog.Trigger></AlertDialog.Trigger>
     <AlertDialog.Content>
       <AlertDialog.Header>
-        <iconify-icon icon="fluent-emoji:crying-cat" class="block m-auto text-center" width=120></iconify-icon>
-        <AlertDialog.Title class="text-center">Ouch, we have no permission!</AlertDialog.Title>
+        <iconify-icon icon={errorIcon} class="block m-auto text-center" width=120></iconify-icon>
+        <AlertDialog.Title class="text-center">Ouch! {@html alertDialogTitle}</AlertDialog.Title>
         
         <AlertDialog.Description>
-            <b>sptfy.in</b> can't access the most recent item in your clipboard without your permission.
-            <br><br>
-            if you don't want to give access, you can paste the link manually instead.
-            <br><br>
-            if you do want to, go to site settings and enable the clipboard permission. <br><a class="underline underline-offset-4 font-semibold hover:outline outline-offset-4 rounded hover:text-primary" href="https://support.google.com/chrome/answer/114662?hl=en&co=GENIE.Platform%3DDesktop">see how to</a>
+            {@html alertDialogDescription}
         </AlertDialog.Description>
       </AlertDialog.Header>
       <AlertDialog.Footer>
@@ -125,7 +160,9 @@
       </AlertDialog.Footer>
     </AlertDialog.Content>
   </AlertDialog.Root>
-    <h1 class="text-4xl font-bold text-primary font-display">sptfyin</h1>
+
+
+    <h1 class="text-6xl font-bold text-primary font-jak-display ss03">Sptfy.in</h1>
     <Card.Root class="w-[20rem] md:w-[35rem] sm:w-[20rem] transition-all">
         <Card.Header>
           <Card.Title>Shorten your URL</Card.Title>
@@ -148,12 +185,12 @@
                 <Label for="url" class="my-2">Paste your long ass URL here</Label>
                 <div class="flex w-full min-w-full items-center align-center space-x-3 mb-2">
                     
-                    <Input type="url" id="url" placeholder="https://open.spotify.com/xxxx...." bind:value={inputText} autofocus />
+                    <Input type="url" id="url" on:paste={handlePaste} placeholder="https://open.spotify.com/xxxx...." bind:value={inputText} class="placeholder:translate-y-[2px]" autofocus />
                     <Button class="hover:bg-primary hover:text-black" variant="secondary" on:click={() => handlePaste()}><iconify-icon width="20" icon="lucide:clipboard-copy"></iconify-icon></Button>
                 </div>
                 
                 <Label for="domainSelect" class="my-2">Select domain</Label>
-                <Select.Root portal={null} id="domainSelect" bind:selected>
+                <Select.Root portal={null} id="domainSelect" name="domainSelect" bind:selected bind:open={focus1}>
                     <Select.Trigger class="">
                       <Select.Value placeholder="Domain: sptfy.in" selected="sptfy.in" />
                     </Select.Trigger>
@@ -161,7 +198,7 @@
                       <Select.Group>
                         <Select.Label>Select domain</Select.Label>
                         {#each domainList as domain}
-                          <Select.Item value={domain.value} label={domain.label}
+                          <Select.Item value={domain.value} label={domain.label} on:click={() => escapeSelectHandle()}
                             >{domain.label}</Select.Item
                           >
                         {/each}
@@ -188,7 +225,7 @@
           </div>
         </Card.Content>
         <Card.Footer>
-          <Button class="w-full">
+          <Button class="w-full focus:bg-red-600" bind:this={theButton}>
             Short It!
           </Button>
         </Card.Footer>

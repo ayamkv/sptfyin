@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { cubicOut } from "svelte/easing";
 // import { randomBytes } from "node:crypto";
-// import { POCKETURL } from '$env/static/private'
+let publicUrl = import.meta.env.VITE_POCKETBASE_URL;
 
 
 export function cn(...inputs) {
@@ -60,9 +60,9 @@ export const generateUsername = (name) => {
     return `${name.slice(0, 5)}${id}`
 }
 
-// export const getImageURL = (collectionId, recordId, fileName, size = '0x0') => {
-//     return `${POCKETURL}/api/files/${collectionId}/${recordId}/${fileName}?thumb=${size}`;
-// }
+export const getImageURL = (collectionId, recordId, fileName, size = '0x0') => {
+    return `${publicUrl}/api/files/${collectionId}/${recordId}/${fileName}?thumb=${size}`;
+}
 
 export const hideEmail = (email) => {
     const partialEmail = email.replace(/(\w{3})[\w.-]+@([\w.]+\w)/, "$1***@$2")

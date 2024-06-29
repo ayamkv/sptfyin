@@ -36,7 +36,17 @@
   font-weight: 700;
   src: url('/fonts/FixelDisplay-SemiBold.woff2') format('woff2');
 }
-
+@font-face {
+  font-family: 'Plus Jakarta Display Bold'; 
+  font-weight: 800;
+  src: url('/fonts/PlusJakartaDisplay-Bold.woff2') format('woff2');
+}
+/* @font-face {
+  font-family: "Plus Jakarta Sans Display Bold", sans-serif;
+  font-weight: 800;
+  font-feature-settings: "ss03";
+}
+ */
 
  
 @layer base {
@@ -94,5 +104,12 @@
   }
   a {
     @apply underline underline-offset-4 font-semibold hover:outline outline-offset-4 rounded hover:text-primary focus:ring-ring focus:ring-offset-2 focus:ring-primary focus:ring-opacity-50;
+  }
+}
+
+
+@layer utilities {
+  .ss03 {
+    font-feature-settings: "ss03";
   }
 }
