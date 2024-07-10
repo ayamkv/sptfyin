@@ -160,10 +160,7 @@
 
 
 <div class="flex flex-col items-center justify-center min-h-screen gap-6 bg-background p-10 -translate-y-8">
-
-
-
-    <h1 class="text-6xl font-bold text-primary font-jak-display ss03">Sptfy.in</h1>
+  <h1 class="text-6xl font-bold text-primary font-jak-display ss03">Sptfy.in</h1>
     <Card.Root class="w-[20rem] md:w-[35rem] sm:w-[20rem] transition-all">
         <Card.Header>
           <Card.Title>Shorten your URL</Card.Title>
@@ -207,17 +204,20 @@
                     </Select.Content>
                     <Select.Input name="sptfy.in"/>
                   </Select.Root>
-                  <Separator class="my-4"/>
+                  <Separator class="my-2"/>
                   <Accordion.Root>
                     <Accordion.Item value="item-1">
                       <Accordion.Trigger>Custom Short URL (Optional)</Accordion.Trigger>
                       <Accordion.Content>
                         <Label for="url" class="my-2">Custom URL here</Label>
-                        <div class="flex w-full min-w-full items-center space-x-2 mb-2">
+                        <div class="flex flex-col w-full min-w-full items-center space-x-2 mb-2">
                             
-                            <Input type="text" id="short_id" placeholder="https://open.spotify.com/xxxx...." />
+                            <Input type="text" id="short_id" placeholder="myCoolPlaylistNo4..." />
                             
+                           
                         </div>
+
+
                       </Accordion.Content>
                     </Accordion.Item>
                   </Accordion.Root>
@@ -225,13 +225,26 @@
               </form>
           </div>
         </Card.Content>
-        <Card.Footer>
+        <Card.Footer class="flex-col">
+         
           <Button class="w-full" bind:this={theButton}>
            
               Short It!
       
 
           </Button>
+
+          
         </Card.Footer>
       </Card.Root>
+      <Card.Root class="w-[20rem] md:w-[35rem] sm:w-[20rem]  transition-all">
+        <Card.Header>
+          <Card.Title>URL Preview</Card.Title>
+          <Card.Description>Here's how your URL will look like</Card.Description>
+          <Card.Content>
+            
+          </Card.Content>
+        </Card.Header>
+        </Card.Root>
+          
 </div>
