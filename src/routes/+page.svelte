@@ -74,10 +74,11 @@
         setTimeout(() => {
         inputText = findUrl(clipboardContent);
 
-        focus1 = true;
+        
 
         if (inputText === null) {
           setTimeout(() => {
+            focus1 = false;
             // alert('No Spotify URL found in clipboard');
             isError = true;
             alertDialogTitle = strings.ErrorClipboardNoSpotifyURLTitle;
@@ -86,7 +87,7 @@
             console.log(alertDialogTitle, alertDialogDescription)
           }, 1);
         }
-
+        focus1 = true;
         
         }, 4);
       } else {
@@ -140,26 +141,26 @@
 
 
 
+<AlertDialog.Root bind:open={isError} class="transition-all">
+  <AlertDialog.Trigger></AlertDialog.Trigger>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <iconify-icon icon={errorIcon} class="block m-auto text-center" width=120></iconify-icon>
+      <AlertDialog.Title class="text-center">Ouch! {@html alertDialogTitle}</AlertDialog.Title>
+      
+      <AlertDialog.Description>
+          {@html alertDialogDescription}
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Action class="min-w-full font-semibold" on:click={() => isError = false}>okay, got it</AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
+
 
 <div class="flex flex-col items-center justify-center min-h-screen gap-6 bg-background p-10 -translate-y-8">
 
-
-<AlertDialog.Root bind:open={isError}>
-    <AlertDialog.Trigger></AlertDialog.Trigger>
-    <AlertDialog.Content>
-      <AlertDialog.Header>
-        <iconify-icon icon={errorIcon} class="block m-auto text-center" width=120></iconify-icon>
-        <AlertDialog.Title class="text-center">Ouch! {@html alertDialogTitle}</AlertDialog.Title>
-        
-        <AlertDialog.Description>
-            {@html alertDialogDescription}
-        </AlertDialog.Description>
-      </AlertDialog.Header>
-      <AlertDialog.Footer>
-        <AlertDialog.Action class="min-w-full font-semibold" on:click={() => isError = false}>okay, got it</AlertDialog.Action>
-      </AlertDialog.Footer>
-    </AlertDialog.Content>
-  </AlertDialog.Root>
 
 
     <h1 class="text-6xl font-bold text-primary font-jak-display ss03">Sptfy.in</h1>
@@ -186,11 +187,11 @@
                 <div class="flex w-full min-w-full items-center align-center space-x-3 mb-2">
                     
                     <Input type="url" id="url" on:paste={handlePaste} placeholder="https://open.spotify.com/xxxx...." bind:value={inputText} class="placeholder:translate-y-[2px]" autofocus />
-                    <Button class="hover:bg-primary hover:text-black" variant="secondary" on:click={() => handlePaste()}><iconify-icon width="20" icon="lucide:clipboard-copy"></iconify-icon></Button>
+                    <Button type="paste" class="hover:bg-primary hover:text-black" variant="secondary" on:click={() => handlePaste()}><iconify-icon width="20" icon="lucide:clipboard-copy"></iconify-icon></Button>
                 </div>
                 
                 <Label for="domainSelect" class="my-2">Select domain</Label>
-                <Select.Root portal={null} id="domainSelect" name="domainSelect" bind:selected bind:open={focus1}>
+                <Select.Root portal={null} id="domainSelect" name="domainSelect" bind:selected bind:open={focus1} asChild>
                     <Select.Trigger class="">
                       <Select.Value placeholder="Domain: sptfy.in" selected="sptfy.in" />
                     </Select.Trigger>
@@ -225,8 +226,11 @@
           </div>
         </Card.Content>
         <Card.Footer>
-          <Button class="w-full focus:bg-red-600" bind:this={theButton}>
-            Short It!
+          <Button class="w-full" bind:this={theButton}>
+           
+              Short It!
+      
+
           </Button>
         </Card.Footer>
       </Card.Root>

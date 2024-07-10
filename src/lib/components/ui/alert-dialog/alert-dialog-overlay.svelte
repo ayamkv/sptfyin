@@ -3,7 +3,7 @@
 	import { fade, blur } from "svelte/transition";
 	import { cn } from "$lib/utils.js";
 	let className = undefined;
-	export let transition = blur;
+	export let transition = fade;
 	export let transitionConfig = {
 		duration: 125,
 	};
