@@ -11,39 +11,20 @@
     import * as AlertDialog from "$lib/components/ui/alert-dialog";
     import { strings } from "$lib/localization/languages/en.json"
     import { onMount } from "svelte";
-    const ua = navigator.userAgent.toLowerCase();
-    const isIOS = ua.includes("iphone os") || (ua.includes("mac os") && navigator.maxTouchPoints > 0);
-    const isAndroid = ua.includes("android");
-    const isMobile = ua.includes("android") || isIOS;
-    const isSafari = ua.includes("safari/");
-    const isFirefox = ua.includes("firefox/");
-    const isOldFirefox = ua.includes("firefox/") && ua.split("firefox/")[1].split('.')[0] < 103;
-	
-    // import { z } from "zod";
-    // import SuperDebug from "sveltekit-superforms";
-    // import { zodClient } from "sveltekit-superforms/adapters";
-    // import { toast } from "svelte-sonner";
-    // import { browser } from "$app/environment";
-    // import * as Form from "$lib/components/ui/form/index.js";
- 
-    // export const formSchema = z.object({
-    //     username: z.string().min(2).max(50)
-    // });
+    // These variables will be undefined during SSR
+    let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
 
-    // let data;
-    // export { data as form };
-    // const form = superForm(data, {
-    //     validators: zodClient(formSchema),
-    //     onUpdated: ({ form: f }) => {
-    //       if (f.valid) {
-    //         toast.success(`You submitted ${JSON.stringify(f.data, null, 2)}`);
-    //       } else {
-    //         toast.error("Please fix the errors in the form.");
-    //       }
-    //     }
-    //   });
-  
-    // const { form: formData, enhance } = form;
+    // This function will only run in the browser
+    onMount(() => {
+        const ua = navigator.userAgent.toLowerCase();
+        isIOS = ua.includes("iphone os") || (ua.includes("mac os") && navigator.maxTouchPoints > 0);
+        isAndroid = ua.includes("android");
+        isMobile = ua.includes("android") || isIOS;
+        isSafari = ua.includes("safari/");
+        isFirefox = ua.includes("firefox/");
+        isOldFirefox = ua.includes("firefox/") && ua.split("firefox/")[1].split('.')[0] < 103;
+    });
+
     let inputText
     let isError = false;
     let alertDialogTitle = ''
@@ -69,8 +50,8 @@
         const text = await navigator.clipboard.readText();
         let clipboardContent = text;
 
-        console.log(clipboardContent);
-        console.log(findUrl(clipboardContent));
+        // console.log(clipboardContent);
+        // console.log(findUrl(clipboardContent));
         setTimeout(() => {
         inputText = findUrl(clipboardContent);
 
