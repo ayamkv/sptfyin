@@ -72,11 +72,10 @@
         
         }, 4);
       } else {
-        isError = true;
         errorIcon = errorIconDefault;
         alertDialogTitle = strings.ErrorClipboardPermTitle;
         alertDialogDescription = strings.ErrorClipboardPermissionDesc;
-        
+        isError = true;
         // alert('Clipboard access denied');
       }
     } catch (e) {
@@ -140,8 +139,8 @@
 </AlertDialog.Root>
 
 
-<div class="flex flex-col items-center justify-center min-h-screen gap-6 bg-background p-10 -translate-y-8">
-  <h1 class="text-6xl font-bold text-primary font-jak-display ss03">Sptfy.in</h1>
+<div class="flex flex-col items-center justify-center min-h-screen gap-6 bg-background p-10 -translate-y-8 md:flex-row ">
+  <h1 class="text-6xl font-bold text-primary font-jak-display ss03 md:flex-none">Sptfy.in</h1>
     <Card.Root class="w-[20rem] md:w-[35rem] sm:w-[20rem] transition-all">
         <Card.Header>
           <Card.Title>Shorten your URL</Card.Title>
@@ -185,9 +184,9 @@
                     </Select.Content>
                     <Select.Input name="sptfy.in"/>
                   </Select.Root>
-                  <Separator class="my-2"/>
-                  <Accordion.Root>
-                    <Accordion.Item value="item-1">
+                  <!-- <Separator class="my-2"/> -->
+                  <Accordion.Root class="">
+                    <Accordion.Item value="item-1" class>
                       <Accordion.Trigger>Custom Short URL (Optional)</Accordion.Trigger>
                       <Accordion.Content>
                         <Label for="url" class="my-2">Custom URL here</Label>
@@ -222,8 +221,14 @@
         <Card.Header>
           <Card.Title>URL Preview</Card.Title>
           <Card.Description>Here's how your URL will look like</Card.Description>
-          <Card.Content>
-            
+          <Card.Content class="grid gap-4 text-[#82d1af]/60 text-left px-0 pb-0">
+            <div class="flex w-full min-w-full items-center align-center justify-between md:py-2 ">
+              <p class="text-2xl md:text-3xl lg:text-5xl font-semibold ">sptfy.in/<span class="text-[#82d1af]">####</span></p>
+              <Button variant="secondary" class="hover:bg-primary hover:text-black p-3" >
+                  <iconify-icon icon="lucide:copy" class="" width="24">
+                </iconify-icon>
+              </Button>
+            </div>
           </Card.Content>
         </Card.Header>
         </Card.Root>
