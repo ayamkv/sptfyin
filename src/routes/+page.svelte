@@ -138,9 +138,12 @@
   </AlertDialog.Content>
 </AlertDialog.Root>
 
+<div class="flex flex-col items-center justify-center">
+  <h1 class="text-8xl font-bold text-primary font-jak-display ss03 md:flex-none hidden md:block translate-y-[12rem]">Sptfy.in</h1>
+</div>
 
-<div class="flex flex-col items-center justify-center min-h-screen gap-6 bg-background p-10 -translate-y-8 md:flex-row ">
-  <h1 class="text-6xl font-bold text-primary font-jak-display ss03 md:flex-none">Sptfy.in</h1>
+<div class="flex flex-col items-center justify-center min-h-screen gap-6 p-10 -translate-y-8 md:flex-row md:items-start md:translate-y-[12.5rem]">
+  <h1 class="text-6xl font-bold text-primary font-jak-display ss03 md:flex-none md:hidden">Sptfy.in</h1>
     <Card.Root class="w-[20rem] md:w-[35rem] sm:w-[20rem] transition-all">
         <Card.Header>
           <Card.Title>Shorten your URL</Card.Title>
