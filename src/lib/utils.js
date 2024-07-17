@@ -1,8 +1,10 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { cubicOut } from "svelte/easing";
+
 // import { randomBytes } from "node:crypto";
 // let publicUrl = import.meta.env.VITE_POCKETBASE_URL;
+
 
 
 export function cn(...inputs) {
@@ -55,6 +57,7 @@ export const serializeNonPOJOs = (obj) => {
     return structuredClone(obj);
 }
 
+
 // export const generateUsername = (name) => {
 //     const id = randomBytes(2).toString('hex')
 //     return `${name.slice(0, 5)}${id}`
@@ -68,6 +71,8 @@ export const hideEmail = (email) => {
     const partialEmail = email.replace(/(\w{3})[\w.-]+@([\w.]+\w)/, "$1***@$2")
     return partialEmail
 }
+
+
 
 // export const validateData = async (formData, schema) => {
 // 	const body = Object.fromEntries(formData);

@@ -1,5 +1,9 @@
 <script>
     import { Button } from "$lib/components/ui/button";
+    import { toast } from "svelte-sonner";
+    import { getRecords, createRecord, generateRandomURL } from '$lib/pocketbase';
+    // import { generateRandomURL } from "$lib/utils";
+    import * as Drawer from "$lib/components/ui/drawer/index.js";
     import * as Card from "$lib/components/ui/card";
     import { Switch } from "$lib/components/ui/switch";
     import { Input } from "$lib/components/ui/input";
@@ -13,7 +17,11 @@
     import { onMount } from "svelte";
     // These variables will be undefined during SSR
     let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
+    let records = [];
+    let error = null;
 
+
+    
     // This function will only run in the browser
     onMount(() => {
         const ua = navigator.userAgent.toLowerCase();
@@ -23,8 +31,17 @@
         isSafari = ua.includes("safari/");
         isFirefox = ua.includes("firefox/");
         isOldFirefox = ua.includes("firefox/") && ua.split("firefox/")[1].split('.')[0] < 103;
-    });
 
+        
+    });
+    // onMount(async () => {
+    //   try {
+    //     records = await getRecords('random_short');
+    //   } catch (err) {
+    //     error = `Failed to load records: ${err.response.status} ${err.response.statusText}`;
+    //   }
+    // });
+    let shortIdDisplay = '####';
     let inputText
     let isError = false;
     let alertDialogTitle = ''
@@ -33,6 +50,7 @@
     let errorIcon = errorIconDefault
     let focus1 = false;
     let theButton
+    let fullShortURL 
 
     function findUrl(str) {
         const regex = /^(https:\/\/[a-z]+\.spotify\.com\/)(.*)$/mg;
@@ -87,6 +105,8 @@
       if (error.includes("dismissed") || isIOS) alert('Sorry! iOS Safari does not support clipboard access 😔');
     }
   }
+
+  
   
     // onMount(() => {
     //     console.log(strings)
@@ -95,7 +115,7 @@
         onMount(() => { 
           setTimeout(() => {
             theButton.focus()
-          }, 40);
+          }, 80);
         });
         console.log('something is selected');
     }
@@ -104,18 +124,98 @@
     //   escapeSelectHandle();
     // })
 
+    let promiseResolve, promiseReject;
 
     let selected = { value: "sptfy.in", label: "Default: sptfy.in"}
     const domainList = [
     { value: "sptfy.in", label: "sptfy.in" },
-    { value: "profile.sptfy.in", label: "profile.sptfy.in" },
-    { value: "playlist.sptfy.in", label: "playlist.sptfy.in" },
-    { value: "podcast.sptfy.in", label: "podcast.sptfy.in" },
-    { value: "album.sptfy.in", label: "album.sptfy.in" },
-    { value: "track.sptfy.in", label: "track.sptfy.in" },
-    { value: "artist.sptfy.in", label: "artist.sptfy.in" }
+    { value: "COMING SOON", label: "--- COMING SOON ---", disabled: true },
+    { value: "profile", label: "profile.sptfy.in", disabled: true },
+    { value: "playlist", label: "playlist.sptfy.in", disabled: true },
+    { value: "podcast", label: "podcast.sptfy.in", disabled: true },
+    { value: "album", label: "album.sptfy.in", disabled: true },
+    { value: "track", label: "track.sptfy.in", disabled: true },
+    { value: "artist", label: "artist.sptfy.in", disabled: true }
 
   ];
+  async function handleSubmit() {
+      // let url_id = '75aa'
+      let url_id = await generateRandomURL();
+      let dataForm = {
+        from: inputText,
+        id_url: url_id,
+        enable: true
+      }
+      try {
+
+          console.log(url_id)
+          const response = await createRecord('random_short', dataForm);
+          console.log('Record created');
+          shortIdDisplay = url_id;
+          inputText = '';
+          const promise = new Promise(function(resolve, reject){
+            promiseResolve = resolve;
+            promiseReject = reject;
+          });
+          promiseResolve();
+          fullShortURL = `https://${selected.value}/${url_id}`
+          toast.promise(promise, {
+            loading: 'Loading...',
+            class: 'my-toast',
+            description: 'The link has been shortened!',
+            success: (data) => {
+                
+                return 'Success 🥳 ';
+            },
+            error: (err) => {
+                // console.error(err);
+                // isError = true;
+                return 'Error... :( Try again!';
+            }
+          });
+        } catch (err) {
+          console.log(err.response.status);
+          console.log(err.response);
+          isError = true;
+         alertDialogTitle = strings.ErrorCreateRecordTitle;
+         alertDialogDescription = strings.ErrorCreateRecordDesc;
+//          errorIcon = strings.ErrorCreateRecordIcon;
+          
+        }
+    }
+
+    async function handleCopy(event) {
+    try {
+      // Request permission to access the clipboard
+      const permission = await navigator.permissions.query({ name: 'clipboard-write' });
+
+      if (permission.state === 'granted' || permission.state === 'prompt') {
+        // Write to the clipboard
+        await navigator.clipboard.writeText(fullShortURL);
+        toast.success("Success 🥳", {
+          description: "The link has been copied to your clipboard!",
+          action: {
+            label: "Okay",
+            onClick: () => console.info("Copy")
+          }
+        });
+      } else {
+        alert('Clipboard access denied');
+      }
+    } catch (e) {
+      let error = String(e).toLowerCase();
+
+      if (error.includes("denied")) alert('Clipboard access denied');
+      console.error('Failed to write to clipboard: ', error);
+    }
+  }
+
+    
+
+    // console.log(generateRandomURL());
+    $: console.log(selected.value)
+    $: console.log(fullShortURL)
+
 </script>
 
 
@@ -149,7 +249,7 @@
           <Card.Title>Shorten your URL</Card.Title>
           <Card.Description>Make your Spotify URLs looks pretty with one click, easy and fast!</Card.Description>
         </Card.Header>
-        <Card.Content class="grid gap-4">
+        <Card.Content class="grid gap-4 pb-0">
           
            
       
@@ -162,12 +262,12 @@
          
       
           <div>
-            <form class="flex flex-col w-full min-w-full">
+            <form on:submit|preventDefault={handleSubmit} class="flex flex-col w-full min-w-full">
                 <Label for="url" class="my-2">Paste your long ass URL here</Label>
                 <div class="flex w-full min-w-full items-center align-center space-x-3 mb-2">
                     
                     <Input type="url" id="url" on:paste={handlePaste} placeholder="https://open.spotify.com/xxxx...." bind:value={inputText} class="placeholder:translate-y-[2px]" autofocus />
-                    <Button type="paste" class="hover:bg-primary hover:text-black" variant="secondary" on:click={() => handlePaste()}><iconify-icon width="20" icon="lucide:clipboard-copy"></iconify-icon></Button>
+                    <Button type="button" class="hover:bg-primary hover:text-black" variant="secondary" on:click={() => handlePaste()}><iconify-icon width="20" icon="lucide:clipboard-copy"></iconify-icon></Button>
                 </div>
                 
                 <Label for="domainSelect" class="my-2">Select domain</Label>
@@ -179,7 +279,9 @@
                       <Select.Group>
                         <Select.Label>Select domain</Select.Label>
                         {#each domainList as domain}
+                        
                           <Select.Item value={domain.value} label={domain.label} on:click={() => escapeSelectHandle()}
+                            disabled={domain.disabled}
                             >{domain.label}</Select.Item
                           >
                         {/each}
@@ -190,12 +292,12 @@
                   <!-- <Separator class="my-2"/> -->
                   <Accordion.Root class="">
                     <Accordion.Item value="item-1" class>
-                      <Accordion.Trigger>Custom Short URL (Optional)</Accordion.Trigger>
+                      <Accordion.Trigger>Custom Short URL (Coming Soon)</Accordion.Trigger>
                       <Accordion.Content>
                         <Label for="url" class="my-2">Custom URL here</Label>
-                        <div class="flex flex-col w-full min-w-full items-center space-x-2 mb-2">
+                        <div class="flex flex-col w-full min-w-full items-center space-x-2 mb-4">
                             
-                            <Input type="text" id="short_id" placeholder="myCoolPlaylistNo4..." />
+                            <Input type="text" id="short_id" placeholder="myCoolPlaylistNo4..." disabled/>
                             
                            
                         </div>
@@ -204,20 +306,16 @@
                       </Accordion.Content>
                     </Accordion.Item>
                   </Accordion.Root>
-                  
+                  <Button class="w-full" type="submit" bind:this={theButton}> 
+                    Short It!
+                  </Button>
+        
               </form>
           </div>
         </Card.Content>
         <Card.Footer class="flex-col">
          
-          <Button class="w-full" bind:this={theButton}>
-           
-              Short It!
-      
 
-          </Button>
-
-          
         </Card.Footer>
       </Card.Root>
       <Card.Root class="w-[20rem] md:w-[35rem] sm:w-[20rem]  transition-all">
@@ -226,14 +324,92 @@
           <Card.Description>Here's how your URL will look like</Card.Description>
           <Card.Content class="grid gap-4 text-[#82d1af]/60 text-left px-0 pb-0">
             <div class="flex w-full min-w-full items-center align-center justify-between md:py-2 ">
-              <p class="text-2xl md:text-3xl lg:text-5xl font-semibold ">sptfy.in/<span class="text-[#82d1af]">####</span></p>
-              <Button variant="secondary" class="hover:bg-primary hover:text-black p-3" >
-                  <iconify-icon icon="lucide:copy" class="" width="24">
-                </iconify-icon>
-              </Button>
+              <p class="text-[1.44rem] md:text-3xl lg:text-5xl font-semibold ">sptfy.in/<span class="text-[#82d1af]">{shortIdDisplay}</span></p>
+              {#if fullShortURL}
+               <div class="buttons">
+                <Button on:click={() => {
+                  handleCopy();
+                }} variant="secondary" class="hover:bg-primary hover:text-black p-3" >
+                    <iconify-icon icon="lucide:copy" class="" width="24">
+                  </iconify-icon>
+                </Button>
+                <Button on:click={() => {
+                  //redirect to link;
+                  //using window location and just /{urlId} open in new tab
+
+                  window.open(`/${shortIdDisplay}`, '_blank');
+                }} variant="secondary" class="hover:bg-primary hover:text-black p-3" >
+                    <iconify-icon icon="lucide:square-arrow-out-up-right" class="" width="24">
+                  </iconify-icon>
+                </Button>
+               </div>
+             
+              {/if}
             </div>
+{#if fullShortURL}
+<Drawer.Root>
+  <Drawer.Trigger>
+    <Button variant="secondary" class="w-full">Show QR Code</Button>
+  </Drawer.Trigger>
+  <Drawer.Content>
+    <Drawer.Header>
+      <Drawer.Title class="text-center">QR Code</Drawer.Title>
+      <Drawer.Description>
+        <div class="flex flex-col text-center items-center align-center">
+          <p class="mb-4">
+            Scan this QR code to open the link on your phone
+          </p>
+          <img class="min-w-[50%] md:min-w-[20%]" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://sptfy.in/{shortIdDisplay}" alt="QR Code" />
+
+        </div>
+        <!-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://sptfy.in/{shortIdDisplay}" alt="QR Code" /> -->
+        
+      </Drawer.Description>
+    </Drawer.Header>
+    <Drawer.Footer>
+      <Drawer.Close>Close</Drawer.Close>
+    </Drawer.Footer>
+  </Drawer.Content>
+</Drawer.Root>
+{/if}
+<Accordion.Root class="text-foreground p-0 m-0 ">
+  <Accordion.Item value="item-1" class>
+    <Accordion.Trigger class="py-1">🤔 still half baked! (info)</Accordion.Trigger>
+    <Accordion.Content m-0>
+      <Label for="url" class="my-2">About the website</Label>
+      <div class="flex flex-col w-full min-w-full items-center space-x-2 mb-2">
+        <div class="text-xs">
+          website is still under development, so expect some bugs and missing features. <br>
+          coming features are : <br>
+          <li>analytics</li>
+          <li>custom subdomain & back url</li>
+          <br>
+          bugs? <a href="https://instagram.com/raaharja">contact me</a>
+        
+        </div>    
+      
+          
+         
+      </div>
+
+
+    </Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>
+
           </Card.Content>
         </Card.Header>
         </Card.Root>
+       
           
 </div>
+
+<!-- <div class="flex text-left ">
+  <p>coming soon features : <br>
+    <li>qr code</li> 
+    <li>analytics</li>
+    <li>custom subdomain & back url</li> 
+
+    <p>the website is half baked so be patient my g</p>
+ 
+</div> -->

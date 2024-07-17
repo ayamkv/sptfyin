@@ -6,7 +6,9 @@
         "ErrorClipboardPermissionDesc": "<b>sptfy.in</b> can't access the most recent item in your clipboard without your permission.<br><br>if you don't want to give access, you can paste the link manually instead.<br><br>if you do want to, go to site settings and enable the clipboard permission. <br><a href='https://www.google.com/search?q=enable+clipboard+permission&oq=enable+clipboard+permission'>see how to</a>",
         "ErrorClipboardNoSpotifyURLIcon": "fluent-emoji:face-with-monocle",
         "ErrorClipboardNoSpotifyURLTitle": "no spotify link found",
-        "ErrorClipboardNoSpotifyURLDesc": "we couldn't find a spotify link in your clipboard 🧐. <br><br>make sure you have a valid spotify link copied and try again. <br><br> or if you think this is a bug, <a href='https://instagram.com/raaharja'>contact me</a> "
+        "ErrorClipboardNoSpotifyURLDesc": "we couldn't find a spotify link in your clipboard 🧐. <br><br>make sure you have a valid spotify link copied and try again. <br><br> or if you think this is a bug, <a href='https://instagram.com/raaharja'>contact me</a> ",
+        "ErrorCreateRecordTitle": "something went wrong when creating the link",
+        "ErrorCreateRecordDesc": "there's an unexpected error and we couldn't create the link for you 😢. <br><br>please try again later or <a href='https://instagram.com/raaharja'>contact me</a> if you think this is a bug."
     }
 
 }

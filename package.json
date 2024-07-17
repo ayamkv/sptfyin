@@ -39,8 +39,9 @@
 		"iconify-icon": "^2.1.0",
 		"lucide-svelte": "^0.396.0",
 		"mode-watcher": "^0.3.1",
+		"nanoid": "^5.0.7",
 		"pocketbase": "^0.21.3",
-		"svelte-sonner": "^0.3.24",
+		"svelte-sonner": "^0.3.27",
 		"tailwind-merge": "^2.3.0",
 		"tailwind-variants": "^0.2.1",
 		"vaul-svelte": "^0.3.1"
