@@ -1,4 +1,4 @@
-# Sptfyin (Work In Progress)
+# [Sptfyin](https://sptfy.in) (Work In Progress)
 
 A simple link shortener strictly for spotify links, powered by [svelte](https://svelte.dev/), [shadcn-svelte](https://shadcn-svelte.com), and [pocketbase](https://pockebase.io).
 
