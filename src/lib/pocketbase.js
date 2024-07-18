@@ -26,6 +26,8 @@ export async function validateToken(token) {
           }),
       },
   );
+  
+  response.headers.append('Access-Control-Allow-Origin', '*');
 
   const data = await response.json();
 

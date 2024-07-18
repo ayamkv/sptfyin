@@ -356,8 +356,11 @@
                   </Accordion.Root>
 
                   <Turnstile siteKey="0x4AAAAAAAfXWBvVu4QvwLH7" theme="dark" 
-                  on:turnstile-callback={event => 
-                  turnstileResponse = event.detail.token
+                  on:callback={ event => {
+                     turnstileResponse = event.detail.token
+                     validateToken(turnstileResponse)
+                  } 
+                 
                   
                   }/>
 
