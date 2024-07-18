@@ -1,11 +1,42 @@
 
 import { myFetch } from './fetchWrapper.js';
 
-
 import { nanoid, customAlphabet } from 'nanoid'
 
+
+
 let pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
-let lastCreateRecordTime = 0;
+let cfSecret = import.meta.env.VITE_CF_SECRET;
+
+export async function validateToken(token) {
+  const response = await fetch(
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+      {
+          mode: 'cors',
+          method: 'POST',
+          headers: {
+              'content-type': 'application/json',
+              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': '*',
+          },
+          body: JSON.stringify({
+              response: token,
+              secret: cfSecret,
+          }),
+      },
+  );
+
+  const data = await response.json();
+
+  return {
+      // Return the status
+      success: data.success,
+
+      // Return the first error if it exists
+      error: data['error-codes']?.length ? data['error-codes'][0] : null,
+  };
+}
 
 export async function getRecords(collection) {
     const res = await myFetch(`${pocketBaseURL}/api/collections/${collection}/records`);

@@ -1,8 +1,9 @@
 <script>
     import { Button } from "$lib/components/ui/button";
+    import { Turnstile } from 'svelte-turnstile';
     import { fly, slide } from 'svelte/transition';
     import { toast } from "svelte-sonner";
-    import { getRecords, createRecord, generateRandomURL, getRecentRecords } from '$lib/pocketbase';
+    import { getRecords, createRecord, generateRandomURL, getRecentRecords, validateToken } from '$lib/pocketbase';
     // import { generateRandomURL } from "$lib/utils";
     import * as Drawer from "$lib/components/ui/drawer/index.js";
     import * as Card from "$lib/components/ui/card";
@@ -18,6 +19,7 @@
     import { onMount } from "svelte";
 
     // These variables will be undefined during SSR
+    let turnstileResponse
     let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
     let records = []
     let rrecords
@@ -172,7 +174,7 @@
     { value: "artist", label: "artist.sptfy.in", disabled: true }
 
   ];
-  async function handleSubmit() {
+  const handleSubmit = async (e) => {
       // let url_id = '35db'  // debug
       
       let url_id = await generateRandomURL();
@@ -183,6 +185,7 @@
         enable: true
       }
       try {
+          console.log(validateToken(turnstileResponse))
 
           console.log(url_id)
           const response = await createRecord('random_short', dataForm);
@@ -257,6 +260,7 @@
 
     // console.log(generateRandomURL());
     $: console.log(selected.value)
+    $: console.log(turnstileResponse)
     // $: console.log(fullShortURL)
     // $: console.log('isInput: ' + isInputTextEmpty)
 
@@ -350,6 +354,13 @@
                       </Accordion.Content>
                     </Accordion.Item>
                   </Accordion.Root>
+
+                  <Turnstile siteKey="0x4AAAAAAAfXWBvVu4QvwLH7" theme="dark" 
+                  on:turnstile-callback={event => 
+                  turnstileResponse = event.detail.token
+                  
+                  }/>
+
                   <Button class="w-full" type="submit" bind:this={theButton}> 
                     Short It!
                   </Button>
