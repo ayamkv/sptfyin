@@ -42,7 +42,7 @@
     //   }
     // });
     let shortIdDisplay = '####';
-    let inputText
+    let inputText = null
     let isError = false;
     let alertDialogTitle = ''
     let alertDialogDescription = ''
@@ -51,13 +51,16 @@
     let focus1 = false;
     let theButton
     let fullShortURL 
+    $: isInputTextEmpty = true
 
     function findUrl(str) {
         const regex = /^(https:\/\/[a-z]+\.spotify\.com\/)(.*)$/mg;
         let urls = str.match(regex);
         return urls ? urls[0] : null;
     }
-
+    if (inputText !== null) {
+      isInputTextEmpty = false
+    } 
     async function handlePaste(event) {
     try {
       // Request permission to access the clipboard
@@ -72,6 +75,7 @@
         // console.log(findUrl(clipboardContent));
         setTimeout(() => {
         inputText = findUrl(clipboardContent);
+        isInputTextEmpty = false
 
         
 
@@ -115,7 +119,7 @@
         onMount(() => { 
           setTimeout(() => {
             theButton.focus()
-          }, 80);
+          }, 100);
         });
         console.log('something is selected');
     }
@@ -139,11 +143,13 @@
 
   ];
   async function handleSubmit() {
-      // let url_id = '75aa'
+      // let url_id = '35db'  // debug
+      
       let url_id = await generateRandomURL();
       let dataForm = {
         from: inputText,
         id_url: url_id,
+        subdomain: selected.value,
         enable: true
       }
       try {
@@ -176,9 +182,15 @@
         } catch (err) {
           console.log(err.response.status);
           console.log(err.response);
+          alertDialogTitle = strings.ErrorCreateRecordTitle;
+          alertDialogDescription = strings.ErrorCreateRecordDesc;
+          if (isInputTextEmpty) {
+            alertDialogTitle = strings.ErrorCreatedRecordNoInputTitle;
+            alertDialogDescription = strings.ErrorCreatedRecordNoInputDesc;
+            isError = true;
+          }
           isError = true;
-         alertDialogTitle = strings.ErrorCreateRecordTitle;
-         alertDialogDescription = strings.ErrorCreateRecordDesc;
+          
 //          errorIcon = strings.ErrorCreateRecordIcon;
           
         }
@@ -210,11 +222,14 @@
     }
   }
 
+
+
     
 
     // console.log(generateRandomURL());
     $: console.log(selected.value)
-    $: console.log(fullShortURL)
+    // $: console.log(fullShortURL)
+    // $: console.log('isInput: ' + isInputTextEmpty)
 
 </script>
 
@@ -266,7 +281,7 @@
                 <Label for="url" class="my-2">Paste your long ass URL here</Label>
                 <div class="flex w-full min-w-full items-center align-center space-x-3 mb-2">
                     
-                    <Input type="url" id="url" on:paste={handlePaste} placeholder="https://open.spotify.com/xxxx...." bind:value={inputText} class="placeholder:translate-y-[2px]" autofocus />
+                    <Input type="url" id="url" on:paste={handlePaste} placeholder="https://open.spotify.com/xxxx...." bind:value={inputText} class="placeholder:translate-y-[2px]" required autofocus/>
                     <Button type="button" class="hover:bg-primary hover:text-black" variant="secondary" on:click={() => handlePaste()}><iconify-icon width="20" icon="lucide:clipboard-copy"></iconify-icon></Button>
                 </div>
                 
@@ -395,7 +410,10 @@
 
     </Accordion.Content>
   </Accordion.Item>
+  <p>🔗 Recent links</p>
+  
 </Accordion.Root>
+
 
           </Card.Content>
         </Card.Header>
