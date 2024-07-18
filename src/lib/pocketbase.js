@@ -4,8 +4,6 @@ import { myFetch } from './fetchWrapper.js';
 
 import { nanoid, customAlphabet } from 'nanoid'
 
-
-
 let pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 let lastCreateRecordTime = 0;
 
@@ -13,6 +11,12 @@ export async function getRecords(collection) {
     const res = await myFetch(`${pocketBaseURL}/api/collections/${collection}/records`);
     return res.json();
   }
+
+  // get recent
+export async function getRecentRecords(collection) {
+  const res = await fetch(`${pocketBaseURL}/api/collections/random_short/records?sort=-created&fields=id_url,from,created`)
+  return res.json();
+}
   
 export async function createRecord(collection, data) {
   const res = await myFetch(`${pocketBaseURL}/api/collections/${collection}/records`, {

@@ -1,7 +1,8 @@
 <script>
     import { Button } from "$lib/components/ui/button";
+    import { fly, slide } from 'svelte/transition';
     import { toast } from "svelte-sonner";
-    import { getRecords, createRecord, generateRandomURL } from '$lib/pocketbase';
+    import { getRecords, createRecord, generateRandomURL, getRecentRecords } from '$lib/pocketbase';
     // import { generateRandomURL } from "$lib/utils";
     import * as Drawer from "$lib/components/ui/drawer/index.js";
     import * as Card from "$lib/components/ui/card";
@@ -15,15 +16,43 @@
     import * as AlertDialog from "$lib/components/ui/alert-dialog";
     import { strings } from "$lib/localization/languages/en.json"
     import { onMount } from "svelte";
+
     // These variables will be undefined during SSR
     let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
-    let records = [];
+    let records = []
+    let rrecords
+    let recordsPromise;
     let error = null;
+    let recentLoading = true;
+    let currentItems = 4
 
 
-    
+    function localizeDate(date) {
+        return new Date(date).toLocaleString();
+    }
+
+    async function fetchData() {
+        recentLoading = true;
+        try {
+          
+            const response = await getRecentRecords();
+            records = response.items
+ 
+        } catch (error) {
+            console.error(error);
+        } finally {
+            recentLoading = false;
+        }
+      }
+      onMount(async () => {
+        recordsPromise = await fetchData();
+        rrecords = records;
+        console.log('from onm async: ', records);
+
+      });
     // This function will only run in the browser
     onMount(() => {
+        
         const ua = navigator.userAgent.toLowerCase();
         isIOS = ua.includes("iphone os") || (ua.includes("mac os") && navigator.maxTouchPoints > 0);
         isAndroid = ua.includes("android");
@@ -51,6 +80,7 @@
     let focus1 = false;
     let theButton
     let fullShortURL 
+    let recent = []
     $: isInputTextEmpty = true
 
     function findUrl(str) {
@@ -221,10 +251,9 @@
       console.error('Failed to write to clipboard: ', error);
     }
   }
-
-
-
     
+
+
 
     // console.log(generateRandomURL());
     $: console.log(selected.value)
@@ -387,9 +416,65 @@
   </Drawer.Content>
 </Drawer.Root>
 {/if}
+<div class="gap-1">
+
+
 <Accordion.Root class="text-foreground p-0 m-0 ">
   <Accordion.Item value="item-1" class>
-    <Accordion.Trigger class="py-1">🤔 still half baked! (info)</Accordion.Trigger>
+    <Accordion.Trigger class="py-1">🔗 Recent created links</Accordion.Trigger>
+    <Accordion.Content m-0>
+      <div class="flex flex-col mt-1 transition-all">
+
+      
+      {#await records}
+      <p>awaiting...</p>
+      {:then records}
+      <div class="max-h-fit transition-all">
+        {#each records.slice(0, currentItems) as item, i}
+         <li transition:slide class="flex w-full min-w-full align-center justify-between my-1 pl-1">
+          <a href={item.from} class="font-thin">
+            
+            sptfy.in/{item.id_url}
+          </a>
+          <span class="text-white/30 ml-2">
+            {localizeDate(item.created)}
+          </span>
+          
+        </li>
+        {/each}
+      </div>
+        {#if currentItems < records.length}
+ <Button
+		on:click={() => currentItems = currentItems + 4}
+    id="loadmore"
+    type="button"
+    class="w-full my-2 transition-all"
+    variant="secondary">
+    Show more
+  </Button>
+  {:else}
+  <Button
+    on:click={() => currentItems = 4}
+    id="loadmore"
+    type="button"
+    class="w-full my-2 transition-all"
+    variant="secondary">
+    Show less
+  </Button>
+
+{/if}
+    {:catch error}
+        <p>error</p>
+    {/await}
+    
+  </div>
+    </Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>    
+
+<Accordion.Root class="text-foreground p-0 m-0 ">
+  <Accordion.Item value="item-1" class>
+    <Accordion.Trigger class="py-1">🤔 Work In Progress (info)</Accordion.Trigger>
     <Accordion.Content m-0>
       <Label for="url" class="my-2">About the website</Label>
       <div class="flex flex-col w-full min-w-full items-center space-x-2 mb-2">
@@ -410,10 +495,9 @@
 
     </Accordion.Content>
   </Accordion.Item>
-  <p>🔗 Recent links</p>
-  
-</Accordion.Root>
 
+</Accordion.Root>
+</div>
 
           </Card.Content>
         </Card.Header>
