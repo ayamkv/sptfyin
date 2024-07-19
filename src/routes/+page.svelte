@@ -72,6 +72,7 @@
     //     error = `Failed to load records: ${err.response.status} ${err.response.statusText}`;
     //   }
     // });
+    let reset
     let shortIdDisplay = '####';
     let inputText = null
     let isError = false;
@@ -192,6 +193,7 @@
         alertDialogDescription = strings.ErrorTurnstileValidationDesc + `<br><br<> turnstile error: ${validationResponse.error}`;
         throw new Error(`Turnstile validation failed: ${validationResponse.error}`);
       }
+      
 
 
           console.log(url_id)
@@ -203,6 +205,7 @@
             promiseResolve = resolve;
             promiseReject = reject;
           });
+          reset?.()
           promiseResolve();
           fullShortURL = `https://${selected.value}/${url_id}`
           toast.promise(promise, {
@@ -362,7 +365,7 @@
                     </Accordion.Item>
                   </Accordion.Root>
 
-                  <Turnstile siteKey="0x4AAAAAAAfXWBvVu4QvwLH7" theme="dark" 
+                  <Turnstile siteKey="0x4AAAAAAAfXWBvVu4QvwLH7" theme="dark" retry='auto' bind:reset
                   on:callback={ event => {
                      turnstileResponse = event.detail.token
                     //  validateToken(turnstileResponse)
@@ -371,9 +374,13 @@
                   
                   }/>
 
+
+
+
                   <Button class="w-full" type="submit" bind:this={theButton}> 
                     Short It!
                   </Button>
+
         
               </form>
           </div>
