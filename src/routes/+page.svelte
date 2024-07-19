@@ -185,7 +185,14 @@
         enable: true
       }
       try {
-          console.log(validateToken(turnstileResponse))
+        const validationResponse = await validateToken(turnstileResponse);
+      if (!validationResponse.success) {
+        isError = true;
+        alertDialogTitle = strings.ErrorTurnstileValidationTitle;
+        alertDialogDescription = strings.ErrorTurnstileValidationDesc + `<br><br<> turnstile error: ${validationResponse.error}`;
+        throw new Error(`Turnstile validation failed: ${validationResponse.error}`);
+      }
+
 
           console.log(url_id)
           const response = await createRecord('random_short', dataForm);
@@ -358,7 +365,7 @@
                   <Turnstile siteKey="0x4AAAAAAAfXWBvVu4QvwLH7" theme="dark" 
                   on:callback={ event => {
                      turnstileResponse = event.detail.token
-                     validateToken(turnstileResponse)
+                    //  validateToken(turnstileResponse)
                   } 
                  
                   
