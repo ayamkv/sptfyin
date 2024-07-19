@@ -3,7 +3,7 @@ import { json } from '@sveltejs/kit';
 export async function POST({ request }) {
   const { token } = await request.json();
   const cfSecret = import.meta.env.VITE_CF_SECRET;
-  console.log('Cloudflare Secret:', cfSecret);
+//   console.log('Cloudflare Secret:', cfSecret);
 
   
   if (!cfSecret) {
