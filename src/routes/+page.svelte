@@ -1,5 +1,6 @@
 <script>
     import { Button } from "$lib/components/ui/button";
+    import { goto } from "$app/navigation";
     import { Turnstile } from 'svelte-turnstile';
     import { fly, slide } from 'svelte/transition';
     import { toast } from "svelte-sonner";
@@ -19,7 +20,7 @@
     import { onMount } from "svelte";
 
     // These variables will be undefined during SSR
-    
+    let scrollHere
     let accordionValue = 'one'
     let customShortId
     let turnstileResponse
@@ -30,6 +31,10 @@
     let error = null;
     let recentLoading = true;
     let currentItems = 4
+
+    function scrollToBottom() {
+      scrollHere.scrollIntoView()
+    }
 
     function setAccordionValue(newValue) {
       accordionValue = newValue;
@@ -192,9 +197,11 @@
   const handleSubmit = async (e) => {
       // let url_id = '35db'  // debug
       let url_id = customShortId
+
+
       if (!customShortId) {
-        let url_id = await generateRandomURL();
-      }
+        url_id = await generateRandomURL();
+      } 
       let dataForm = {
         from: inputText,
         id_url: url_id,
@@ -217,17 +224,15 @@
           console.log('Record created');
           shortIdDisplay = url_id;
           inputText = '';
+          customShortId = '';
           const promise = new Promise(function(resolve, reject){
             promiseResolve = resolve;
             promiseReject = reject;
           });
-          reset?.()
-          promiseResolve();
-          fullShortURL = `https://${selected.value}/${url_id}`
           toast.promise(promise, {
-            loading: 'Loading...',
             class: 'my-toast',
             description: 'The link has been shortened!',
+            loading: 'Loading...',
             success: (data) => {
                 
                 return 'Success 🥳 ';
@@ -238,6 +243,11 @@
                 return 'Error... :( Try again!';
             }
           });
+          reset?.()
+          promiseResolve();
+          fullShortURL = `https://${selected.value}/${url_id}`
+          scrollToBottom();
+
         } catch (err) {
           console.log(err.response.status);
           console.log(err.response);
@@ -288,8 +298,8 @@
     // console.log(generateRandomURL());
     // $: console.log(selected.value)
     // $: console.log(turnstileResponse)
-    $: console.log(customShortId)
-    // $: console.log(fullShortURL)
+
+
     // $: console.log('isInput: ' + isInputTextEmpty)
 
 </script>
@@ -462,14 +472,14 @@
   </Drawer.Content>
 </Drawer.Root>
 {/if}
-<div class="gap-1">
+<div class="gap-1" >
 
 
 <Accordion.Root class="text-foreground p-0 m-0 ">
   <Accordion.Item value="item-1" class>
     <Accordion.Trigger class="py-1">🔗 Recent created links</Accordion.Trigger>
     <Accordion.Content m-0>
-      <div class="flex flex-col mt-1 transition-all">
+      <div class="flex flex-col mt-1 transition-all" id="show-url">
 
       
       {#await records}
@@ -551,6 +561,7 @@
        
           
 </div>
+<div class="scrollhere" bind:this={scrollHere}></div>
 
 <!-- <div class="flex text-left ">
   <p>coming soon features : <br>
