@@ -369,7 +369,7 @@
   
                   <Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
                     <Accordion.Item value="item-1" class>
-                      <Accordion.Trigger>Custom Short URL (Coming Soon)</Accordion.Trigger>
+                      <Accordion.Trigger>Custom Short URL</Accordion.Trigger>
                       <Accordion.Content>
                         <Label for="url" class="my-2">Custom URL here</Label>
                         <div class="flex flex-col w-full max-w-[25rem] items-center align-center space-x-2 mb-4">
