@@ -19,6 +19,9 @@
     import { onMount } from "svelte";
 
     // These variables will be undefined during SSR
+    
+    let accordionValue = 'one'
+    let customShortId
     let turnstileResponse
     let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
     let records = []
@@ -27,6 +30,10 @@
     let error = null;
     let recentLoading = true;
     let currentItems = 4
+
+    function setAccordionValue(newValue) {
+      accordionValue = newValue;
+    }
 
 
     function localizeDate(date) {
@@ -85,9 +92,8 @@
     let fullShortURL 
     let recent = []
     $: isInputTextEmpty = true
-
     function findUrl(str) {
-        const regex = /^(https:\/\/[a-z]+\.spotify\.com\/)(.*)$/mg;
+        const regex = /^(https:\/\/[a-z]+\.spotify\.com\/)(playlist|artist|album|track|episode|show|user)\/.*$/mg;
         let urls = str.match(regex);
         return urls ? urls[0] : null;
     }
@@ -109,6 +115,7 @@
         setTimeout(() => {
         inputText = findUrl(clipboardContent);
         isInputTextEmpty = false
+        setAccordionValue('item-1');
 
         
 
@@ -175,10 +182,19 @@
     { value: "artist", label: "artist.sptfy.in", disabled: true }
 
   ];
+  function handleCustomUrl() {
+      const value = customShortId;
+      const modifiedValue = value.toLocaleLowerCase().replace(/[^a-zA-Z0-9-]/g, '-');
+      customShortId = modifiedValue
+      shortIdDisplay = modifiedValue
+    }
+
   const handleSubmit = async (e) => {
       // let url_id = '35db'  // debug
-      
-      let url_id = await generateRandomURL();
+      let url_id = customShortId
+      if (!customShortId) {
+        let url_id = await generateRandomURL();
+      }
       let dataForm = {
         from: inputText,
         id_url: url_id,
@@ -239,6 +255,7 @@
         }
     }
 
+ 
     async function handleCopy(event) {
     try {
       // Request permission to access the clipboard
@@ -269,8 +286,9 @@
 
 
     // console.log(generateRandomURL());
-    $: console.log(selected.value)
-    $: console.log(turnstileResponse)
+    // $: console.log(selected.value)
+    // $: console.log(turnstileResponse)
+    $: console.log(customShortId)
     // $: console.log(fullShortURL)
     // $: console.log('isInput: ' + isInputTextEmpty)
 
@@ -302,7 +320,7 @@
 
 <div class="flex flex-col items-center justify-center min-h-screen gap-6 p-10 -translate-y-8 md:flex-row md:items-start md:translate-y-[12.5rem]">
   <h1 class="text-6xl font-bold text-primary font-jak-display ss03 md:flex-none md:hidden">Sptfy.in</h1>
-    <Card.Root class="w-[20rem] md:w-[35rem] sm:w-[20rem] transition-all">
+    <Card.Root class="w-[23rem] md:w-[35rem] sm:w-[25rem] transition-all">
         <Card.Header>
           <Card.Title>Shorten your URL</Card.Title>
           <Card.Description>Make your Spotify URLs looks pretty with one click, easy and fast!</Card.Description>
@@ -320,7 +338,7 @@
          
       
           <div>
-            <form on:submit|preventDefault={handleSubmit} class="flex flex-col w-full min-w-full">
+            <form on:submit|preventDefault={handleSubmit} class="flex flex-col w-[8rem] min-w-full">
                 <Label for="url" class="my-2">Paste your long ass URL here</Label>
                 <div class="flex w-full min-w-full items-center align-center space-x-3 mb-2">
                     
@@ -348,16 +366,16 @@
                     <Select.Input name="sptfy.in"/>
                   </Select.Root>
                   <!-- <Separator class="my-2"/> -->
-                  <Accordion.Root class="">
+  
+                  <Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
                     <Accordion.Item value="item-1" class>
                       <Accordion.Trigger>Custom Short URL (Coming Soon)</Accordion.Trigger>
                       <Accordion.Content>
                         <Label for="url" class="my-2">Custom URL here</Label>
-                        <div class="flex flex-col w-full min-w-full items-center space-x-2 mb-4">
-                            
-                            <Input type="text" id="short_id" placeholder="myCoolPlaylistNo4..." disabled/>
-                            
-                           
+                        <div class="flex flex-col w-full max-w-[25rem] items-center align-center space-x-2 mb-4">
+                            <!-- custom url -->
+                            <Input minlength="4" maxlength="80" type="text" id="short_id" placeholder="my-playlist-skibidi" bind:value={customShortId} on:input={handleCustomUrl}/>
+
                         </div>
 
 
@@ -377,7 +395,7 @@
 
 
 
-                  <Button class="w-full" type="submit" bind:this={theButton}> 
+                  <Button class="w-full mt-4" type="submit" bind:this={theButton}> 
                     Short It!
                   </Button>
 
@@ -390,15 +408,15 @@
 
         </Card.Footer>
       </Card.Root>
-      <Card.Root class="w-[20rem] md:w-[35rem] sm:w-[20rem]  transition-all">
+      <Card.Root class="w-[23rem] md:w-[35rem] sm:w-[25rem]  transition-all">
         <Card.Header>
           <Card.Title>URL Preview</Card.Title>
           <Card.Description>Here's how your URL will look like</Card.Description>
           <Card.Content class="grid gap-4 text-[#82d1af]/60 text-left px-0 pb-0">
             <div class="flex w-full min-w-full items-center align-center justify-between md:py-2 ">
-              <p class="text-[1.44rem] md:text-3xl lg:text-5xl font-semibold ">sptfy.in/<span class="text-[#82d1af]">{shortIdDisplay}</span></p>
+              <p class="text-[1.44rem] md:text-3xl lg:text-5xl font-semibold break-all">sptfy.in/<span class="text-[#82d1af]">{shortIdDisplay}</span></p>
               {#if fullShortURL}
-               <div class="buttons">
+               <div class="buttons flex md:flex-col-reverse">
                 <Button on:click={() => {
                   handleCopy();
                 }} variant="secondary" class="hover:bg-primary hover:text-black p-3" >
@@ -457,7 +475,7 @@
       {#await records}
       <p>awaiting...</p>
       {:then records}
-      <div class="max-h-fit transition-all">
+      <div class="max-h-fit transition-all break-all">
         {#each records.slice(0, currentItems) as item, i}
          <li transition:slide class="flex w-full min-w-full align-center justify-between my-1 pl-1">
           <a href={item.from} class="font-thin">
@@ -510,7 +528,7 @@
           website is still under development, so expect some bugs and missing features. <br>
           coming features are : <br>
           <li>analytics</li>
-          <li>custom subdomain & back url</li>
+          <li>custom subdomain</li>
           <br>
           bugs? <a href="https://instagram.com/raaharja">contact me</a>
         
