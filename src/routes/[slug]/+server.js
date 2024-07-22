@@ -27,7 +27,7 @@ export const GET = async ({ params }) => {
     if (link) {
         throw redirect(303, link);
     } else {
-        throw error(404, 'The short link doesn`t exist yeehaw 🔍');
+        throw error(404, 'The short link doesn`t exist yeehaw 🔍🧐');
     }
     // return { slug: slug, data: data };
 };

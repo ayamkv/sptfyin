@@ -13,6 +13,6 @@
 <AlertDialogPrimitive.Overlay
 	{transition}
 	{transitionConfig}
-	class={cn("fixed inset-0 z-50 bg-background/40 backdrop-blur-md ", className)}
+	class={cn("fixed inset-0 z-50 bg-background/40 backdrop-blur-sm ", className)}
 	{...$$restProps}
 />
