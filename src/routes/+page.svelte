@@ -112,7 +112,7 @@
     let reset
     let shortIdDisplay = '####';
     let inputText = null
-    let isError = true;
+    let isError = false;
     let alertDialogTitle = ''
     let alertDialogDescription = ''
     let errorIconDefault = 'fluent-emoji:crying-cat'
