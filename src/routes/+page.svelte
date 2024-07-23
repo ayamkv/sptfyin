@@ -430,7 +430,7 @@
 
 
 
-                  <Button class="w-full mt-4" type="submit" bind:this={theButton}> 
+                  <Button class="w-full mt-4 transition-all" type="submit" bind:this={theButton}> 
                     Short It!
                   </Button>
 

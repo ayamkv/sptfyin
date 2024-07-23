@@ -84,7 +84,7 @@
     --secondary: 247 26% 13%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 15.1%;
-    --muted-foreground: 222 10.1% 63.9%;
+    --muted-foreground: 222 20% 77%;
     --accent: 0 0% 18%;
     --accent-foreground: 0 0% 98%;
     --destructive: 348.6 69.2% 38.4%;
@@ -92,6 +92,7 @@
     --border: 247 26% 13%;
     --input: 247 26% 13%;
     --ring: 157.3 100% 33.3%;
+    
   }
 }
  
@@ -107,6 +108,9 @@
   }
   .highlight {
     box-shadow: inset 0 1px 0 0 #c7ffe796, 0 2px 20px 2px #43c99665;
+  }
+  .highlightHover {
+    box-shadow: inset 0px -5px 10px 8px #afffdc, 0 1px 20px 2px #09071180, -1px 1px 20px 8px #43c99665;
   }
   .highlightSecondary {
     box-shadow: inset 0 1px 0 0 #38334f;
