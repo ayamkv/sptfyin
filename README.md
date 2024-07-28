@@ -1,4 +1,5 @@
-# [Sptfyin](https://sptfy.in) (Work In Progress)
+# [Sptfyin](https://sptfy.in) (Work In Progress) ![GitHub deployments](https://img.shields.io/github/deployments/ayamkv/sptfyin/production)
+
 
 A simple link shortener strictly for spotify links, powered by [svelte](https://svelte.dev/), [shadcn-svelte](https://shadcn-svelte.com), and [pocketbase](https://pockebase.io).
 
