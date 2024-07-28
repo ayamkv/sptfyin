@@ -5,8 +5,10 @@
 </script>
 
 <div
-	class={cn("rounded-lg border bg-card text-card-foreground highlightCard", className)}
+	class={cn("rounded-lg border bg-gradient-to-br from-[#332c4e]/80 via-card via-30% to-card text-card-foreground highlightCard", className)}
 	{...$$restProps}
 >
 	<slot />
 </div>
+
+
