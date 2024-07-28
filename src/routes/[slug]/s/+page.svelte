@@ -296,7 +296,7 @@
           <p class="mb-4">
             Scan this QR code to open the link on your phone
           </p>
-          <img class="min-w-[50%] md:min-w-[20%]" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=https://sptfy.in/{shortIdDisplay}" alt="QR Code" on:load={console.log('IMG LOADED')} />
+          <img class="min-w-[50%] md:min-w-[20%]" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=https://sptfy.in/{shortIdDisplay}" alt="QR Code" width="200" height="200" on:load={console.log('IMG LOADED')} />
 
         </div>
         <!-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://sptfy.in/{shortIdDisplay}" alt="QR Code" /> -->
