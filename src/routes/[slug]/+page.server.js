@@ -27,7 +27,7 @@ export const load = async ({ params }) => {
     if (link) {
         throw redirect(303, link);
     } else {
-        throw error(400, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠'); 
+        throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠'); 
     }
     // return { slug: slug, data: data };
 };
