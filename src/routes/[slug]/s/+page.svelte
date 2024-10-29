@@ -1,5 +1,6 @@
 <script>
     import { Button } from "$lib/components/ui/button";
+    import { page } from "$app/stores";
     import { goto } from "$app/navigation";
     import { Turnstile } from 'svelte-turnstile';
     import { fly, slide } from 'svelte/transition';
@@ -230,7 +231,7 @@
 </script>
 
 
-
+this is a coming soon feature you shouldnt be here...
 
 <AlertDialog.Root bind:open={isError} class="transition-all">
   <AlertDialog.Trigger></AlertDialog.Trigger>
@@ -249,19 +250,24 @@
   </AlertDialog.Content>
 </AlertDialog.Root>
 
+
 <div class="flex flex-col items-center justify-center">
   <h1 class="text-8xl font-bold text-primary font-jak-display ss03 md:flex-none hidden md:block translate-y-[12rem]">Sptfy.in</h1>
+  <h3 class="pt-5 text-md text-white md:flex-none hidden md:block translate-y-[12rem]">Made with 💓 by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a></h3>
 </div>
+
 
 <div class="flex flex-col items-center justify-center min-h-screen gap-6 p-10 -translate-y-8 md:flex-row md:items-start md:translate-y-[12.5rem]">
   <h1 class="text-6xl font-bold text-primary font-jak-display ss03 md:flex-none md:hidden">Sptfy.in</h1>
+  <h3 class="-mt-2
+   text-md text-white md:flex-none md:flex-none md:hidden">Made with 💓 by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a></h3>
       <Card.Root class="w-[23rem] md:w-[35rem] sm:w-[25rem]  transition-all">
         <Card.Header>
           <Card.Title>Link analytics</Card.Title>
           <Card.Description>Here's how your URL will look like</Card.Description>
           <Card.Content class="grid gap-4 text-[#82d1af]/60 text-left px-0 pb-0">
             <div class="flex w-full min-w-full items-center align-center justify-between md:py-2 ">
-              <p class="text-[1.44rem] md:text-3xl lg:text-5xl font-semibold break-all">sptfy.in/<span class="text-[#82d1af]">{shortIdDisplay}</span></p>
+              <p class="text-[1.44rem] md:text-3xl lg:text-5xl font-semibold break-all">sptfy.in/<span class="text-[#82d1af]">{$page.url.pathname.slice(1, -2)}</span></p>
             
                <div class="buttons flex md:flex-col-reverse">
                 <Button on:click={() => {
@@ -323,7 +329,9 @@
     </Table.Header>
     <Table.Body>
       <Table.Row>
-        <Table.Cell class="font-medium">Indonesia</Table.Cell>
+        <Table.Cell class="font-medium">
+          <img src="https://flagsapi.com/ID/shiny/32.png">
+        </Table.Cell>
         <Table.Cell>Chrome</Table.Cell>
         <Table.Cell>Windows</Table.Cell>
       
