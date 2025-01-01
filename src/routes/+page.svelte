@@ -412,7 +412,7 @@
                         <Label for="url" class="my-2">Custom back-half (alias) here</Label>
                         <div class="flex flex-col w-full max-w-[25rem] items-center align-center space-x-2 mb-4">
                             <!-- custom url -->
-                            <Input minlength="4" maxlength="80" type="text" id="short_id" placeholder="/coolplaylist4" bind:value={customShortId} on:input={handleCustomUrl}/>
+                            <Input minlength="4" maxlength="80" type="text" id="short_id" placeholder="coolplaylist4" bind:value={customShortId} on:input={handleCustomUrl}/>
 
                         </div>
 
