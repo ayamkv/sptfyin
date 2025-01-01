@@ -12,13 +12,14 @@
     import { Input } from "$lib/components/ui/input";
     import * as Select from "$lib/components/ui/select/index.js";
     import { Label } from "$lib/components/ui/label";
+    import * as Dialog from "$lib/components/ui/dialog";
     import { Separator } from "$lib/components/ui/separator";
     import * as Accordion from "$lib/components/ui/accordion";
     import 'iconify-icon';
     import * as AlertDialog from "$lib/components/ui/alert-dialog";
     import { strings } from "$lib/localization/languages/en.json"
     import { onMount } from "svelte";
-	import { get } from "svelte/store";
+	  import { get } from "svelte/store";
 
     // These variables will be undefined during SSR
     let scrollHere
@@ -327,6 +328,9 @@
 
     // $: console.log('isInput: ' + isInputTextEmpty)
 
+
+ 
+
 </script>
 
 
@@ -351,13 +355,30 @@
 
 <div class="flex flex-col items-center justify-center">
   <h1 class="text-8xl font-bold text-primary font-jak-display ss03 md:flex-none hidden md:block translate-y-[12rem]">Sptfy.in</h1>
-  <h3 class="pt-5 text-md text-white md:flex-none hidden md:block translate-y-[12rem]">Made with 💓 by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a></h3>
+  <h3 class="pt-5 text-md text-white md:flex-none hidden md:block translate-y-[12rem]">by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a></h3>
+  
+
 </div>
+
 
 <div class="flex flex-col items-center justify-center min-h-screen gap-6 p-10 -translate-y-8 md:flex-row md:items-start md:translate-y-[12.5rem]">
   <h1 class="text-6xl font-bold text-primary font-jak-display ss03 md:flex-none md:hidden">Sptfy.in</h1>
   <h3 class="-mt-2
-   text-md text-white md:flex-none md:flex-none md:hidden">Made with 💓 by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a></h3>
+   text-md text-white md:flex-none md:flex-none md:hidden">by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a></h3>
+   <Dialog.Root class="md:flex-none md:flex-none md:hidden -mt-4">
+    <Dialog.Trigger> <Button class="hover:bg-primary hover:text-black md:flex-none md:flex-none md:hidden" variant="secondary">💓 Support me </Button> </Dialog.Trigger>
+    <Dialog.Content>
+      <Dialog.Header>
+        <Dialog.Title></Dialog.Title>
+        <Dialog.Description>
+          <iframe id='kofiframe' src='https://ko-fi.com/freqtion/?hidefeed=true&widget=true&embed=true&preview=true' style='border:none;width:100%;background:#0A0911;border-radius:0.7em' height='712' title='freqtion'></iframe>
+        </Dialog.Description>
+      </Dialog.Header>
+    </Dialog.Content>
+  </Dialog.Root>
+
+  
+   
     <Card.Root class="w-[23rem] md:w-[35rem] sm:w-[25rem] transition-all">
         <Card.Header>
           <Card.Title>Shorten your URL</Card.Title>
@@ -579,13 +600,26 @@
 
     </Accordion.Content>
   </Accordion.Item>
+  <Dialog.Root class="w-full my-2 transition-all md:flex-none hidden md:block">
+    <Dialog.Trigger> <Button class="w-full my-2 transition-all hover:bg-primary hover:text-black  md:flex-none hidden md:block" variant="secondary">💓 Support me </Button> </Dialog.Trigger>
+    <Dialog.Content>
+      <Dialog.Header>
+        <Dialog.Title></Dialog.Title>
+        <Dialog.Description>
+          <iframe id='kofiframe' src='https://ko-fi.com/freqtion/?hidefeed=true&widget=true&embed=true&preview=true' style='border:none;width:100%;background:#0A0911;border-radius:0.7em' height='712' title='freqtion'></iframe>
+        </Dialog.Description>
+      </Dialog.Header>
+    </Dialog.Content>
+  </Dialog.Root>
 
 </Accordion.Root>
 </div>
 
           </Card.Content>
         </Card.Header>
+        
         </Card.Root>
+        
        
           
 </div>
