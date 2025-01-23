@@ -20,8 +20,8 @@
     import { strings } from "$lib/localization/languages/en.json"
     import { onMount } from "svelte";
 	  import { get } from "svelte/store";
+    
 
-    // These variables will be undefined during SSR
     let scrollHere
     let accordionValue = 'one'
     let customShortId
@@ -33,6 +33,11 @@
     let error = null;
     let recentLoading = true;
     let currentItems = 4
+    let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
+    console.log(turnstileKey)
+
+    // const turnstileKey = '0x4AAAAAAAfXWBvVu4QvwLH7'
+    
 
     function scrollToBottom() {
       scrollHere.scrollIntoView()
@@ -66,7 +71,6 @@
         // console.log('from onm async: ', records);
 
       });
-    // This function will only run in the browser
     function getBrowserName() {
        const userAgent = navigator.userAgent;
 
@@ -87,10 +91,7 @@
             return "Unknown Browser";
     }
 }
-
-
-    onMount(() => {
-        
+    onMount(() => {  
         const ua = navigator.userAgent.toLowerCase();
         isIOS = ua.includes("iphone os") || (ua.includes("mac os") && navigator.maxTouchPoints > 0);
         isAndroid = ua.includes("android");
@@ -101,15 +102,8 @@
         // console log the ua user is using
         console.log(getBrowserName());
 
-        
     });
-    // onMount(async () => {
-    //   try {
-    //     records = await getRecords('random_short');
-    //   } catch (err) {
-    //     error = `Failed to load records: ${err.response.status} ${err.response.statusText}`;
-    //   }
-    // });
+
     let reset
     let shortIdDisplay = '####';
     let inputText = null
@@ -242,9 +236,6 @@
         alertDialogDescription = strings.ErrorTurnstileValidationDesc + `<br><br<> turnstile error: ${validationResponse.error}`;
         throw new Error(`Turnstile validation failed: ${validationResponse.error}`);
       }
-      
-
-
           console.log(url_id)
           const response = await createRecord('random_short', dataForm);
           console.log('Record created');
@@ -276,14 +267,26 @@
 
         } catch (err) {
           console.log(err.response.status);
-          console.log(err.response);
+          console.log(err.response?.data);
+
+          // default error fallback
           alertDialogTitle = strings.ErrorCreateRecordTitle;
           alertDialogDescription = strings.ErrorCreateRecordDesc;
-          if (isInputTextEmpty) {
-            alertDialogTitle = strings.ErrorCreatedRecordNoInputTitle;
-            alertDialogDescription = strings.ErrorCreatedRecordNoInputDesc;
-            isError = true;
-          }
+          if (err.response?.status === 400) {
+            const errorData = err.response?.data;
+            console.log(errorData.id_url?.code);
+            // it's here to prevent duplicates, and prevent confusion to ppl
+            if (errorData.id_url?.code === 'validation_not_unique') {
+                errorIcon = strings.ErrorCustomShortIdExistsIcon;
+                alertDialogTitle = strings.ErrorCustomShortIdExistsTitle;
+                alertDialogDescription = strings.ErrorCustomShortIdExistsDesc;
+            }
+            // this checks if input empty because ppl sometimes forgor
+            else if (isInputTextEmpty) {
+                alertDialogTitle = strings.ErrorCreatedRecordNoInputTitle;
+                alertDialogDescription = strings.ErrorCreatedRecordNoInputDesc;
+            }
+        }
           isError = true;
           
 //          errorIcon = strings.ErrorCreateRecordIcon;
@@ -291,7 +294,6 @@
         }
     }
 
- 
     async function handleCopy(event) {
     try {
       // Request permission to access the clipboard
@@ -317,20 +319,11 @@
       console.error('Failed to write to clipboard: ', error);
     }
   }
-    
-
-
 
     // console.log(generateRandomURL());
     // $: console.log(selected.value)
     // $: console.log(turnstileResponse)
-
-
     // $: console.log('isInput: ' + isInputTextEmpty)
-
-
- 
-
 </script>
 
 
@@ -341,7 +334,7 @@
   <AlertDialog.Content>
     <AlertDialog.Header>
       <iconify-icon icon={errorIcon} class="block m-auto text-center" width=120></iconify-icon>
-      <AlertDialog.Title class="text-center">Ouch! {@html alertDialogTitle}</AlertDialog.Title>
+      <AlertDialog.Title class="text-center">{@html alertDialogTitle}</AlertDialog.Title>
       
       <AlertDialog.Description>
           {@html alertDialogDescription}
@@ -356,12 +349,10 @@
 <div class="flex flex-col items-center justify-center">
   <h1 class="text-8xl font-bold text-primary font-jak-display ss03 md:flex-none hidden md:block translate-y-[12rem]">Sptfy.in</h1>
   <h3 class="pt-5 text-md text-white md:flex-none hidden md:block translate-y-[12rem]">by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a></h3>
-  
-
 </div>
 
 
-<div class="flex flex-col items-center justify-center min-h-screen gap-6 p-10 -translate-y-8 md:flex-row md:items-start md:translate-y-[12.5rem]">
+<div class="flex flex-col items-center justify-center min-h-screen gap-6 p-10 -translate-y-8 md:flex-row md:items-start md:translate-y-[12.5rem] lg:px-[15%]">
   <h1 class="text-6xl font-bold text-primary font-jak-display ss03 md:flex-none md:hidden">Sptfy.in</h1>
   <h3 class="-mt-2
    text-md text-white md:flex-none md:flex-none md:hidden">by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a></h3>
@@ -377,25 +368,12 @@
     </Dialog.Content>
   </Dialog.Root>
 
-  
-   
     <Card.Root class="w-[23rem] md:w-[35rem] sm:w-[25rem] transition-all">
         <Card.Header>
           <Card.Title>Shorten your URL</Card.Title>
           <Card.Description>Make your Spotify URLs looks pretty with one click, easy and fast!</Card.Description>
         </Card.Header>
         <Card.Content class="grid gap-4 pb-0">
-          
-           
-      
-            <!-- <div class="flex-1 space-y-1">
-              <p class="text-sm font-medium leading-none">Push Notifications</p>
-              <p class="text-sm text-muted-foreground">
-                Send notifications to device.
-              </p>
-            </div> -->
-         
-      
           <div>
             <form on:submit|preventDefault={handleSubmit} class="flex flex-col w-[8rem] min-w-full">
                 <Label for="url" class="my-2">Paste your long ass URL here</Label>
@@ -442,7 +420,7 @@
                     </Accordion.Item>
                   </Accordion.Root>
 
-                  <Turnstile siteKey="0x4AAAAAAAfXWBvVu4QvwLH7" theme="dark" retry='auto' bind:reset
+                  <Turnstile siteKey={turnstileKey} theme="dark" retry='auto' bind:reset
                   on:callback={ event => {
                      turnstileResponse = event.detail.token
                     //  validateToken(turnstileResponse)
