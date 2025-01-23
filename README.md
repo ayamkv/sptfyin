@@ -7,7 +7,7 @@ sptfyin is a simple spotify link shortener,
 
 paste your spotify track, album, or playlist url → slap on a custom back half (optional) → done. ✨
 
-**no ads**, no nonsense<—just short links that _actually_ work.
+**no ads**, no nonsense—just short links that _actually_ work.
 
 ### why?
 
