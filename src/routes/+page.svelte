@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
 	import { Turnstile } from 'svelte-turnstile';
-	import { fly, slide } from 'svelte/transition';
+	import { fly, slide, fade } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
 	import {
 		getRecords,
@@ -12,6 +12,8 @@
 		validateToken
 	} from '$lib/pocketbase';
 	// import { generateRandomURL } from "$lib/utils";
+  import { localizeDate, findUrl } from '$lib/utils';
+  import { Skeleton } from "$lib/components/ui/skeleton";
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
 	import * as Card from '$lib/components/ui/card';
 	import { Switch } from '$lib/components/ui/switch';
@@ -27,6 +29,7 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 
+  let visible =  false
 	let scrollHere;
 	let accordionValue = 'one';
 	let customShortId;
@@ -61,9 +64,6 @@
 		accordionValue = newValue;
 	}
 
-	function localizeDate(date) {
-		return new Date(date).toLocaleString();
-	}
 
 	async function fetchData() {
 		recentLoading = true;
@@ -102,6 +102,8 @@
 		}
 	}
 	onMount(() => {
+
+    visible = true;
 		const ua = navigator.userAgent.toLowerCase();
 		isIOS = ua.includes('iphone os') || (ua.includes('mac os') && navigator.maxTouchPoints > 0);
 		isAndroid = ua.includes('android');
@@ -113,13 +115,6 @@
 		console.log(getBrowserName());
 	});
 
-
-	function findUrl(str) {
-		const regex =
-			/^(https:\/\/[a-z]+\.spotify\.com\/)(playlist|artist|album|track|episode|show|user)\/.*$/gm;
-		let urls = str.match(regex);
-		return urls ? urls[0] : null;
-	}
 	if (inputText !== null) {
 		isInputTextEmpty = false;
 	}
@@ -393,7 +388,9 @@
 						id="kofiframe"
 						src="https://ko-fi.com/freqtion/?hidefeed=true&widget=true&embed=true&preview=true"
 						style="border:none;width:100%;background:#0A0911;border-radius:0.7em"
-						height="712"
+
+						height="400"
+
 						title="freqtion"
 					></iframe>
 				</Dialog.Description>
@@ -427,8 +424,10 @@
 							type="button"
 							class="hover:bg-primary hover:text-black"
 							variant="secondary"
-							on:click={() => handlePaste()}
-							><iconify-icon width="20" icon="lucide:clipboard-copy"></iconify-icon></Button
+							on:click={() => handlePaste()}>
+              <iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
+              </iconify-icon>
+              </Button
 						>
 					</div>
 
@@ -484,7 +483,11 @@
 						</Accordion.Item>
 					</Accordion.Root>
 
-					<Turnstile
+
+          {#if !visible}
+            <Skeleton class="w-[300px] h-[64px]" />
+          {:else}
+          	<Turnstile class="w-[300px] h-[64px]"
 						siteKey={turnstileKey}
 						theme="dark"
 						retry="auto"
@@ -494,6 +497,9 @@
 							//  validateToken(turnstileResponse)
 						}}
 					/>
+          {/if}
+				
+
 
 					<Button class="mt-4 w-full transition-all" type="submit" bind:this={theButton}>
 						Short It!
@@ -580,14 +586,17 @@
 										<div class="max-h-fit break-all transition-all">
 											{#each records.slice(0, currentItems) as item, i}
 												<li
-													transition:slide
+
+													transition:slide|global
 													class="align-center my-1 flex w-full min-w-full justify-between pl-1"
 												>
-													<a href={item.from} class="font-thin">
+													<a href={item.from} class="font-thin" target="_blank">
 														sptfy.in/{item.id_url}
 													</a>
-													<span class="ml-2 text-white/30">
+													<span class="ml-2 text-muted-foreground/70">
 														{localizeDate(item.created)}
+                        
+
 													</span>
 												</li>
 											{/each}
