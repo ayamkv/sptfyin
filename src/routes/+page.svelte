@@ -28,6 +28,7 @@
 	import { strings } from '$lib/localization/languages/en.json';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
+
   let visible =  false
 	let scrollHere;
 	let accordionValue = 'one';
@@ -62,6 +63,7 @@
 	function setAccordionValue(newValue) {
 		accordionValue = newValue;
 	}
+
 
 	async function fetchData() {
 		recentLoading = true;
@@ -100,6 +102,7 @@
 		}
 	}
 	onMount(() => {
+
     visible = true;
 		const ua = navigator.userAgent.toLowerCase();
 		isIOS = ua.includes('iphone os') || (ua.includes('mac os') && navigator.maxTouchPoints > 0);
@@ -111,6 +114,7 @@
 		// console log the ua user is using
 		console.log(getBrowserName());
 	});
+
 	if (inputText !== null) {
 		isInputTextEmpty = false;
 	}
@@ -384,7 +388,9 @@
 						id="kofiframe"
 						src="https://ko-fi.com/freqtion/?hidefeed=true&widget=true&embed=true&preview=true"
 						style="border:none;width:100%;background:#0A0911;border-radius:0.7em"
+
 						height="400"
+
 						title="freqtion"
 					></iframe>
 				</Dialog.Description>
@@ -419,8 +425,6 @@
 							class="hover:bg-primary hover:text-black"
 							variant="secondary"
 							on:click={() => handlePaste()}
-							>
-
               <iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
               </iconify-icon>
               </Button
@@ -479,6 +483,7 @@
 						</Accordion.Item>
 					</Accordion.Root>
 
+
           {#if !visible}
             <Skeleton class="w-[300px] h-[64px]" />
           {:else}
@@ -494,6 +499,7 @@
 					/>
           {/if}
 				
+
 
 					<Button class="mt-4 w-full transition-all" type="submit" bind:this={theButton}>
 						Short It!
@@ -580,6 +586,7 @@
 										<div class="max-h-fit break-all transition-all">
 											{#each records.slice(0, currentItems) as item, i}
 												<li
+
 													transition:slide|global
 													class="align-center my-1 flex w-full min-w-full justify-between pl-1"
 												>
@@ -589,6 +596,7 @@
 													<span class="ml-2 text-muted-foreground/70">
 														{localizeDate(item.created)}
                         
+
 													</span>
 												</li>
 											{/each}
