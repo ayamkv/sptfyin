@@ -1,8 +1,10 @@
 <script>
+	import { elasticOut } from 'svelte/easing';
+	import { scale } from 'svelte/transition';
 	import { cn } from "$lib/utils.js";
-	import { fly, slide } from 'svelte/transition';
+	import { fly, slide, fade } from 'svelte/transition';
 	let className = undefined;
 	export { className as class };
 </script>
 
-<div class={cn("bg-secondary animate-[pulse_1s_ease-in-out_infinite] rounded-md", className)} {...$$restProps} out:slide="{{duration: 100}}"></div>
+<div in:scale={{ duration: 300, easing:elasticOut }} class={cn("bg-secondary animate-[pulse_1s_ease-in-out_infinite] rounded-md", className)} {...$$restProps} out:fade="{{duration: 100}}"></div>

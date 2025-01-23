@@ -51,6 +51,7 @@
  
 @layer base {
   :root {
+    --scrollbar-width: 0;
     --background: 0 0% 89%;
     --foreground: 210 17.3% 19.6%;
     --card: 0 0% 89%;
@@ -126,7 +127,8 @@
     width: 100vw;
     /* overflow: auto; */
     overflow-y: scroll;
-    overflow-x: hidden; 
+    overflow-x: hidden;
+    background: var(--background); 
   }
 
 
