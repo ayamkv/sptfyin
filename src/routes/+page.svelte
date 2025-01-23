@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
 	import { Turnstile } from 'svelte-turnstile';
-	import { fly, slide, fade } from 'svelte/transition';
+	import { fly, slide, fade, scale } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
 	import {
 		getRecords,
@@ -12,7 +12,7 @@
 		validateToken
 	} from '$lib/pocketbase';
 	// import { generateRandomURL } from "$lib/utils";
-  import { localizeDate, findUrl } from '$lib/utils';
+  import { localizeDate, findUrl, createLoadObserver } from '$lib/utils';
   import { Skeleton } from "$lib/components/ui/skeleton";
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
 	import * as Card from '$lib/components/ui/card';
@@ -29,7 +29,9 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 
-  let visible =  false
+	
+	let isQrLoaded = false
+    let visible =  false
 	let scrollHere;
 	let accordionValue = 'one';
 	let customShortId;
@@ -42,8 +44,9 @@
 	let recentLoading = true;
 	let currentItems = 4;
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
-  let reset;
+    let reset;
 	let shortIdDisplay = '####';
+	let qrUrl 
 	let inputText = null;
 	let isError = false;
 	let alertDialogTitle = '';
@@ -56,6 +59,13 @@
 	let recent = [];
 	$: isInputTextEmpty = true;
 
+	const onload = createLoadObserver(() => {
+		isQrLoaded = true
+        console.log('loaded!!!')
+		
+    })
+
+	
 	function scrollToBottom() {
 		scrollHere.scrollIntoView();
 	}
@@ -102,6 +112,9 @@
 		}
 	}
 	onMount(() => {
+	
+
+
 
     visible = true;
 		const ua = navigator.userAgent.toLowerCase();
@@ -118,6 +131,8 @@
 	if (inputText !== null) {
 		isInputTextEmpty = false;
 	}
+
+
 	async function handlePaste(event) {
 		try {
 			// Request permission to access the clipboard
@@ -201,6 +216,7 @@
 		const modifiedValue = value.toLocaleLowerCase().replace(/[^a-zA-Z0-9-]/g, '-');
 		customShortId = modifiedValue;
 		shortIdDisplay = modifiedValue;
+		qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
 	}
 
 	const handleSubmit = async (e) => {
@@ -230,6 +246,7 @@
 			const response = await createRecord('random_short', dataForm);
 			console.log('Record created');
 			shortIdDisplay = url_id;
+			qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
 			inputText = '';
 			customShortId = '';
 			const promise = new Promise(function (resolve, reject) {
@@ -315,11 +332,29 @@
 	// $: console.log('isInput: ' + isInputTextEmpty)
 </script>
 
+
+<!-- <div class="flex flex-col items-center justify-center">
+	<h1
+		class="ss03 hidden translate-y-[12rem] font-jak-display text-8xl font-bold text-primary
+    md:block 
+    md:flex-none"
+	>
+		Sptfy.in
+	</h1>
+	<h3 class="text-md hidden translate-y-[12rem] pt-5 text-white 
+  md:block 
+  md:flex-none">
+		by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a>
+	</h3>
+</div> -->
+<div class="w-[99vw] min-h-[100vh] flex flex-col items-center justify-center bg-background mt-0" data-vaul-drawer-wrapper>	
+	
 <AlertDialog.Root bind:open={isError} class="transition-all">
 	<AlertDialog.Trigger></AlertDialog.Trigger>
 	<AlertDialog.Content>
 		<AlertDialog.Header>
-			<iconify-icon icon={errorIcon} class="m-auto block text-center" width="120"></iconify-icon>
+			<div class="w-[120px] min-h-[120px] m-auto block text-center flex flex-col align-center justify-center">
+				<iconify-icon icon={errorIcon} class="m-auto block text-center" width="120" alt="emoji"></iconify-icon></div>
 			<AlertDialog.Title class="text-center">{@html alertDialogTitle}</AlertDialog.Title>
 
 			<AlertDialog.Description>
@@ -334,346 +369,369 @@
 	</AlertDialog.Content>
 </AlertDialog.Root>
 
-<div class="flex flex-col items-center justify-center">
-	<h1
-		class="ss03 hidden translate-y-[12rem] font-jak-display text-8xl font-bold text-primary
-    md:block 
-    md:flex-none"
+
+<Dialog.Root class="md:hidden md:flex-none">
+	<Dialog.Trigger>
+		
+	</Dialog.Trigger>
+	<Dialog.Content>
+		<Dialog.Header>
+			<Dialog.Title></Dialog.Title>
+			<Dialog.Description>
+				<iframe
+					id="kofiframe"
+					src="https://ko-fi.com/freqtion/?hidefeed=true&widget=true&embed=true&preview=true"
+					style="border:none;width:100%;background:#0A0911;border-radius:0.7em"
+
+					height="400"
+
+					title="freqtion"
+				></iframe>
+			</Dialog.Description>
+		</Dialog.Header>
+	</Dialog.Content>
+</Dialog.Root>
+
+	<div class="logo flex flex-col items-center justify-center mt-[5em] ">
+		<h1 class="ss03 font-jak-display text-6xl md:text-8xl font-bold text-primary 
+		">
+				Sptfy.in
+			</h1>
+			<h3
+			class="text-md mt-4
+		text-white 
+		"
+		>
+			by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a>
+		</h3>
+	</div>
+
+	<div 
+		class="flex
+	 flex-col 
+	items-center justify-center 
+	px-6
+	py-10
+	
+	md:ml-0
+    md:py-10
+	md:px-10 
+	w-[100vw]
+
+	md:flex-row 
+	md:items-start 
+	transition-all
+	[&:not(:first-child)]:gap-6
+
+	"
 	>
-		Sptfy.in
-	</h1>
-	<h3 class="text-md hidden translate-y-[12rem] pt-5 text-white 
-  md:block 
-  md:flex-none">
-		by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a>
-	</h3>
-</div>
-
-<div
-	class="flex min-h-screen 
-  -translate-y-8 flex-col 
-  items-center justify-center 
-  gap-6 p-10 
-  md:translate-y-[12.5rem] 
-  md:flex-row 
-  md:items-start 
-  lg:px-[15%]"
->
-	<h1 class="ss03 font-jak-display text-6xl font-bold text-primary 
-  md:hidden 
-  md:flex-none">
-		Sptfy.in
-	</h1>
-	<h3
-		class="text-md
-   -mt-2 text-white 
-   md:hidden 
-   md:flex-none"
-	>
-		by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a>
-	</h3>
-	<Dialog.Root class="-mt-4 md:hidden md:flex-none">
-		<Dialog.Trigger>
-			<Button
-				class="hover:bg-primary hover:text-black md:hidden md:flex-none"
-				variant="secondary"
-				>💓 Support me
-			</Button>
-		</Dialog.Trigger>
-		<Dialog.Content>
-			<Dialog.Header>
-				<Dialog.Title></Dialog.Title>
-				<Dialog.Description>
-					<iframe
-						id="kofiframe"
-						src="https://ko-fi.com/freqtion/?hidefeed=true&widget=true&embed=true&preview=true"
-						style="border:none;width:100%;background:#0A0911;border-radius:0.7em"
-
-						height="400"
-
-						title="freqtion"
-					></iframe>
-				</Dialog.Description>
-			</Dialog.Header>
-		</Dialog.Content>
-	</Dialog.Root>
-
-	<Card.Root class="w-[23rem] transition-all sm:w-[25rem] md:w-[35rem]">
-		<Card.Header>
-			<Card.Title>Shorten your URL</Card.Title>
-			<Card.Description
-				>Make your Spotify URLs looks pretty with one click, easy and fast!</Card.Description
-			>
-		</Card.Header>
-		<Card.Content class="grid gap-4 pb-0">
-			<div>
-				<form on:submit|preventDefault={handleSubmit} class="flex w-[8rem] min-w-full flex-col">
-					<Label for="url" class="my-2">Paste your long ass URL here</Label>
-					<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
-						<Input
-							type="url"
-							id="url"
-							on:paste={handlePaste}
-							placeholder="https://open.spotify.com/xxxx...."
-							bind:value={inputText}
-							class="placeholder:translate-y-[2px]"
-							required
-							autofocus
-						/>
-						<Button
-							type="button"
-							class="hover:bg-primary hover:text-black"
-							variant="secondary"
-							on:click={() => handlePaste()}>
-              <iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
-              </iconify-icon>
-              </Button
-						>
-					</div>
-
-					<Label for="domainSelect" class="my-2">Select domain</Label>
-					<Select.Root
-						portal={null}
-						id="domainSelect"
-						name="domainSelect"
-						bind:selected
-						bind:open={focus1}
-						asChild
-					>
-						<Select.Trigger class="">
-							<Select.Value placeholder="Domain: sptfy.in" selected="sptfy.in" />
-						</Select.Trigger>
-						<Select.Content>
-							<Select.Group>
-								<Select.Label>Select domain</Select.Label>
-								{#each domainList as domain}
-									<Select.Item
-										value={domain.value}
-										label={domain.label}
-										on:click={() => escapeSelectHandle()}
-										disabled={domain.disabled}>{domain.label}</Select.Item
-									>
-								{/each}
-							</Select.Group>
-						</Select.Content>
-						<Select.Input name="sptfy.in" />
-					</Select.Root>
-					<!-- <Separator class="my-2"/> -->
-
-					<Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
-						<Accordion.Item value="item-1" class>
-							<Accordion.Trigger>Custom Short URL / back-half (optional)</Accordion.Trigger>
-							<Accordion.Content>
-								<Label for="url" class="my-2">Custom back-half (alias) here</Label>
-								<div
-									class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
-								>
-									<!-- custom url -->
-									<Input
-										minlength="4"
-										maxlength="80"
-										type="text"
-										id="short_id"
-										placeholder="coolplaylist4"
-										bind:value={customShortId}
-										on:input={handleCustomUrl}
-									/>
-								</div>
-							</Accordion.Content>
-						</Accordion.Item>
-					</Accordion.Root>
 
 
-          {#if !visible}
-            <Skeleton class="w-[300px] h-[64px]" />
-          {:else}
-          	<Turnstile class="w-[300px] h-[64px]"
-						siteKey={turnstileKey}
-						theme="dark"
-						retry="auto"
-						bind:reset
-						on:callback={(event) => {
-							turnstileResponse = event.detail.token;
-							//  validateToken(turnstileResponse)
-						}}
-					/>
-          {/if}
-				
-
-
-					<Button class="mt-4 w-full transition-all" type="submit" bind:this={theButton}>
-						Short It!
-					</Button>
-				</form>
-			</div>
-		</Card.Content>
-		<Card.Footer class="flex-col"></Card.Footer>
-	</Card.Root>
-	<Card.Root class="w-[23rem] transition-all sm:w-[25rem]  md:w-[35rem]">
-		<Card.Header>
-			<Card.Title>URL Preview</Card.Title>
-			<Card.Description>Here's how your URL will look like</Card.Description>
-			<Card.Content class="grid gap-4 px-0 pb-0 text-left text-[#82d1af]/60">
-				<div class="align-center flex w-full min-w-full items-center justify-between md:py-2">
-					<p class="break-all text-[1.44rem] font-semibold md:text-3xl lg:text-5xl">
-						sptfy.in/<span class="text-[#82d1af]">{shortIdDisplay}</span>
-					</p>
-					{#if fullShortURL}
-						<div class="buttons flex md:flex-col-reverse">
+		<Card.Root class="w-[23rem] transition-all sm:w-[25rem] md:w-[35rem]">
+			<Card.Header>
+				<Card.Title>Shorten your URL</Card.Title>
+				<Card.Description
+					>Make your Spotify URLs looks pretty with one click, easy and fast!</Card.Description
+				>
+			</Card.Header>
+			<Card.Content class="grid gap-4 pb-0">
+				<div>
+					<form on:submit|preventDefault={handleSubmit} class="flex w-[8rem] min-w-full flex-col">
+						<Label for="url" class="my-2">Paste your long ass URL here</Label>
+						<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
+							<Input
+								type="url"
+								id="url"
+								on:paste={handlePaste}
+								placeholder="https://open.spotify.com/xxxx...."
+								bind:value={inputText}
+								class="placeholder:translate-y-[2px]"
+								required
+								autofocus
+							/>
 							<Button
-								on:click={() => {
-									handleCopy();
-								}}
+								type="button"
+								class="hover:bg-primary hover:text-black"
 								variant="secondary"
-								class="p-3 hover:bg-primary hover:text-black"
+								on:click={() => handlePaste()}>
+				<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
+				</iconify-icon>
+				</Button
 							>
-								<iconify-icon icon="lucide:copy" class="" width="24"> </iconify-icon>
-							</Button>
-							<Button
-								on:click={() => {
-									//redirect to link;
-									//using window location and just /{urlId} open in new tab
-
-									window.open(`/${shortIdDisplay}`, '_blank');
-								}}
-								variant="secondary"
-								class="p-3 hover:bg-primary hover:text-black"
-							>
-								<iconify-icon icon="lucide:square-arrow-out-up-right" class="" width="24">
-								</iconify-icon>
-							</Button>
 						</div>
-					{/if}
-				</div>
-				{#if fullShortURL}
-					<Drawer.Root>
-						<Drawer.Trigger>
-							<Button variant="secondary" class="w-full">Show QR Code</Button>
-						</Drawer.Trigger>
-						<Drawer.Content>
-							<Drawer.Header>
-								<Drawer.Title class="text-center">QR Code</Drawer.Title>
-								<Drawer.Description>
-									<div class="align-center flex flex-col items-center text-center">
-										<p class="mb-4">Scan this QR code to open the link on your phone</p>
-										<img
-											class="min-w-[50%] md:min-w-[20%]"
-											src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=https://sptfy.in/{shortIdDisplay}"
-											alt="QR Code"
-											height="200"
-											width="200"
+
+						<Label for="domainSelect" class="my-2">Select domain</Label>
+						<Select.Root
+							portal={null}
+							id="domainSelect"
+							name="domainSelect"
+							bind:selected
+							bind:open={focus1}
+							asChild
+						>
+							<Select.Trigger class="">
+								<Select.Value placeholder="Domain: sptfy.in" selected="sptfy.in" />
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									<Select.Label>Select domain</Select.Label>
+									{#each domainList as domain}
+										<Select.Item
+											value={domain.value}
+											label={domain.label}
+											on:click={() => escapeSelectHandle()}
+											disabled={domain.disabled}>{domain.label}</Select.Item
+										>
+									{/each}
+								</Select.Group>
+							</Select.Content>
+							<Select.Input name="sptfy.in" />
+						</Select.Root>
+						<!-- <Separator class="my-2"/> -->
+
+						<Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
+							<Accordion.Item value="item-1" class>
+								<Accordion.Trigger>Custom Short URL / back-half (optional)</Accordion.Trigger>
+								<Accordion.Content>
+									<Label for="url" class="my-2">Custom back-half (alias) here</Label>
+									<div
+										class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
+									>
+										<!-- custom url -->
+										<Input
+											minlength="4"
+											maxlength="80"
+											type="text"
+											id="short_id"
+											placeholder="coolplaylist4"
+											bind:value={customShortId}
+											on:input={handleCustomUrl}
 										/>
 									</div>
-									<!-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://sptfy.in/{shortIdDisplay}" alt="QR Code" /> -->
-								</Drawer.Description>
-							</Drawer.Header>
-							<Drawer.Footer>
-								<Drawer.Close>Close</Drawer.Close>
-							</Drawer.Footer>
-						</Drawer.Content>
-					</Drawer.Root>
-				{/if}
-        <div class="scrollhere" bind:this={scrollHere}></div>
-				<div class="gap-1">
-					<Accordion.Root class="m-0 p-0 text-foreground ">
-						<Accordion.Item value="item-1" class>
-							<Accordion.Trigger class="py-1">🔗 Recent created links</Accordion.Trigger>
-							<Accordion.Content m-0>
-								<div class="mt-1 flex flex-col transition-all" id="show-url">
-									{#await records}
-										<p>awaiting...</p>
-									{:then records}
-										<div class="max-h-fit break-all transition-all">
-											{#each records.slice(0, currentItems) as item, i}
-												<li
+								</Accordion.Content>
+							</Accordion.Item>
+						</Accordion.Root>
 
-													transition:slide|global
-													class="align-center my-1 flex w-full min-w-full justify-between pl-1"
-												>
-													<a href={item.from} class="font-thin" target="_blank">
-														sptfy.in/{item.id_url}
-													</a>
-													<span class="ml-2 text-muted-foreground/70">
-														{localizeDate(item.created)}
-                        
+						<div class="max-w-[300px] max-h-[64px]">
+			{#if !visible}
+				<Skeleton class="w-[300px] h-[64px]" />
+			{:else}
+				<Turnstile class="relative inline-block w-[300px] h-[64px]"
+							siteKey={turnstileKey}
+							theme="dark"
+							retry="auto"
+							bind:reset
+							on:callback={(event) => {
+								turnstileResponse = event.detail.token;
+								//  validateToken(turnstileResponse)
+							}}
+						/>
+			{/if}
+					
+						</div>
+		
 
-													</span>
-												</li>
-											{/each}
-										</div>
-										{#if currentItems < records.length}
-											<Button
-												on:click={() => (currentItems = currentItems + 4)}
-												id="loadmore"
-												type="button"
-												class="my-2 w-full transition-all"
-												variant="secondary"
-											>
-												Show more
-											</Button>
-										{:else}
-											<Button
-												on:click={() => (currentItems = 4)}
-												id="loadmore"
-												type="button"
-												class="my-2 w-full transition-all"
-												variant="secondary"
-											>
-												Show less
-											</Button>
-										{/if}
-									{:catch error}
-										<p>error</p>
-									{/await}
-								</div>
-							</Accordion.Content>
-						</Accordion.Item>
-					</Accordion.Root>
 
-					<Accordion.Root class="m-0 p-0 text-foreground ">
-						<Accordion.Item value="item-1" class>
-							<Accordion.Trigger class="py-1">🤔 Work In Progress (info)</Accordion.Trigger>
-							<Accordion.Content m-0>
-								<Label for="url" class="my-2">About the website</Label>
-								<div class="mb-2 flex w-full min-w-full flex-col items-center space-x-2">
-									<div class="text-xs">
-										website is still under development, so expect some bugs and missing features. <br
-										/>
-										coming features are : <br />
-										<li>analytics</li>
-										<li>custom subdomain</li>
-										<br />
-										bugs? <a href="https://instagram.com/raaharja">contact me</a>
-									</div>
-								</div>
-							</Accordion.Content>
-						</Accordion.Item>
-						<Dialog.Root class="my-2 hidden w-full transition-all md:block md:flex-none">
-							<Dialog.Trigger>
-								<Button
-									class="my-2 hidden w-full transition-all hover:bg-primary  hover:text-black md:block md:flex-none"
-									variant="secondary"
-									>💓 Support me
-								</Button>
-							</Dialog.Trigger>
-							<Dialog.Content>
-								<Dialog.Header>
-									<Dialog.Title></Dialog.Title>
-									<Dialog.Description>
-										<iframe
-											id="kofiframe"
-											src="https://ko-fi.com/freqtion/?hidefeed=true&widget=true&embed=true&preview=true"
-											style="border:none;width:100%;background:#0A0911;border-radius:0.7em"
-											height="712"
-											title="freqtion"
-										></iframe>
-									</Dialog.Description>
-								</Dialog.Header>
-							</Dialog.Content>
-						</Dialog.Root>
-					</Accordion.Root>
+						<Button class="mt-4 w-full transition-all" type="submit" bind:this={theButton}>
+							Short It!
+						</Button>
+					</form>
 				</div>
 			</Card.Content>
-		</Card.Header>
-	</Card.Root>
+			<Card.Footer class="flex-col"></Card.Footer>
+		</Card.Root>
+		<Card.Root class="w-[23rem] transition-all sm:w-[25rem]  md:w-[35rem]">
+			<Card.Header>
+				<Card.Title>URL Preview</Card.Title>
+				<Card.Description>Here's how your URL will look like</Card.Description>
+				<Card.Content class="grid gap-4 px-0 pb-0 text-left text-[#82d1af]/60">
+					<div class="align-center flex w-full min-w-full items-center justify-between md:py-2">
+						<p class="break-all text-[1.44rem] font-semibold md:text-3xl lg:text-5xl">
+							sptfy.in/<span class="text-[#82d1af]">{shortIdDisplay}</span>
+						</p>
+						{#if fullShortURL}
+							<div class="buttons flex md:flex-col-reverse">
+								<Button
+									on:click={() => {
+										handleCopy();
+									}}
+									variant="secondary"
+									class="p-3 hover:bg-primary hover:text-black"
+								>
+									<iconify-icon icon="lucide:copy" class="" width="24"> </iconify-icon>
+								</Button>
+								<Button
+									on:click={() => {
+										//redirect to link;
+										//using window location and just /{urlId} open in new tab
+
+										window.open(`/${shortIdDisplay}`, '_blank');
+									}}
+									variant="secondary"
+									class="p-3 hover:bg-primary hover:text-black"
+								>
+									<iconify-icon icon="lucide:square-arrow-out-up-right" class="" width="24">
+									</iconify-icon>
+								</Button>
+							</div>
+						{/if}
+					</div>
+					{#if fullShortURL}
+					
+						<Drawer.Root shouldScaleBackground>
+							<Drawer.Trigger>
+								<Button variant="secondary" class="w-full">Show QR Code</Button>
+							</Drawer.Trigger>
+							<Drawer.Content>
+								<Drawer.Header>
+									<Drawer.Title class="text-center my-2">QR Code</Drawer.Title>
+									<Drawer.Description>
+										<div class="align-center flex flex-col items-center text-center">
+											<div class="relative-wrapper relative inline-block">
+												<img
+												class="min-w-[50%] md:min-w-[20%] w-[200px] md:w-[350px] rounded-md shadow-md"
+												on:load={() => (isQrLoaded = true)}
+												style="opacity: {isQrLoaded ? 1 : 0}; transition: opacity 0.2s ease;"
+												src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/{shortIdDisplay}"
+												alt="QR Code"
+												height="350"
+												width="350"
+												/>
+												{#if !isQrLoaded}
+												<Skeleton class="absolute top-0 left-0 w-[200px] h-[200px] md:w-[350px] md:h-[350px]" />
+												{/if}
+											</div>
+										</div>
+										<!-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://sptfy.in/{shortIdDisplay}" alt="QR Code" /> -->
+									</Drawer.Description>
+								</Drawer.Header>
+								<Drawer.Footer>
+									<Drawer.Close>
+										<!-- <Button variant="default" on:click={(event) => {
+											event.preventDefault();
+											function downloadQRCode() {
+												const anchor = document.createElement('a');
+												anchor.href = qrUrl;
+												anchor.setAttribute('download', 'sptfy_qr.png');
+												anchor.click();
+												anchor.remove();
+											}
+											downloadQRCode();
+											// your code here
+										  }} class="mt-1 mb-1 w-1/2 md:w-[360px] transition-all" >
+											Download QR Code
+										</Button> -->
+										<!-- Coming Soon. -->
+										<Button variant="secondary" class="mt-1 w-1/2 md:w-[360px] transition-all" >
+											Close
+										</Button>
+									</Drawer.Close>
+								</Drawer.Footer>
+							</Drawer.Content>
+						</Drawer.Root>
+					{/if}
+			<div class="scrollhere" bind:this={scrollHere}></div>
+					<div class="gap-1">
+						<Accordion.Root class="m-0 p-0 text-foreground ">
+							<Accordion.Item value="item-1" class>
+								<Accordion.Trigger class="py-1">🔗 Recent created links</Accordion.Trigger>
+								<Accordion.Content m-0>
+									<div class="mt-1 flex flex-col transition-all" id="show-url">
+										{#await records}
+											<p>awaiting...</p>
+										{:then records}
+											<div class="max-h-fit break-all transition-all">
+												{#each records.slice(0, currentItems) as item, i}
+													<li
+
+														transition:slide|global
+														class="align-center my-1 flex w-full min-w-full justify-between pl-1"
+													>
+														<a href={item.from} class="font-thin" target="_blank">
+															sptfy.in/{item.id_url}
+														</a>
+														<span class="ml-2 text-muted-foreground/70">
+															{localizeDate(item.created)}
+							
+
+														</span>
+													</li>
+												{/each}
+											</div>
+											{#if currentItems < records.length}
+												<Button
+													on:click={() => (currentItems = currentItems + 4)}
+													id="loadmore"
+													type="button"
+													class="my-2 w-full transition-all"
+													variant="secondary"
+												>
+													Show more
+												</Button>
+											{:else}
+												<Button
+													on:click={() => (currentItems = 4)}
+													id="loadmore"
+													type="button"
+													class="my-2 w-full transition-all"
+													variant="secondary"
+												>
+													Show less
+												</Button>
+											{/if}
+										{:catch error}
+											<p>error</p>
+										{/await}
+									</div>
+								</Accordion.Content>
+							</Accordion.Item>
+						</Accordion.Root>
+
+						<Accordion.Root class="m-0 p-0 text-foreground ">
+							<Accordion.Item value="item-1" class>
+								<Accordion.Trigger class="py-1">🤔 Work In Progress (info)</Accordion.Trigger>
+								<Accordion.Content m-0>
+									<Label for="url" class="my-2">About the website</Label>
+									<div class="mb-2 flex w-full min-w-full flex-col items-center space-x-2">
+										<div class="text-xs">
+											website is still under development, so expect some bugs and missing features. <br
+											/>
+											coming features are : <br />
+											<li>analytics</li>
+											<li>custom subdomain</li>
+											<br />
+											bugs? <a href="https://instagram.com/raaharja">contact me</a>
+										</div>
+									</div>
+								</Accordion.Content>
+							</Accordion.Item>
+							<Dialog.Root class="my-2 hidden w-full transition-all md:block md:flex-none">
+								<Dialog.Trigger>
+									<Button
+										class="my-2  w-full transition-all hover:bg-primary  hover:text-black md:block md:flex-none"
+										variant="secondary"
+										>💓 Buy me a ko-fi
+									</Button>
+								</Dialog.Trigger>
+								<Dialog.Content>
+									<Dialog.Header>
+										<Dialog.Title></Dialog.Title>
+										<Dialog.Description>
+											<iframe
+												id="kofiframe"
+												src="https://ko-fi.com/freqtion/?hidefeed=true&widget=true&embed=true&preview=true"
+												style="border:none;width:100%;background:#0A0911;border-radius:0.7em"
+												height="712"
+												title="freqtion"
+											></iframe>
+										</Dialog.Description>
+									</Dialog.Header>
+								</Dialog.Content>
+							</Dialog.Root>
+						</Accordion.Root>
+					</div>
+				</Card.Content>
+			</Card.Header>
+		</Card.Root>
+	</div>
 </div>

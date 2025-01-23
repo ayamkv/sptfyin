@@ -24,9 +24,9 @@
 	>
 		<slot />
 		<DialogPrimitive.Close
-			class="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none"
+			class="ring-offset-background focus:ring-ring data-[state=open]:bg-background data-[state=open]:text-muted-foreground absolute right-4 top-4 rounded-md transition-opacity hover:bg-primary hover:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none bg-background"
 		>
-			<X class="h-4 w-4" />
+			<X class="h-8 w-8" />
 			<span class="sr-only">Close</span>
 		</DialogPrimitive.Close>
 	</DialogPrimitive.Content>

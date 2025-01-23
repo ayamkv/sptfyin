@@ -141,3 +141,19 @@ export function findUrl(str) {
 	let urls = str.match(regex);
 	return urls ? urls[0] : null;
 }
+
+export const createLoadObserver = handler => {
+	let waiting = 0
+
+	const onload = el => {
+		waiting++
+		el.addEventListener('load', () => {
+			waiting--
+			if (waiting === 0) {
+				handler()
+			}
+		})
+	}
+
+	return onload
+}
