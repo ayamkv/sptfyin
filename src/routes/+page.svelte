@@ -424,7 +424,7 @@
 							type="button"
 							class="hover:bg-primary hover:text-black"
 							variant="secondary"
-							on:click={() => handlePaste()}
+							on:click={() => handlePaste()}>
               <iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
               </iconify-icon>
               </Button
