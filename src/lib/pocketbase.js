@@ -1,12 +1,14 @@
-
+import PocketBase from 'pocketbase';
 import { myFetch } from './fetchWrapper.js';
-
 import { nanoid, customAlphabet } from 'nanoid'
 
 
 
 let pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 let cfSecret = import.meta.env.VITE_CF_SECRET;
+
+const pb = new PocketBase(pocketBaseURL);
+
 
 export async function validateToken(token) {
   const response = await fetch('/api/verify-turnstile', {
@@ -23,67 +25,66 @@ export async function validateToken(token) {
 
 
 export async function getRecords(collection) {
-    const res = await myFetch(`${pocketBaseURL}/api/collections/${collection}/records`);
-    return res.json();
+  try {
+    return await pb.collection(collection).getFullList();
+  } catch (err) {
+    console.error('Get records error', err);
+    throw err;
   }
+}
 
   // get recent
 export async function getRecentRecords(collection) {
   const res = await fetch(`${pocketBaseURL}/api/collections/random_short/records?sort=-created&fields=id_url,from,created`)
   return res.json();
 }
+
+
   
 export async function createRecord(collection, data) {
-  const res = await myFetch(`${pocketBaseURL}/api/collections/${collection}/records`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  try {
+    return await pb.collection(collection).create(data);
+  } catch (err) {
+    console.error('Create error', err);
+    throw err;
+  }
 }
 
 export async function updateRecord(collection, id, data) {
-  const res = await myFetch(`${pocketBaseURL}/api/collections/${collection}/records/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  try {
+    return await pb.collection(collection).update(id, data);
+  } catch (err) {
+    console.error('Update error', err);
+    throw err;
+  }
 }
 
 export async function deleteRecord(collection, id) {
-  const res = await myFetch(`${pocketBaseURL}/api/collections/${collection}/records/${id}`, {
-    method: 'DELETE'
-  });
-  return res.json();
+  try {
+    return await pb.collection(collection).delete(id);
+  } catch (err) {
+    console.error('Delete error', err);
+    throw err;
+  }
 }
 
 export async function generateRandomURL() {
-	const nanoid = customAlphabet('1234567890abcdef', 4)
-    let idUrl;
+  try {
     let exists = true;
-    let collection = 'random_short';
-
+    let shortId = null;
     while (exists) {
-        const newUrl = nanoid();
-        // Check if the generated URL already exists
-        const res = await fetch(`${pocketBaseURL}/api/collections/${collection}/records?filter=(id_url='${newUrl}')`);
-        const data = await res.json();
-        console.log(data)
-
-        // If no items are returned, it means the URL does not exist
-        if (!data.items || data.items.length === 0) {
-            idUrl = newUrl;
-            exists = false;
-        } else {
-            console.log('URL already exists')
-            idUrl = null
-        }
+      const newId = Math.random().toString(36).substring(2, 6);
+      const records = await pb.collection('random_short').getList(1, 1, { 
+        filter: `id_url='${newId}'`
+      });
+      if (!records.items.length) {
+        shortId = newId;
+        exists = false;
+      }
     }
-    console.log(idUrl)
-    return idUrl;
+    return shortId;
+  } catch (err) {
+    console.error('Generate random error', err);
+    throw err;
+  }
 }

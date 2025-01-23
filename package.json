@@ -42,7 +42,7 @@
 		"iconify-icon": "^2.1.0",
 		"mode-watcher": "^0.3.1",
 		"nanoid": "^5.0.7",
-		"pocketbase": "^0.21.3",
+		"pocketbase": "^0.21.5",
 		"svelte-sonner": "^0.3.27",
 		"tailwind-merge": "^2.3.0",
 		"tailwind-variants": "^0.2.1",
