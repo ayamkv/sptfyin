@@ -92,3 +92,52 @@ export const hideEmail = (email) => {
 // 		};
 // 	}
 // };
+
+export function localizeDate(date) {
+    const inputDate = new Date(date);
+    const now = new Date();
+    const elapsedMs = inputDate.getTime() - now.getTime();
+    const isPast = elapsedMs < 0;
+    const elapsed = Math.abs(elapsedMs);
+
+    const seconds = Math.floor(elapsed / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    let unit;
+    let value;
+
+    if (days >= 1) {
+        value = days;
+        unit = 'day';
+    } else if (hours >= 1) {
+        value = hours;
+        unit = 'hour';
+    } else if (minutes >= 1) {
+        value = minutes;
+        unit = 'minute';
+    } else if (seconds >= 1) {
+        value = seconds;
+        unit = 'second';
+    } else {
+        return 'just now';
+    }
+
+    const suffix = isPast ? 'ago' : 'from now';
+    let article = 'a';
+    if (value === 1) {
+        if (unit === 'hour') article = 'an';
+        else if (['a', 'e', 'i', 'o', 'u'].includes(unit[0])) article = 'an';
+        return `${article} ${unit} ${suffix}`;
+    } else {
+        return `${value} ${unit}s ${suffix}`;
+    }
+}
+
+export function findUrl(str) {
+	const regex =
+		/^(https:\/\/[a-z]+\.spotify\.com\/)(playlist|artist|album|track|episode|show|user)\/.*$/gm;
+	let urls = str.match(regex);
+	return urls ? urls[0] : null;
+}

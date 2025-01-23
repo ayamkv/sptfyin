@@ -105,7 +105,7 @@
     @apply bg-background text-foreground;
   }
   a {
-    @apply underline underline-offset-4 font-semibold hover:outline outline-offset-4 rounded hover:text-primary focus:ring-ring focus:ring-offset-2 focus:ring-primary focus:ring-opacity-50;
+    @apply underline underline-offset-4 font-semibold hover:outline outline-offset-4 rounded hover:text-primary focus:ring-offset-2 focus:ring-primary focus:ring-opacity-50;
   }
   .highlight {
     box-shadow: inset 0 1px 0 0 #c7ffe796, 0 2px 20px 2px #43c99665;
@@ -121,8 +121,12 @@
   
   }
   html {
+    scrollbar-gutter: stable;
     scroll-behavior: smooth;
-    overflow: auto;
+    width: 100vw;
+    /* overflow: auto; */
+    overflow-y: scroll;
+    overflow-x: hidden; 
   }
 
 
