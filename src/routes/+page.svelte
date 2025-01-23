@@ -35,10 +35,7 @@
     let currentItems = 4
     let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
     console.log(turnstileKey)
-
-    // const turnstileKey = '0x4AAAAAAAfXWBvVu4QvwLH7'
     
-
     function scrollToBottom() {
       scrollHere.scrollIntoView()
     }
