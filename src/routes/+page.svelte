@@ -12,8 +12,8 @@
 		validateToken
 	} from '$lib/pocketbase';
 	// import { generateRandomURL } from "$lib/utils";
-  import { localizeDate, findUrl, createLoadObserver } from '$lib/utils';
-  import { Skeleton } from "$lib/components/ui/skeleton";
+    import { localizeDate, findUrl, createLoadObserver } from '$lib/utils';
+    import { Skeleton } from "$lib/components/ui/skeleton";
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
 	import * as Card from '$lib/components/ui/card';
 	import { Switch } from '$lib/components/ui/switch';
@@ -46,7 +46,7 @@
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
     let reset;
 	let shortIdDisplay = '####';
-	let qrUrl 
+	let qrUrl = `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
 	let inputText = null;
 	let isError = false;
 	let alertDialogTitle = '';
@@ -353,7 +353,7 @@
 	<AlertDialog.Trigger></AlertDialog.Trigger>
 	<AlertDialog.Content>
 		<AlertDialog.Header>
-			<div class="w-[120px] min-h-[120px] m-auto block text-center flex flex-col align-center justify-center">
+			<div class="w-[120px] min-h-[120px] m-auto text-center flex flex-col align-center justify-center">
 				<iconify-icon icon={errorIcon} class="m-auto block text-center" width="120" alt="emoji"></iconify-icon></div>
 			<AlertDialog.Title class="text-center">{@html alertDialogTitle}</AlertDialog.Title>
 
@@ -576,8 +576,7 @@
 							</div>
 						{/if}
 					</div>
-					{#if fullShortURL}
-					
+					{#if fullShortURL}				
 						<Drawer.Root shouldScaleBackground>
 							<Drawer.Trigger>
 								<Button variant="secondary" class="w-full">Show QR Code</Button>
@@ -591,7 +590,7 @@
 												<img
 												class="min-w-[50%] md:min-w-[20%] w-[200px] md:w-[350px] rounded-md shadow-md"
 												on:load={() => (isQrLoaded = true)}
-												style="opacity: {isQrLoaded ? 1 : 0}; transition: opacity 0.2s ease;"
+												transition:fade={{ duration: 1200 }}
 												src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/{shortIdDisplay}"
 												alt="QR Code"
 												height="350"
@@ -606,22 +605,36 @@
 									</Drawer.Description>
 								</Drawer.Header>
 								<Drawer.Footer>
-									<Drawer.Close>
-										<!-- <Button variant="default" on:click={(event) => {
+									<Drawer.Close class="flex flex-col md:flex-row items-center justify-center align-middle gap-2">	
+										{#if isQrLoaded}
+										<Button variant="default" 
+										on:click={(event) => {
 											event.preventDefault();
-											function downloadQRCode() {
-												const anchor = document.createElement('a');
-												anchor.href = qrUrl;
-												anchor.setAttribute('download', 'sptfy_qr.png');
-												anchor.click();
-												anchor.remove();
-											}
+											async function downloadQRCode() {
+												try {
+													const response = await fetch(qrUrl);
+													const blob = await response.blob();
+													const objectUrl = URL.createObjectURL(blob);
+													const anchor = document.createElement('a');
+
+													anchor.href = objectUrl;
+													anchor.setAttribute('download', `sptfyin_qr_${shortIdDisplay}.png`);
+													anchor.click();
+													anchor.remove();
+
+													
+													URL.revokeObjectURL(objectUrl);
+												} catch (e) {
+													console.error('Download failed', e);
+												}
+												}
 											downloadQRCode();
 											// your code here
-										  }} class="mt-1 mb-1 w-1/2 md:w-[360px] transition-all" >
-											Download QR Code
-										</Button> -->
-										<!-- Coming Soon. -->
+										  }} class="mt-1 mb-1 w-1/2 md:w-[360px] transition-all" style="opacity: {isQrLoaded ? 1 : 0}; transition: opacity 1s ease;" >
+											<div class="m-auto text-center flex flex-row align-center justify-center">
+												<iconify-icon icon='lucide:download' class="m-auto block text-center px-2" width="15" alt="emoji"></iconify-icon> Download </div>
+										</Button>
+										{/if}
 										<Button variant="secondary" class="mt-1 w-1/2 md:w-[360px] transition-all" >
 											Close
 										</Button>
