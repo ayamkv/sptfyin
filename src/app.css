@@ -6,39 +6,46 @@
   font-family: 'Fixel';
   font-style: normal;
   font-weight: 400;
+  font-display: swap;
   src: url('/fonts/FixelText-Regular.woff2') format('woff2')
 }
 @font-face {
   font-family: 'Fixel';
   font-style: normal;
   font-weight: 700;
+  font-display: swap;
   src: url('/fonts/FixelText-Bold.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Fixel';
   font-weight: 200;
+  font-display: swap;
   src: url('/fonts/FixelText-Light.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Fixel';
   font-style: normal;
   font-weight: 500;
+  font-display: swap;
   src: url('/fonts/FixelText-Medium.woff2') format('woff2')
 }
 @font-face {
   font-family: 'Fixel';
   font-style: normal;
   font-weight: 600;
+  font-display: swap;
   src: url('/fonts/FixelText-SemiBold.woff2') format('woff2')
 }
 @font-face {
   font-family: 'Fixel Display';
   font-weight: 700;
+  font-display: swap;
   src: url('/fonts/FixelDisplay-SemiBold.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Plus Jakarta Display Bold'; 
   font-weight: 800;
+  font-display: swap;
   src: url('/fonts/PlusJakartaDisplay-Bold.woff2') format('woff2');
 }
 /* @font-face {
@@ -134,11 +141,14 @@
 
 }
 
+ 
+
 
 @layer utilities {
   .ss03 {
     font-feature-settings: "ss03";
   }
+
 }
 
 

@@ -12,7 +12,7 @@
         "ErrorCreatedRecordNoInputTitle": "Um.. forgot something?",
         "ErrorCreatedRecordNoInputDesc": "it seems like you did not provide any link, <br> please check the input field <br><br>please try again with a valid link or <br> <a href='https://instagram.com/raaharja'>contact me</a> if you think this is something else or a bug.",
         "ErrorTurnstileValidationTitle": "Ouch! captcha validation failed",
-        "ErrorTurnstileValidationDesc": "we couldn't validate the captcha, <br> please try again or <a href='https://instagram.com/raaharja'>contact me</a> if you think this is a bug.",
+        "ErrorTurnstileValidationDesc": "we couldn't validate the captcha, <br> <b>please try again<b> or <a href='https://instagram.com/raaharja'>contact me</a> if you think this is a bug.",
         "ErrorCustomShortIdExistsIcon": "fluent-emoji:face-with-open-eyes-and-hand-over-mouth",
         "ErrorCustomShortIdExistsTitle": "Welp, this already exists..",
         "ErrorCustomShortIdExistsDesc": "the custom link you're trying to use is already taken, <br> please try another one."
