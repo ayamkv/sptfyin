@@ -209,7 +209,7 @@
 
 	let promiseResolve, promiseReject;
 
-	let selected = { value: 'sptfy.in', label: 'Default: sptfy.in' };
+	let selected = { value: 'sptfy.in', label: 'default: sptfy.in' };
 	const domainList = [
 		{ value: 'sptfy.in', label: 'sptfy.in' },
 		{ value: 'COMING SOON', label: '--- COMING SOON ---', disabled: true },
@@ -521,11 +521,11 @@
 						>
 						<!-- bind:open={focus1} -->
 							<Select.Trigger class="">
-								<Select.Value placeholder="Domain: sptfy.in" selected="sptfy.in" />
+								<Select.Value placeholder="domain: sptfy.in" selected="sptfy.in" />
 							</Select.Trigger>
 							<Select.Content>
 								<Select.Group>
-									<Select.Label>Select domain</Select.Label>
+									<Select.Label>select domain</Select.Label>
 									{#each domainList as domain}
 										<Select.Item
 											value={domain.value}

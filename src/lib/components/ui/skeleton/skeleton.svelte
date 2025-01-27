@@ -7,4 +7,4 @@
 	export { className as class };
 </script>
 
-<div in:scale={{ duration: 300, easing:elasticOut }} class={cn("bg-secondary animate-[pulse_1s_ease-in-out_infinite] rounded-md", className)} {...$$restProps} out:fade="{{duration: 100}}"></div>
+<div class={cn("bg-secondary animate-[pulse_1s_ease-in-out_infinite] rounded-md", className)} {...$$restProps} out:fade="{{duration: 100}}"></div>
