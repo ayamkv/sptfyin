@@ -31,33 +31,32 @@ export const load = async ({ params }) => {
     const res = await fetch(`${pocketBaseURL}/api/collections/random_short/records?filter=(id_url='${slug}')`);
     const data = await res.json();
     
-    console.log(data.items)
+    console.log("Initial data items:", data.items)
     try {
         const recordId = data?.items[0].id;
         link = data?.items[0].from;
         const utmView = data?.items[0].utm_view;
-        if (recordId) {
-            try {
-                await updateRecord('random_short', recordId, {
-                    "utm_view+": 1
-                    });
-            } catch (err) {
-                console.error('Error incrementing UTM view', err);
-                throw err;
-            }
-            console.log(data.items)
+        console.log(`[Debug] Current UTM view count for ${slug}:`, utmView);
+        
+        if (!recordId) {
+            throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
+        }
+        
+        try {
+            await updateRecord('random_short', recordId, {
+                "utm_view+": 1
+            });
+            console.log(`[Debug] Successfully incremented UTM view for ${slug}`);
+        } catch (err) {
+            console.error('Error incrementing UTM view', err);
+            throw err;
         }
     } catch (error) {
-        link = null;
+        throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
     }
     
-    if (link) {
-        throw redirect(303, link);
-    } else {
-        throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠'); 
-    }
+    throw redirect(303, link);
 };
-
 
 // test load page with just echoing the slug back in web without page.svelt
 
