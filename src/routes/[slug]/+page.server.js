@@ -12,25 +12,12 @@ let pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
 let link = null
 
-
-// async function incrementUTMView(recordId, utm_view) {
-//     try {
-//         const record = await getRecords('random_short', recordId);
-//         const updatedData = {
-//             "utm_view": utm_view + 1
-//         };
-//         await updateRecord('random_short', recordId, updatedData);
-//     } catch (err) {
-//         console.error('Error incrementing UTM view', err);
-//         throw err;
-//     }
-// }
-
 export const load = async ({ params }) => {
-    const slug = params;
-    const res = await fetch(`${pocketBaseURL}/api/collections/random_short/records?filter=(id_url='${slug}')`);
+    const slug = params.slug;
+    const res = await fetch(`${pocketBaseURL}/api/collections/viewList/records?filter=(id_url='${slug}')`);
     const data = await res.json();
-    
+    console.log(data)
+    console.log(slug)
     console.log("Initial data items:", data.items)
     try {
         const recordId = data?.items[0].id;
@@ -51,7 +38,7 @@ export const load = async ({ params }) => {
             console.error('Error incrementing UTM view', err);
             throw err;
         }
-    } catch (error) {
+    } catch (err) {
         throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
     }
     
