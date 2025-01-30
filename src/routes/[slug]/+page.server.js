@@ -1,9 +1,31 @@
 import { redirect, error } from '@sveltejs/kit';
-import { getRecords } from '$lib/pocketbase';
+import {
+    getRecords,
+    createRecord,
+    generateRandomURL,
+    updateRecord,
+    getRecentRecords,
+    validateToken
+} from '$lib/pocketbase';
 let pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
 
 let link = null
+
+
+// async function incrementUTMView(recordId, utm_view) {
+//     try {
+//         const record = await getRecords('random_short', recordId);
+//         const updatedData = {
+//             "utm_view": utm_view + 1
+//         };
+//         await updateRecord('random_short', recordId, updatedData);
+//     } catch (err) {
+//         console.error('Error incrementing UTM view', err);
+//         throw err;
+//     }
+// }
+
 export const load = async ({ params }) => {
     const slug = params.slug;
     const res = await fetch(`${pocketBaseURL}/api/collections/random_short/records?filter=(id_url='${slug}')`);
@@ -11,25 +33,29 @@ export const load = async ({ params }) => {
     
     console.log(data.items)
     try {
-        link = data?.items[0].from
+        const recordId = data?.items[0].id;
+        link = data?.items[0].from;
+        const utmView = data?.items[0].utm_view;
+        if (recordId) {
+            try {
+                await updateRecord('random_short', recordId, {
+                    "utm_view+": 1
+                    });
+            } catch (err) {
+                console.error('Error incrementing UTM view', err);
+                throw err;
+            }
+            console.log(data.items)
+        }
     } catch (error) {
-        link = null
+        link = null;
     }
     
-    // const headers = new Headers({
-    //     'Content-Type': 'application/json'
-    // });
-    // Return the slug in JSON format
-    // return new Response(JSON.stringify({ 
-    //     slug: slug,
-    //     data: data.items[0].from
-    //  }), { headers });
     if (link) {
         throw redirect(303, link);
     } else {
         throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠'); 
     }
-    // return { slug: slug, data: data };
 };
 
 
