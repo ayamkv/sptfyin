@@ -749,13 +749,13 @@
 										{#await records}
 											<p>awaiting...</p>
 										{:then records}
-											<div class="max-h-fit break-all transition-all">
+											<div class="max-h-fit break-all transition-all" >
 												{#each records.slice(0, currentItems) as item, i}
 													<li
 														transition:slide|global
 														class="align-center my-1 flex w-full min-w-full justify-between pl-1"
 													>
-														<a href={item.from} class="font-thin" target="_blank">
+														<a href='/{item.id_url}' class="font-thin" target="_blank">
 															sptfy.in/{item.id_url}
 														</a>
 														<span class="ml-2 text-muted-foreground/70">
