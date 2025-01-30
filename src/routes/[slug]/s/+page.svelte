@@ -37,6 +37,13 @@
 	import { get } from 'svelte/store';
 	import { toastGroups } from '$lib/debug';
 
+	export let data;
+
+
+
+	let utmView = data.utmView
+	console.log('utmView: ', utmView);
+
 	let debugMode = import.meta.env.VITE_DEBUG_MODE;
 	console.log('debugMode: ', debugMode);
   // if (debugMode === 'true') {
@@ -376,7 +383,7 @@
 		py-10
 		md:ml-0
 		md:w-[99vw]
-		md:h-[60vh]
+		md:h-[70vh]
 		md:flex-row
 		md:items-start
 		md:px-10
@@ -553,10 +560,10 @@
         {/if}
 					<Card.Header class="pb-2">
 						<Card.Description>Total Clicks</Card.Description>
-						<Card.Title class="text-4xl">129</Card.Title>
+						<Card.Title class="text-4xl md:text-5xl">{utmView}</Card.Title>
 					</Card.Header>
 					<Card.Content>
-						<div class="text-xs text-muted-foreground">+25% from last week</div>
+						<div class="text-xs text-muted-foreground"></div>
 					</Card.Content>
 					<Card.Footer>
 						<!-- <Progress value={25} aria-label="25% increase" /> -->
@@ -571,10 +578,10 @@
         {/if}
 					<Card.Header class="pb-2">
 						<Card.Description>Unique Visitors</Card.Description>
-						<Card.Title class="text-4xl">89</Card.Title>
+						<Card.Title class="text-4xl md:text-5xl">89</Card.Title>
 					</Card.Header>
 					<Card.Content>
-						<div class="text-xs text-muted-foreground">+25% from last week</div>
+						<div class="text-xs text-muted-foreground"></div>
 					</Card.Content>
 					<Card.Footer>
 						<!-- <Progress value={25} aria-label="25% increase" /> -->
@@ -614,7 +621,7 @@
           <Skeleton class="absolute top-0 left-0 z-10 h-full w-full rounded-lg" />
         </div>
         {/if}
-        <Card.Header>
+        <Card.Header class="pb-2">
           <Card.Title>analytics</Card.Title>
           <Card.Description>here's how your URL will look like</Card.Description>
           <Card.Content class="grid px-0 pb-0 text-left text-muted-foreground/80 min-h-full">
@@ -688,4 +695,5 @@
 			<i>(TL;DR: not officialy from spotify)</i>
 		</p>
 	</div>
+	
 </div>

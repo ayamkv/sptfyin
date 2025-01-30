@@ -27,7 +27,7 @@ let link = null
 // }
 
 export const load = async ({ params }) => {
-    const slug = params.slug;
+    const slug = params;
     const res = await fetch(`${pocketBaseURL}/api/collections/random_short/records?filter=(id_url='${slug}')`);
     const data = await res.json();
     

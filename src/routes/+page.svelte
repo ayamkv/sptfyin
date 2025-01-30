@@ -594,10 +594,18 @@
 										alt="emoji"
 									></iconify-icon>
 								</div>
-								<span>Short It!</span>
+								<span>short It!</span>
 							</Button>
 						</div>
 					</form>
+					<div class="continue mt-4">
+						
+						<p class="text-xs text-foreground/60">
+							by continuing, you agree to 
+							<a href="/about/privacy" >privacy policy</a> and 
+							<a href="/about/terms" >terms of ethical use</a>.
+						</p>
+					</div>
 				</div>
 			</Card.Content>
 			<Card.Footer class="flex-col"></Card.Footer>
@@ -805,6 +813,7 @@
 paste your spotify track, album, or playlist url → slap on a custom back half (optional) → done. ✨<br>
 no ads, no nonsense—just short links that actually work.
 											</p>
+											<a href="/about"> about page </a>
 										</div>
 									</div>
 								</Accordion.Content>
@@ -843,6 +852,11 @@ no ads, no nonsense—just short links that actually work.
 						this project <b>is NOT AFFILIATED</b> with, endorsed by, or sponsored by Spotify AB.<br
 						/>
 						<i>(TL;DR: not officialy from spotify)</i>
+					</p>
+				</div>
+				<div class="footer text-left mt-4">
+					<p class="text-xs text-foreground/60">
+						<a href="/about/terms">terms of ethical use</a> | <a href="/about/privacy">privacy policy</a> | <a href="/about/contact">contact</a>
 					</p>
 				</div>
 			</Card.Header>
