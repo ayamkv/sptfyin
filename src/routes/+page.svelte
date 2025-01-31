@@ -855,8 +855,8 @@ no ads, no nonsense—just short links that actually work.
 					</p>
 				</div>
 				<div class="footer text-left mt-4">
-					<p class="text-xs text-foreground/60">
-						<a href="/about/terms">terms of ethical use</a> | <a href="/about/privacy">privacy policy</a> | <a href="/about/contact">contact</a>
+					<p class="text-xs text-foreground/60 flex flex-row gap-4">
+						<a href="/about/terms">terms of ethical use</a> | <a href="/about/privacy">privacy policy</a> | <a href="/about/contact">socials</a> | <a href="https://status.sptfy.in" target="_blank">server status</a>
 					</p>
 				</div>
 			</Card.Header>
