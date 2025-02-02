@@ -42,7 +42,8 @@
 
 
 	let utmView = data.utmView
-	console.log('utmView: ', utmView);
+	let analytics = data.analytics
+	console.log('analytics: ', data.analytics);
 
 	let debugMode = import.meta.env.VITE_DEBUG_MODE;
 	console.log('debugMode: ', debugMode);
@@ -639,14 +640,14 @@
                   </Table.Row>
                 </Table.Header>
                 <Table.Body class="">
-				{#each getCurrentItems(placeholderList, currentPage, 10) as v, i (i)}
+				{#each getCurrentItems(analytics, currentPage, 10) as v, i (i)}
                     <Table.Row>
                       <Table.Cell class="font-medium">
-						<img src={`https://www.flagsapi.com/${toUpperCase(v.country_flag)}/shiny/64.png`} alt={v.country} class="w-6 h-6 mr-2" />
+						<img src={`https://www.flagsapi.com/${toUpperCase(v.utm_country)}/shiny/64.png`} alt={v.utm_country} class="w-6 h-6 mr-2" />
 					  </Table.Cell>
-                      <Table.Cell>{v.browser}</Table.Cell>
-                      <Table.Cell>{v.os}</Table.Cell>
-                     
+                      <Table.Cell>{v.utm_userAgent}</Table.Cell>
+                      <!-- <Table.Cell>{v.os}</Table.Cell>
+                      -->
                     </Table.Row>
                 {/each}
                 </Table.Body>

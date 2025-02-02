@@ -88,12 +88,14 @@
 	function setAccordionValue(newValue) {
 		accordionValue = newValue;
 	}
-
+	let totalLinkCreated;
 	async function fetchData() {
 		recentLoading = true;
 		try {
 			const response = await getRecentRecords();
 			records = response.items;
+			totalLinkCreated = response.totalItems
+			
 		} catch (error) {
 			console.error(error);
 		} finally {
@@ -194,6 +196,8 @@
 	// onMount(() => {
 	//     console.log(strings)
 	// });
+
+
 	function escapeSelectHandle() {
 		onMount(() => {
 			setTimeout(() => {
@@ -212,14 +216,16 @@
 	let selected = { value: 'sptfy.in', label: 'default: sptfy.in' };
 	const domainList = [
 		{ value: 'sptfy.in', label: 'sptfy.in' },
+		{ value: 'artist', label: 'artist.sptfy.in', disabled: false },
 		{ value: 'COMING SOON', label: '--- COMING SOON ---', disabled: true },
 		{ value: 'profile', label: 'profile.sptfy.in', disabled: true },
 		{ value: 'playlist', label: 'playlist.sptfy.in', disabled: true },
 		{ value: 'podcast', label: 'podcast.sptfy.in', disabled: true },
 		{ value: 'album', label: 'album.sptfy.in', disabled: true },
-		{ value: 'track', label: 'track.sptfy.in', disabled: true },
-		{ value: 'artist', label: 'artist.sptfy.in', disabled: true }
+		{ value: 'track', label: 'track.sptfy.in', disabled: true }
 	];
+
+	$: console.log('domain selected: ', selected)
 	function handleCustomUrl() {
 		const value = customShortId;
 		const modifiedValue = value.toLocaleLowerCase().replace(/[^a-zA-Z0-9-]/g, '-');
@@ -413,7 +419,8 @@
 		text-white
 		"
 		>
-			by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a>
+		🥳 {totalLinkCreated} links created
+			<!-- by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a> -->
 		</h3>
 
 		{#if debugMode === 'true'}
@@ -856,7 +863,7 @@ no ads, no nonsense—just short links that actually work.
 				</div>
 				<div class="footer text-left mt-4">
 					<p class="text-xs text-foreground/60 flex flex-row gap-4">
-						<a href="/about/terms">terms of ethical use</a> | <a href="/about/privacy">privacy policy</a> | <a href="/about/contact">socials</a> | <a href="https://status.sptfy.in" target="_blank">server status</a>
+						<a href="/about/terms">terms of ethical use</a> | <a href="/about/privacy">privacy policy</a> | <a href="/about/socials">socials</a> | <a href="https://status.sptfy.in" target="_blank">server status</a>
 					</p>
 				</div>
 			</Card.Header>

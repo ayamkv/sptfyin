@@ -35,8 +35,21 @@ export async function getRecords(collection) {
 
   // get recent
 export async function getRecentRecords(collection) {
-  const res = await fetch(`${pocketBaseURL}/api/collections/random_short/records?sort=-created&fields=id_url,from,created`)
+  const res = await fetch(`${pocketBaseURL}/api/collections/viewList/records?sort=-created&fields=id_url,from,created`)
   return res.json();
+}
+
+export async function getFilteredRecords(collection, filter, sort = '') {
+  try {
+    const filterParam = filter ? `?filter=${filter}` : '';
+    const sortParam = sort ? `${filterParam ? '&' : '?'}sort=${sort}` : '';
+    const res = await fetch(`${pocketBaseURL}/api/collections/${collection}/records${filterParam}${sortParam}`);
+    const data = await res.json();
+    return data.items || [];
+  } catch (err) {
+    console.error('Get filtered records error', err);
+    throw err;
+  }
 }
 
 
