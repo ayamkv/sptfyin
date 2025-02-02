@@ -361,6 +361,12 @@
 		by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a>
 	</h3>
 </div> -->
+
+<svelte:head>
+	<title>
+		sptfy.in - spotify link url shortener
+	</title>	
+</svelte:head>
 <div
 	class="mt-0 flex min-h-[100vh] w-[99vw] flex-col items-center justify-center bg-background"
 	data-vaul-drawer-wrapper
@@ -487,7 +493,7 @@
 	>
 		<Card.Root class="w-[23rem] transition-all sm:w-[25rem] md:w-[35rem]">
 			<Card.Header>
-				<Card.Title>simplify your url</Card.Title>
+				<Card.Title>spotify link shortener - simplify your url</Card.Title>
 				<Card.Description
 					>make your Spotify URLs looks clean to share on your socials 😸</Card.Description
 				>
