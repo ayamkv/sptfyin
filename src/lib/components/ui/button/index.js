@@ -4,7 +4,7 @@ const buttonVariants = tv({
 	base: "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
 	variants: {
 		variant: {
-			default: "bg-primary text-primary-foreground hover:bg-primary highlight hover:highlightHover hover:scale-95 md:hover:scale-105  hover:-rotate-1 md:active:scale-100 transition-all ",
+			default: "bg-primary text-primary-foreground hover:bg-primary highlight hover:highlightHover hover:scale-95 md:hover:scale-105  hover:-rotate-1 md:active:scale-100 active:bg-secondary active:text-foreground transition-all ",
 			destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
 			outline:
 				"border border-input bg-background hover:bg-accent hover:text-accent-foreground",

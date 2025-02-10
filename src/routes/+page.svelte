@@ -46,6 +46,7 @@
 	let rrecords;
 	let recordsPromise;
 	let error = null;
+	let loading = false;
 	let recentLoading = true;
 	let currentItems = 4;
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
@@ -89,6 +90,14 @@
 		accordionValue = newValue;
 	}
 	let totalLinkCreated;
+	
+	function formatNumber(num) {
+	  if (!num) return 0;
+	  if (num >= 1000) {
+	    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+	  }
+	  return num;
+	}
 	async function fetchData() {
 		recentLoading = true;
 		try {
@@ -235,6 +244,11 @@
 	}
 
 	const handleSubmit = async (e) => {
+		const promise = new Promise(function (resolve, reject) {
+				promiseResolve = resolve;
+				promiseReject = reject;
+			});
+		loading = true
 		let url_id = customShortId;
 
 		if (!customShortId) {
@@ -263,10 +277,7 @@
 			qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
 			inputText = '';
 			customShortId = '';
-			const promise = new Promise(function (resolve, reject) {
-				promiseResolve = resolve;
-				promiseReject = reject;
-			});
+
 			toast.promise(promise, {
 				class: 'my-toast',
 				description: 'The link has been shortened!',
@@ -282,13 +293,15 @@
 			});
 			reset?.();
 			promiseResolve();
-			fullShortURL = `https://${selected.value}/${url_id}`;
+			loading = false;
+			fullShortURL = `https://${selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`}/${url_id}`;
 			if (isMobile) {
 				scrollToBottom();
 			}
 		} catch (err) {
-			console.log(err.response.status);
-			console.log(err.response?.data);
+		loading = false;
+		console.log(err.response.status);
+		console.log(err.response?.data);
 
 			// default error fallback
 			alertDialogTitle = strings.ErrorCreateRecordTitle;
@@ -350,14 +363,14 @@
 <!-- <div class="flex flex-col items-center justify-center">
 	<h1
 		class="ss03 hidden translate-y-[12rem] font-jak-display text-8xl font-bold text-primary
-    md:block 
-    md:flex-none"
+    lg:block 
+    lg:flex-none"
 	>
 		Sptfy.in
 	</h1>
-	<h3 class="text-md hidden translate-y-[12rem] pt-5 text-white 
-  md:block 
-  md:flex-none">
+	<h3 class="text-lg hidden translate-y-[12rem] pt-5 text-white 
+  lg:block 
+  lg:flex-none">
 		by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a>
 	</h3>
 </div> -->
@@ -368,7 +381,7 @@
 	</title>	
 </svelte:head>
 <div
-	class="mt-0 flex min-h-[100vh] w-[99vw] flex-col items-center justify-center bg-background"
+	class="mt-0 flex min-h-[100vh] w-[99vw] flex-col items-center justify-center bg-background lg:-translate-x-[8rem]"
 	data-vaul-drawer-wrapper
 >
 	<AlertDialog.Root bind:open={isError} class="transition-all">
@@ -395,7 +408,7 @@
 		</AlertDialog.Content>
 	</AlertDialog.Root>
 
-	<Dialog.Root class="md:hidden md:flex-none">
+	<Dialog.Root class="lg:hidden lg:flex-none">
 		<Dialog.Trigger></Dialog.Trigger>
 		<Dialog.Content>
 			<Dialog.Header>
@@ -413,25 +426,25 @@
 		</Dialog.Content>
 	</Dialog.Root>
 
-	<div class="logo mt-[5em] flex flex-col items-center justify-center">
+	<div class="logo mt-[2em] flex flex-col items-center justify-center">
 		<h1
-			class="ss03 font-jak-display text-6xl font-bold text-primary md:text-8xl
+			class="ss03 font-jak-display text-6xl font-bold text-primary lg:text-8xl
 		"
 		>
 			Sptfy.in
 		</h1>
 		<h3
-			class="text-md mt-4
+			class="text-lg mt-4
 		text-white
 		"
 		>
-		🥳 {totalLinkCreated} links created
+		🥳 {formatNumber(totalLinkCreated)} links created
 			<!-- by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a> -->
 		</h3>
 
 		{#if debugMode === 'true'}
 			<h3
-				class="text-md mt-4 flex justify-center rounded-md bg-orange-300 px-4 py-2 align-middle text-black"
+				class="text-lg mt-4 flex justify-center rounded-lg bg-orange-300 px-4 py-2 align-middle text-black"
 			>
 				Debug Mode is Active!
 			</h3>
@@ -459,7 +472,7 @@
 					{#if debugToastVisible}
 						{#each toastGroups as group}
 							<div class="mt-1">
-								<h4 class="text-md">{group.title}</h4>
+								<h4 class="text-lg">{group.title}</h4>
 								{#each group.buttons as btn}
 									<div class="mx-1 inline-block">
 										<Button class={btn.class} on:click={btn.onClick}>
@@ -477,291 +490,322 @@
 
 	<div
 		class="flex
-		w-[100vw]
+		lg:w-[100vw]
+		w-[23rem]
 		flex-col items-center
 		justify-center
 		px-6
 		py-10
-		transition-all
-		md:ml-0
-		md:flex-row
-		md:items-start
-		md:px-10
-		md:py-10
+
+		lg:ml-0
+		lg:mr-4
+		lg:flex-row
+		lg:items-start
+		lg:px-0
+		lg:py-10
 		[&:not(:first-child)]:gap-6
+		
 		"
 	>
-		<Card.Root class="w-[23rem] transition-all sm:w-[25rem] md:w-[35rem]">
-			<Card.Header>
-				<Card.Title>spotify link shortener - simplify your url</Card.Title>
-				<Card.Description
-					>make your Spotify URLs looks clean to share on your socials 😸</Card.Description
-				>
-			</Card.Header>
-			<Card.Content class="grid gap-4 pb-0">
-				<div>
-					<form on:submit|preventDefault={handleSubmit} class="flex w-[8rem] min-w-full flex-col">
-						<Label for="url" class="my-2">paste your long ass URL here</Label>
-						<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
-							<Input
-								type="url"
-								id="url"
-								on:paste={handlePaste}
-								placeholder="https://open.spotify.com/xxxx...."
-								bind:value={inputText}
-								class="placeholder:translate-y-[2px]"
-								required
-								autofocus
-							/>
-							<Button
-								type="button"
-								class="paste-button hover:bg-primary hover:text-black"
-								variant="secondary"
-								on:click={() => handlePaste()}
-							>
-								<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
-								</iconify-icon>
-							</Button>
-						</div>
-
-						<Label for="domainSelect" class="my-2">select domain</Label>
-						<Select.Root
-							portal={null}
-							id="domainSelect"
-							name="domainSelect"
-							bind:selected
-							asChild
-						>
-						<!-- bind:open={focus1} -->
-							<Select.Trigger class="">
-								<Select.Value placeholder="domain: sptfy.in" selected="sptfy.in" />
-							</Select.Trigger>
-							<Select.Content>
-								<Select.Group>
-									<Select.Label>select domain</Select.Label>
-									{#each domainList as domain}
-										<Select.Item
-											value={domain.value}
-											label={domain.label}
-											on:click={() => escapeSelectHandle()}
-											disabled={domain.disabled}>{domain.label}</Select.Item
-										>
-									{/each}
-								</Select.Group>
-							</Select.Content>
-							<Select.Input name="sptfy.in" />
-						</Select.Root>
-						<!-- <Separator class="my-2"/> -->
-
-						<Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
-							<Accordion.Item value="item-1" class>
-								<Accordion.Trigger>customize slug / back-half <i class="text-foreground/80">(optional)</i></Accordion.Trigger>
-								<Accordion.Content>
-									
-									<div
-										class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
-									>
-										<!-- custom url -->
-										<Input
-											minlength="4"
-											maxlength="80"
-											type="text"
-											id="short_id"
-											placeholder="coolplaylist4"
-											bind:value={customShortId}
-											on:input={handleCustomUrl}
-										/>
-									</div>
-								</Accordion.Content>
-							</Accordion.Item>
-						</Accordion.Root>
-
-						<div class="max-h-[64px] max-w-[300px]">
-							{#if !visible}
-								<Skeleton class="h-[64px] w-[300px]" />
-							{:else}
-								<Turnstile
-									class="relative inline-block h-[64px] w-[300px]"
-									siteKey={turnstileKey}
-									theme="dark"
-									retry="auto"
-									bind:reset
-									on:callback={(event) => {
-										turnstileResponse = event.detail.token;
-										//  validateToken(turnstileResponse)
-									}}
+		<!-- <div class="mobile flex flex-col gap-4 lg:gap-0"> -->
+			<Card.Root class="w-[23rem]   lg:w-[25rem]">
+				<Card.Header>
+					<Card.Title>spotify link shortener - simplify your url</Card.Title>
+					<Card.Description
+						>make your Spotify URLs looks clean to share on your socials 😸</Card.Description
+					>
+				</Card.Header>
+				<Card.Content class="grid gap-4 pb-0">
+					<div>
+						<form on:submit|preventDefault={handleSubmit} class="flex w-[8rem] min-w-full flex-col">
+							<Label for="url" class="my-2">paste your long ass URL here</Label>
+							<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
+								<Input
+									type="url"
+									id="url"
+									on:paste={handlePaste}
+									placeholder="https://open.spotify.com/xxxx...."
+									bind:value={inputText}
+									class="placeholder:translate-y-[2px]"
+									required
+									autofocus
 								/>
-							{/if}
-						</div>
-						<div class="mt-4">
-							<Button
-								class="submit-button align-center m-auto flex w-full flex-row items-center justify-center text-center transition-all"
+								<Button
+									type="button"
+									class="paste-button hover:bg-primary hover:text-black"
+									variant="secondary"
+									on:click={() => handlePaste()}
+								>
+									<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
+									</iconify-icon>
+								</Button>
+							</div>
+
+							<Label for="domainSelect" class="my-2">select domain</Label>
+							<Select.Root
+								portal={null}
+								id="domainSelect"
+								name="domainSelect"
+								bind:selected
+								asChild
+							>
+							<!-- bind:open={focus1} -->
+								<Select.Trigger class="">
+									<Select.Value placeholder="domain: sptfy.in" selected="sptfy.in" />
+								</Select.Trigger>
+								<Select.Content>
+									<Select.Group>
+										<Select.Label>select domain</Select.Label>
+										{#each domainList as domain}
+											<Select.Item
+												value={domain.value}
+												label={domain.label}
+												on:click={() => escapeSelectHandle()}
+												disabled={domain.disabled}>{domain.label}</Select.Item
+											>
+										{/each}
+									</Select.Group>
+								</Select.Content>
+								<Select.Input name="sptfy.in" />
+							</Select.Root>
+							<!-- <Separator class="my-2"/> -->
+
+							<Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
+								<Accordion.Item value="item-1" class>
+									<Accordion.Trigger>customize slug / back-half <i class="text-foreground/80">(optional)</i></Accordion.Trigger>
+									<Accordion.Content>
+										
+										<div
+											class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
+										>
+											<!-- custom url -->
+											<Input
+												minlength="4"
+												maxlength="80"
+												type="text"
+												id="short_id"
+												placeholder="coolplaylist4"
+												bind:value={customShortId}
+												on:input={handleCustomUrl}
+											/>
+										</div>
+									</Accordion.Content>
+								</Accordion.Item>
+							</Accordion.Root>
+
+							<div class="max-h-[64px] max-w-[300px]">
+								{#if !visible}
+									<Skeleton class="h-[64px] w-[300px]" />
+								{:else}
+									<Turnstile
+										class="relative inline-block h-[64px] w-[300px]"
+										siteKey={turnstileKey}
+										theme="dark"
+										retry="auto"
+										bind:reset
+										on:callback={(event) => {
+											turnstileResponse = event.detail.token;
+											//  validateToken(turnstileResponse)
+										}}
+									/>
+								{/if}
+							</div>
+							<div class="mt-4">
+								<Button
+								class="submit-button align-center m-auto flex w-full flex-row items-center justify-center text-center
+								{loading ? 'bg-secondary text-foreground shadow-lg':''}
+								transition-all"
 								type="submit"
 								bind:this={theButton}
-							>
-								<div class="flex-none">
-									<iconify-icon
-										icon="lucide:scissors"
-										class="m-auto block h-[18px] w-[18px] pr-7 text-center"
-										width="18"
-										alt="emoji"
-									></iconify-icon>
-								</div>
-								<span>short It!</span>
-							</Button>
-						</div>
-					</form>
-					<div class="continue mt-4">
-						
-						<p class="text-xs text-foreground/60">
-							by continuing, you agree to 
-							<a href="/about/privacy" >privacy policy</a> and 
-							<a href="/about/terms" >terms of ethical use</a>.
-						</p>
-					</div>
-				</div>
-			</Card.Content>
-			<Card.Footer class="flex-col"></Card.Footer>
-		</Card.Root>
-		<Card.Root class="w-[23rem] transition-all sm:w-[25rem]  md:w-[35rem]">
-			<Card.Header>
-				<Card.Title>url preview</Card.Title>
-				<Card.Description>here's how your URL will look like</Card.Description>
-				<Card.Content class="grid px-0 pb-0 text-left text-[#82d1af]/60">
-					<div
-						class="align-center flex w-full min-w-full items-center justify-between py-2 transition-all md:h-28 md:py-2"
-					>
-						<p class="break-all text-[1.44rem] font-semibold md:text-3xl lg:text-5xl">
-							sptfy.in/<span class="text-[#82d1af]">{shortIdDisplay}</span>
-						</p>
-						{#if fullShortURL}
-							<div class="buttons button-copy flex max-h-20 gap-1 md:flex-col-reverse">
-								{#each actions as action, i}
-									<div
-										in:scaleWithEase|global={{ delay: (i + 1) * 100 }}
-										out:fade|global={{ duration: 200 }}
-									>
-										<Button
-											variant="secondary"
-											class="p-3 hover:bg-primary hover:text-black md:mx-0"
-											on:click={action.click}
-										>
-											<iconify-icon icon={action.icon} class="w-[24]" width="24"> </iconify-icon>
-										</Button>
-									</div>
-								{/each}
-							</div>
-						{/if}
-					</div>
-					{#if fullShortURL}
-						<Drawer.Root shouldScaleBackground bind:open={qrDrawerOpen}>
-							<Drawer.Trigger>
-								<div
-									in:slide|global={{ duration: 800, easing: expoOut }}
-									out:slide|global={{ duration: 800, easing: expoOut }}
+								disabled={loading}
 								>
-									<Button variant="secondary" class="button-show-qr w-full">
-										<div class="flex-none">
-											<iconify-icon
-												icon="lucide:qr-code"
-												class="m-auto block h-[18px] w-[18px] pr-6 text-center"
-												width="18"
-												alt="emoji"
-											></iconify-icon>
-										</div>
-										<span>Show QR</span>
-									</Button>
+								<div class="flex-none flex items-center justify-center pr-2">
+								<iconify-icon
+								icon={loading ? "lucide:loader" : "lucide:scissors"}
+								class="m-auto block h-[18px] w-[18px] text-center {loading ? 'animate-spin [transform-origin:center]' : ''}"
+								width="18"
+								alt="emoji"
+								></iconify-icon>
 								</div>
-							</Drawer.Trigger>
-							<Drawer.Content>
-								<Drawer.Header>
-									<Drawer.Title class="my-2 text-center">QR Code</Drawer.Title>
-									<Drawer.Description>
-										<div class="align-center flex flex-col items-center text-center">
-											<div class="relative-wrapper relative inline-block">
-												<img
-													class="w-[200px] min-w-[50%] rounded-md shadow-md md:w-[350px] md:min-w-[20%]"
-													on:load={() => (isQrLoaded = true)}
-													transition:fade={{ duration: 1200 }}
-													src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/{shortIdDisplay}"
-													alt="QR Code"
-													height="350"
-													width="350"
-												/>
-												{#if !isQrLoaded}
-													<Skeleton
-														class="absolute left-0 top-0 h-[200px] w-[200px] md:h-[350px] md:w-[350px]"
-													/>
-												{/if}
-											</div>
-										</div>
-									</Drawer.Description>
-								</Drawer.Header>
-								<Drawer.Footer>
-									<Drawer.Close
-										class="flex w-full flex-col items-center justify-center gap-2 align-middle md:flex-row"
-									>
-										{#if isQrLoaded}
-											<div in:scaleWithEase>
-												<Button
-													variant="default"
-													on:click={(event) => {
-														qrDrawerOpen = false;
-														event.preventDefault();
-														async function downloadQRCode() {
-															try {
-																toast.loading('Downloading QR code...');
-																const response = await fetch(qrUrl);
-																const blob = await response.blob();
-																const objectUrl = URL.createObjectURL(blob);
-																const anchor = document.createElement('a');
-																anchor.href = objectUrl;
-																anchor.setAttribute('download', `sptfyin_qr_${shortIdDisplay}.png`);
-																anchor.click();
-																anchor.remove();
-																URL.revokeObjectURL(objectUrl);
-																toast.success('Download successful! 🥳', {
-																	description: 'The QR code has been saved to your device.'
-																});
-															} catch (e) {
-																console.error('Download failed', e);
-																toast.error('Download failed.');
-															}
-														}
-														downloadQRCode();
-														// your code here
-													}}
-													class="button-download-qr align-center m-auto mb-1 mt-1 flex
-												w-[200px] flex-row items-center justify-center text-center transition-all md:w-[360px] "
-												>
-													<div class="flex-none">
-														<iconify-icon
-															icon="lucide:download"
-															class="m-auto block h-[15px] w-[15px] pr-5 text-center"
-															width="15"
-															alt="emoji"
-														></iconify-icon>
-													</div>
-
-													<span>Download</span>
-												</Button>
-											</div>
-										{/if}
-										<div in:slide={{ duration: 800 }} class="transition-all">
+								<span>{loading ? "loading..." : "short It!"}</span>
+								</Button>
+							</div>
+						</form>
+						<div class="continue mt-4">
+							
+							<p class="text-xs text-foreground/60">
+								by continuing, you agree to 
+								<a href="/about/privacy" >privacy policy</a> and 
+								<a href="/about/terms" >terms of ethical use</a>.
+							</p>
+						</div>
+					</div>
+				</Card.Content>
+				<Card.Footer class="flex-col"></Card.Footer>
+			</Card.Root>
+			<div class="right-cards flex flex-col w-[23rem] lg:w-[25rem] gap-6 ">
+			<Card.Root class="w-[23rem]   lg:w-[25rem]">
+				<Card.Header>
+					<Card.Title>url preview</Card.Title>
+					<Card.Description>here's how your URL will look like</Card.Description>
+					<Card.Content class="grid px-0 pb-0 text-left text-[#82d1af]/60">
+						<div
+							class="align-center flex w-full min-w-full items-center justify-between py-2 transition-all lg:h-28 lg:py-2"
+						>
+							<p class="break-all text-[1.44rem] font-semibold lg:text-3xl lg:text-5xl">
+							{selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`}/<span class="text-[#82d1af]">{shortIdDisplay}</span>
+							</p>
+							{#if fullShortURL}
+								<div class="buttons button-copy flex max-h-20 gap-1 lg:flex-col-reverse">
+									{#each actions as action, i}
+										<div
+											in:scaleWithEase|global={{ delay: (i + 1) * 100 }}
+											out:fade|global={{ duration: 200 }}
+										>
 											<Button
 												variant="secondary"
-												class="my-1 w-[200px] transition-all md:w-[360px]"
+												class="p-3 hover:bg-primary hover:text-black lg:mx-0"
+												on:click={action.click}
 											>
-												Close
+												<iconify-icon icon={action.icon} class="w-[24]" width="24"> </iconify-icon>
 											</Button>
 										</div>
-									</Drawer.Close>
-								</Drawer.Footer>
-							</Drawer.Content>
-						</Drawer.Root>
-					{/if}
-					<div class="scrollhere" bind:this={scrollHere}></div>
-					<div class="pt-4 md:pt-2">
+									{/each}
+								</div>
+							{/if}
+						</div>
+						{#if fullShortURL}
+							<Drawer.Root shouldScaleBackground bind:open={qrDrawerOpen}>
+								<Drawer.Trigger>
+									<div
+										in:slide|global={{ duration: 800, easing: expoOut }}
+										out:slide|global={{ duration: 800, easing: expoOut }}
+									>
+										<Button variant="secondary" class="button-show-qr w-full">
+											<div class="flex-none">
+												<iconify-icon
+													icon="lucide:qr-code"
+													class="m-auto block h-[18px] w-[18px] pr-6 text-center"
+													width="18"
+													alt="emoji"
+												></iconify-icon>
+											</div>
+											<span>Show QR</span>
+										</Button>
+									</div>
+								</Drawer.Trigger>
+								<Drawer.Content>
+									<Drawer.Header>
+										<Drawer.Title class="my-2 text-center">QR Code</Drawer.Title>
+										<Drawer.Description>
+											<div class="align-center flex flex-col items-center text-center">
+												<div class="relative-wrapper relative inline-block">
+													<img
+														class="w-[200px] min-w-[50%] rounded-lg shadow-lg lg:w-[350px] lg:min-w-[20%]"
+														on:load={() => (isQrLoaded = true)}
+														transition:fade={{ duration: 1200 }}
+														src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/{shortIdDisplay}"
+														alt="QR Code"
+														height="350"
+														width="350"
+													/>
+													{#if !isQrLoaded}
+														<Skeleton
+															class="absolute left-0 top-0 h-[200px] w-[200px] lg:h-[350px] lg:w-[350px]"
+														/>
+													{/if}
+												</div>
+											</div>
+										</Drawer.Description>
+									</Drawer.Header>
+									<Drawer.Footer>
+										<Drawer.Close
+											class="flex w-full flex-col items-center justify-center gap-2 align-middle lg:flex-row"
+										>
+											{#if isQrLoaded}
+												<div in:scaleWithEase>
+													<Button
+														variant="default"
+														on:click={(event) => {
+															qrDrawerOpen = false;
+															event.preventDefault();
+															async function downloadQRCode() {
+																try {
+																	toast.loading('Downloading QR code...');
+																	const response = await fetch(qrUrl);
+																	const blob = await response.blob();
+																	const objectUrl = URL.createObjectURL(blob);
+																	const anchor = document.createElement('a');
+																	anchor.href = objectUrl;
+																	anchor.setAttribute('download', `sptfyin_qr_${shortIdDisplay}.png`);
+																	anchor.click();
+																	anchor.remove();
+																	URL.revokeObjectURL(objectUrl);
+																	toast.success('Download successful! 🥳', {
+																		description: 'The QR code has been saved to your device.'
+																	});
+																} catch (e) {
+																	console.error('Download failed', e);
+																	toast.error('Download failed.');
+																}
+															}
+															downloadQRCode();
+															// your code here
+														}}
+														class="button-download-qr align-center m-auto mb-1 mt-1 flex
+													w-[200px] flex-row items-center justify-center text-center transition-all lg:w-[360px] "
+													>
+														<div class="flex-none">
+															<iconify-icon
+																icon="lucide:download"
+																class="m-auto block h-[15px] w-[15px] pr-5 text-center"
+																width="15"
+																alt="emoji"
+															></iconify-icon>
+														</div>
+
+														<span>Download</span>
+													</Button>
+												</div>
+											{/if}
+											<div in:slide={{ duration: 800 }} class="transition-all">
+												<Button
+													variant="secondary"
+													class="my-1 w-[200px] transition-all lg:w-[360px]"
+												>
+													Close
+												</Button>
+											</div>
+										</Drawer.Close>
+									</Drawer.Footer>
+								</Drawer.Content>
+							</Drawer.Root>
+						{/if}
+						<div class="scrollhere" bind:this={scrollHere}></div>
+						
+					</Card.Content>
+					<div class="disclaim">
+						<h4 class="bold text-lg">🫡 disclaimer</h4>
+						<p class="text-xs text-foreground/60">
+							Spotify® is a registered trademark of Spotify AB.<br />
+							this project <b>is NOT AFFILIATED</b> with, endorsed by, or sponsored by Spotify AB.<br
+							/>
+							<i>(TL;DR: not officialy from spotify)</i>
+						</p>
+					</div>
+					<div class="footer text-left mt-4">
+						<p class="text-xs text-foreground/60 flex flex-row gap-4">
+							<a href="/about/terms">terms of ethical use</a> | <a href="/about/privacy">privacy policy</a> | <a href="/about/socials">socials / contact</a> | <a href="https://status.sptfy.in" target="_blank">server status</a>
+						</p>
+					</div>
+				</Card.Header>
+			</Card.Root>
+			
+			
+			<Card.Root class="w-[23rem] lg:w-[25rem]">
+				
+				<Card.Content>
+					<div class="pt-6">
 						<Accordion.Root class="m-0 p-0 text-foreground ">
 							<Accordion.Item value="item-1" class>
 								<Accordion.Trigger class="py-1">🔗 recent created links</Accordion.Trigger>
@@ -777,7 +821,8 @@
 														class="align-center my-1 flex w-full min-w-full justify-between pl-1"
 													>
 														<a href='/{item.id_url}' class="font-thin" target="_blank">
-															sptfy.in/{item.id_url}
+														<span class="text-muted-foreground/70 px-0">{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/</span><span>
+														{item.id_url}</span>
 														</a>
 														<span class="ml-2 text-muted-foreground/70">
 															{localizeDate(item.created)}
@@ -813,7 +858,7 @@
 								</Accordion.Content>
 							</Accordion.Item>
 						</Accordion.Root>
-
+			
 						<Accordion.Root class="m-0 p-0 text-foreground ">
 							<Accordion.Item value="item-1" class>
 								<Accordion.Trigger class="py-1">🤔 about the website</Accordion.Trigger>
@@ -823,8 +868,8 @@
 										<div class="text-sm">
 											<p class="text-sm text-foreground/80">
 												sptfyin is a simple spotify link shortener, <br>
-paste your spotify track, album, or playlist url → slap on a custom back half (optional) → done. ✨<br>
-no ads, no nonsense—just short links that actually work.
+			paste your spotify track, album, or playlist url → slap on a custom back half (optional) → done. ✨<br>
+			no ads, no nonsense—just short links that actually work.
 											</p>
 											<a href="/about"> about page </a>
 										</div>
@@ -832,9 +877,9 @@ no ads, no nonsense—just short links that actually work.
 								</Accordion.Content>
 							</Accordion.Item>
 							
-
+			
 						</Accordion.Root>
-
+			
 						<Accordion.Root class="m-0 p-0 text-foreground ">
 							<Accordion.Item value="item-1" class>
 								<Accordion.Trigger class="py-1">🧑‍💻 what's next?</Accordion.Trigger>
@@ -853,26 +898,14 @@ no ads, no nonsense—just short links that actually work.
 								</Accordion.Content>
 							</Accordion.Item>
 							
-
+			
 						</Accordion.Root>
-
+			
 					</div>
 				</Card.Content>
-				<div class="disclaim">
-					<h4 class="bold text-lg">🫡 disclaimer</h4>
-					<p class="text-xs text-foreground/60">
-						Spotify® is a registered trademark of Spotify AB.<br />
-						this project <b>is NOT AFFILIATED</b> with, endorsed by, or sponsored by Spotify AB.<br
-						/>
-						<i>(TL;DR: not officialy from spotify)</i>
-					</p>
-				</div>
-				<div class="footer text-left mt-4">
-					<p class="text-xs text-foreground/60 flex flex-row gap-4">
-						<a href="/about/terms">terms of ethical use</a> | <a href="/about/privacy">privacy policy</a> | <a href="/about/socials">socials</a> | <a href="https://status.sptfy.in" target="_blank">server status</a>
-					</p>
-				</div>
-			</Card.Header>
-		</Card.Root>
+			</Card.Root>
+			
+			<!-- </div> -->
+		</div>
 	</div>
 </div>

@@ -394,7 +394,7 @@
 	>
 
 		<div class="left-card">
-	    <Card.Root class="relative w-[20rem] transition-all sm:w-[20rem] md:w-[35rem]">
+	    <Card.Root class="relative w-[20rem] sm:w-[20rem] md:w-[35rem]">
         {#if !visible}
         <div in:fade out:fade={{ duration: 200 }}>
           <Skeleton class="absolute top-0 left-0 z-10 h-full w-full rounded-lg" />
