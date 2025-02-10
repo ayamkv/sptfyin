@@ -5,6 +5,7 @@
     import { Button } from "$lib/components/ui/button";
     import { Home, CircleUserRound, Library, Plus, HandHeart, Info } from "lucide-svelte";
     import { page } from "$app/stores";
+    import logo from "$lib/images/logo.png";
     
     let isCollapsed = true;
     $: currentPath = $page.url.pathname;
@@ -49,19 +50,19 @@
 
     <div class="fixed inset-0 flex md:flex-row">
         <div data-collapsed={isCollapsed}
-            class="group flex flex-col bg-gradient-to-t from-[#332c4e]/80 via-card via-30% to-card text-card-foreground highlightNav
+            class="group flex flex-col bg-gradient-to-br rounded-md md:rounded-none md:bg-gradient-to-t from-[#332c4e]/80 md:via-card via-card/70 backdrop-blur-md via-30% to-card  text-card-foreground md:highlightNav highlightCard
                    fixed md:static bottom-0 md:bottom-auto left-0 right-0 md:w-24
                    border-t md:border md:min-h-screen
-                   data-[collapsed=true]:py-2 z-50">
+                   data-[collapsed=true]:py-0 z-50">
             
             <!-- Logo (desktop only) -->
             <a class="sptfyin-logo hidden md:flex size-16 items-center justify-center mx-auto my-4" href="/">
-                <img src='favicon.png' alt="Sptfyin Logo" class="h-full w-full shadow-lg" />
+                <img src={logo} alt="Sptfyin Logo" class="h-full w-full shadow-lg" />
             </a>
 
             <!-- Navigation -->
-            <nav class="flex md:grid gap-2 justify-around md:justify-start items-center py-1 pb-3 px-4 md:px-2
-                        group-[[data-collapsed=true]]:justify-center">
+            <nav class="flex md:grid md:gap-2 justify-evenly md:justify-start items-center py-1 pb-2  px-1 md:px-2
+                        group-[[data-collapsed=true]]:md:justify-center">
                 {#each routes.filter(route => route.visible) as route}
                     <Tooltip.Root openDelay={0}>
                         <Tooltip.Trigger asChild let:builder>
@@ -69,17 +70,18 @@
                                 href={route.label}
                                 variant={route.variant}
                                 size="icon"
-                                class="size-12 md:size-20 
-                                hover:bg-secondary/40
+                                class="size-14 md:size-20 
+                                hover:bg-secondary/80
                                 hover:outline-primary
+                                hover:inverseShadow
                                 {
                                     isActive(route.label)
-                                        ? 'bg-primary text-background hover:text-background hover:bg-primary/90 hover:highlight highlightCard'
+                                        ? ' bg-background/40 md:bg-primary/90 md:text-background md:hover:text-background md:hover:bg-primary/90 md:hover:highlight inverseShadow'
                                         : route.variant === 'default'
-                                            ? 'dark:bg-muted dark:text-muted-foreground dark:hover:bg-secondary/40 highlightCard'
+                                            ? 'dark:bg-muted dark:text-muted-foreground dark:hover:bg-secondary/40  highlightCard'
                                             : ''
                                 }
-                                flex flex-col items-center justify-center no-underline gap-1
+                                flex flex-col items-center justify-center no-underline md:gap-1 gap-0 w-full px-2 md:px-0 rounded-md md:rounded-md
                                 "
                             >
                                 <svelte:component this={route.icon} class="size-6 md:size-8" aria-hidden="true" />
@@ -101,7 +103,7 @@
                 {/each}
             </nav>
         </div>
-        <main class="flex-1 h-screen overflow-y-auto sm:overflow-y overflow-x-hidden sm:p-4 pb-20 md:pb-4">
+        <main class="flex-1 h-screen overflow-y-auto sm:overflow-y overflow-x-hidden sm:p-4 pb-20 md:pb-4 rounded-lg">
             <slot />
         </main>
     </div>

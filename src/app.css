@@ -132,6 +132,10 @@
     box-shadow: inset -0.5px 0 0 0 #555068, 0 1px 20px 2px #090711b6;
   
   }
+  .inverseShadow {
+    box-shadow: 0.1px 1px 4px 0px #3E3858, inset 1px 3px 3px 2px #09071177
+  
+  }
   
   
   html {

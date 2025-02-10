@@ -31,9 +31,9 @@ let showNav = false
 
 {#if (!showNav)}
 <button 
-  class="fixed top-4 left-4 z-50 bg-primary text-background p-2 rounded-lg flex items-center justify-center lg:hidden md:left-28 w-10 h-10 highlight"
+  class="fixed top-4 left-4 z-50 bg-secondary text-foreground p-2 rounded-lg flex items-center justify-center lg:hidden md:left-28 w-10 h-10 "
    on:click={() => showNav = true}>
-   <iconify-icon icon='lucide:chevron-left' width="24" class="w-[24px] h-[24px]"></iconify-icon>
+   <iconify-icon icon='lucide:align-left' width="24" class="w-[24px] h-[24px]"></iconify-icon>
 </button>
 {/if}
 
@@ -45,7 +45,7 @@ let showNav = false
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="fixed left-0 top-0 h-full w-72 bg-background border-r p-6 md:left-28" on:click|stopPropagation>
     <button 
-      class="absolute top-4 right-4 bg-primary text-background p-2 rounded-lg flex items-center justify-center"
+      class="absolute top-4 right-4 bg-secondary text-foreground p-2 rounded-lg flex items-center justify-center"
       on:click={() => showNav = false}>
       <iconify-icon icon='lucide:x' width="24"></iconify-icon>
     </button>
@@ -56,7 +56,7 @@ let showNav = false
       <div class="navigation-bar">
         <nav class="subnav flex flex-col gap-4">
             {#each navItems as nav}
-              <a href={nav.href} class="flex flex-row gap-2 align-center justify-start p-2 rounded-lg hover:text-white hover:bg-secondary/40 hover:outline-2 hover:outline-primary 
+              <a href={nav.href} class="flex flex-row gap-2 align-center justify-start p-2 rounded-lg hover:text-white hover:bg-secondary/40 hover:outline-2 hover:outline-primary hover:inverseShadow
               {$page.url.pathname === nav.href ? 'bg-primary text-background font-bold hover:bg-primary/80' : 'font-thin'} ">
                   <div class="icon bg-primary text-background p-2 rounded-lg w-12 h-12 flex items-center justify-center">
                     <iconify-icon icon={nav.icon} width="32"  class="text-2xl w-8 h-8"></iconify-icon>
