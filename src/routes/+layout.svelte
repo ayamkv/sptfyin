@@ -56,7 +56,7 @@
             
             <!-- Logo (desktop only) -->
             <a class="sptfyin-logo hidden md:flex size-16 items-center justify-center mx-auto my-4" href="/">
-                <img src='/favicon.png' alt="Sptfyin Logo" class="h-full w-full shadow-lg" />
+                <img src='favicon.png' alt="Sptfyin Logo" class="h-full w-full shadow-lg" />
             </a>
 
             <!-- Navigation -->
