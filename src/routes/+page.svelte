@@ -226,12 +226,13 @@
 	const domainList = [
 		{ value: 'sptfy.in', label: 'sptfy.in' },
 		{ value: 'artist', label: 'artist.sptfy.in', disabled: false },
+		{ value: 'profile', label: 'profile.sptfy.in', disabled: false },
+		{ value: 'playlist', label: 'playlist.sptfy.in', disabled: false },
+		{ value: 'track', label: 'track.sptfy.in', disabled: true },
 		{ value: 'COMING SOON', label: '--- COMING SOON ---', disabled: true },
-		{ value: 'profile', label: 'profile.sptfy.in', disabled: true },
-		{ value: 'playlist', label: 'playlist.sptfy.in', disabled: true },
 		{ value: 'podcast', label: 'podcast.sptfy.in', disabled: true },
-		{ value: 'album', label: 'album.sptfy.in', disabled: true },
-		{ value: 'track', label: 'track.sptfy.in', disabled: true }
+		{ value: 'album', label: 'album.sptfy.in', disabled: true }
+		
 	];
 
 	$: console.log('domain selected: ', selected)
