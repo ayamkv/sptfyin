@@ -419,7 +419,17 @@
 					<iconify-icon icon={errorIcon} class="m-auto block text-center" width="120" alt="emoji"
 					></iconify-icon>
 				</div>
-				<AlertDialog.Title class="text-center">{@html alertDialogTitle}</AlertDialog.Title>
+				<AlertDialog.Title class="text-center">
+					{#if (errorMessage)}
+						{#each Object.entries(errorMessage) as [key, value]}
+						   {typeof value === 'object' ? JSON.stringify(value.message).slice(1, -1) : alertDialogTitle}
+					   
+					  {/each}
+					{:else}
+						{@html alertDialogTitle}
+					{/if}
+					
+				</AlertDialog.Title>
 
 				<AlertDialog.Description>
 					{@html alertDialogDescription}
@@ -444,9 +454,10 @@ for (var key in object) {
 						       <b>error message: </b>{typeof value === 'object' ? JSON.stringify(value.message) : value}
 						   
 						  {/each}
+						<span><b>error code: </b> {errorCode ? errorCode : ''}</span>
 						{/if}
 						<br>
-							<span><b>error code: </b> {errorCode ? errorCode : ''}</span></p>
+					</p>
 					
 					
 				</AlertDialog.Description>
