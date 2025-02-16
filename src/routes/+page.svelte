@@ -64,6 +64,7 @@
 	let fullShortURL;
 	let qrDrawerOpen = false;
 	let recent = [];
+	let urlInput;
 	let actions = [
 		{
 			icon: 'lucide:copy',
@@ -152,7 +153,7 @@
 	if (inputText !== null) {
 		isInputTextEmpty = false;
 	}
-
+	// const allowedLinkTypes = new Set(["text/plain", "text/uri-list"]);
 	async function handlePaste(event) {
 		try {
 			// Request permission to access the clipboard
@@ -353,6 +354,19 @@
 			console.error('Failed to write to clipboard: ', error);
 		}
 	}
+	// const handleKeydown = (e) => {
+       
+    //     if (e.metaKey || e.ctrlKey || e.key === "/") {
+    //         urlInput.focus();
+    //     }
+
+
+    //     if (e.target === urlInput) {
+    //         return;
+    //     }
+
+
+    // };
 
 	// $: console.log('isDrawer open' + qrDrawerOpen);
 	// console.log(generateRandomURL());
@@ -381,6 +395,8 @@
 		sptfy.in - spotify link url shortener
 	</title>	
 </svelte:head>
+<!-- 
+<svelte:window on:keydown={handleKeydown} /> -->
 <div
 	class="mt-0 flex min-h-[100vh] w-[99vw] flex-col items-center justify-center bg-background lg:-translate-x-[8rem]"
 	data-vaul-drawer-wrapper
@@ -524,7 +540,6 @@
 								<Input
 									type="url"
 									id="url"
-									on:paste={handlePaste}
 									placeholder="https://open.spotify.com/xxxx...."
 									bind:value={inputText}
 									class="placeholder:translate-y-[2px]"
@@ -533,6 +548,7 @@
 								/>
 								<Button
 									type="button"
+									id="paste"
 									class="paste-button hover:bg-primary hover:text-black"
 									variant="secondary"
 									on:click={() => handlePaste()}
