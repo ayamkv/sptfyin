@@ -34,5 +34,4 @@ this project is **not** affiliated with, endorsed by, or sponsored by Spotify AB
 *(TL;DR: we just like their music links, okay?)*  
 
 ## license
-this repository is licensed under [AGPL-3.0](https://github
-.com/ayamkv/sptfyin?tab=License-1-ov-file)
+this repository is licensed under [AGPL-3.0](https://github.com/ayamkv/sptfyin?tab=License-1-ov-file)
