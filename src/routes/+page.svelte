@@ -6,6 +6,7 @@
 	import { toast } from 'svelte-sonner';
 	import { expoOut } from 'svelte/easing';
 	import { scaleWithEase } from '$lib/animations/customSpring';
+	import { MetaTags } from 'svelte-meta-tags';
 	import {
 		getRecords,
 		createRecord,
@@ -399,9 +400,39 @@
 </div> -->
 
 <svelte:head>
-	<title>
-		sptfy.in - spotify link url shortener
-	</title>	
+	<!-- <title>
+		sptfy.in - free spotify link shortener
+	</title>	 -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:image" content="https://raw.githubusercontent.com/ayamkv/sptfyin/refs/heads/main/src/lib/images/og/og.png">
+	<meta name="twitter:creator" content="@sptfyin">
+	<meta name="twitter:description" content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸">
+	<meta name="twitter:title" content="sptfyin - free spotify link shortener">
+	<meta name="twitter:image:alt" content="sptfyin - free spotify link shortener">
+	
+
+	<MetaTags
+  title="free spotify link shortener"
+  titleTemplate="sptfy.in - %s"
+  description="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸"
+  canonical="https://www.sptfy.in/"
+  openGraph={{
+	type: 'website',
+    url: 'https://www.sptfy.in/',
+    title: 'free spotify link shortener',
+    description: "make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸",
+    images: [
+      {
+        url: 'https://raw.githubusercontent.com/ayamkv/sptfyin/refs/heads/main/src/lib/images/og/og.png',
+        width: 800,
+        height: 600,
+        alt: 'sptfyin - free spotify link shortener'
+      }
+    ],
+    siteName: 'sptfyin'
+  }}
+
+/>
 </svelte:head>
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->

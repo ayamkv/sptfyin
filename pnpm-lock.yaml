@@ -32,6 +32,9 @@ importers:
       svelte-headless-table:
         specifier: ^0.18.3
         version: 0.18.3(svelte@4.2.18)
+      svelte-meta-tags:
+        specifier: 3.1.4
+        version: 3.1.4(svelte@4.2.18)(typescript@5.7.3)
       svelte-sonner:
         specifier: ^0.3.27
         version: 0.3.27(svelte@4.2.18)
@@ -1484,6 +1487,11 @@ packages:
     resolution: {integrity: sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==}
     engines: {node: '>=6'}
 
+  schema-dts@1.1.2:
+    resolution: {integrity: sha512-MpNwH0dZJHinVxk9bT8XUdjKTxMYrA5bLtrrGmFA6PTLwlOKnhi67XoRd6/ty+Djt6ZC0slR57qFhZDNMI6DhQ==}
+    peerDependencies:
+      typescript: '>=4.1.0'
+
   semver@7.6.2:
     resolution: {integrity: sha512-FNAIBWCx9qcRhoHcgcJ0gvU7SN1lYU2ZXuSfl04bSC5OpvDHFyJCjdNHomPXxjQlCBU67YW64PzY7/VIEH7F2w==}
     engines: {node: '>=10'}
@@ -1580,6 +1588,11 @@ packages:
     resolution: {integrity: sha512-7TeEn+QbJC2OJrHiuM0T8vMBkms3DNpTE+Ir+NtnVBnBMA78aL4f1ft9t0Hn/pBbD/TnIXi4YfjFRAgtN+DZ5g==}
     peerDependencies:
       svelte: ^4.0.0
+
+  svelte-meta-tags@3.1.4:
+    resolution: {integrity: sha512-TUIfhut0iVeTm7f5v/ZuU/tZ9XsNig9bNN8yK0t2x2WL9qw6AxAVRe9i5XddYJE0SuVwkoDCzjoSg5hXv7oWbQ==}
+    peerDependencies:
+      svelte: ^3.55.0 || ^4.0.0
 
   svelte-render@2.0.1:
     resolution: {integrity: sha512-RpB0SurwXm4xhjvHHtjeqMmvd645FURb79GFOotScOSqnKK5vpqBgoBPGC0pp+E/eZgDSQ9rRAdn/+N4ys1mXQ==}
@@ -1684,6 +1697,11 @@ packages:
   type-fest@2.19.0:
     resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
     engines: {node: '>=12.20'}
+
+  typescript@5.7.3:
+    resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
 
   unist-util-stringify-position@2.0.3:
     resolution: {integrity: sha512-3faScn5I+hy9VleOq/qNbAd6pAx7iH5jYBMS9I1HgQVijz/4mv5Bvw5iw1sC/90CODiKo81G/ps8AJrISn687g==}
@@ -3085,6 +3103,10 @@ snapshots:
     dependencies:
       mri: 1.2.0
 
+  schema-dts@1.1.2(typescript@5.7.3):
+    dependencies:
+      typescript: 5.7.3
+
   semver@7.6.2: {}
 
   set-cookie-parser@2.6.0: {}
@@ -3179,6 +3201,13 @@ snapshots:
   svelte-keyed@2.0.0(svelte@4.2.18):
     dependencies:
       svelte: 4.2.18
+
+  svelte-meta-tags@3.1.4(svelte@4.2.18)(typescript@5.7.3):
+    dependencies:
+      schema-dts: 1.1.2(typescript@5.7.3)
+      svelte: 4.2.18
+    transitivePeerDependencies:
+      - typescript
 
   svelte-render@2.0.1(svelte@4.2.18):
     dependencies:
@@ -3325,6 +3354,8 @@ snapshots:
 
   type-fest@2.19.0:
     optional: true
+
+  typescript@5.7.3: {}
 
   unist-util-stringify-position@2.0.3:
     dependencies:
