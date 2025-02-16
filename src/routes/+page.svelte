@@ -653,7 +653,7 @@
 						<div
 							class="align-center flex w-full min-w-full items-center justify-between py-2 transition-all lg:h-28 lg:py-2"
 						>
-							<p class="break-all text-[1.44rem] font-semibold lg:text-3xl lg:text-5xl">
+							<p class="break-all text-[1.44rem] font-semibold lg:text-5xl">
 							{selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`}/<span class="text-[#82d1af]">{shortIdDisplay}</span>
 							</p>
 							{#if fullShortURL}
