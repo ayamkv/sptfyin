@@ -59,12 +59,15 @@
 	let alertDialogDescription = '';
 	let errorIconDefault = 'fluent-emoji:crying-cat';
 	let errorIcon = errorIconDefault;
+	let errorCode;
 	let focus1 = false;
 	let theButton;
 	let fullShortURL;
 	let qrDrawerOpen = false;
 	let recent = [];
 	let urlInput;
+	let errorMessage;
+	$: console.log('errorMessage var: ', errorMessage);
 	let actions = [
 		{
 			icon: 'lucide:copy',
@@ -203,6 +206,8 @@
 		}
 	}
 
+
+
 	// onMount(() => {
 	//     console.log(strings)
 	// });
@@ -302,6 +307,9 @@
 			}
 		} catch (err) {
 		loading = false;
+		errorMessage = err.response?.data;
+
+		errorCode  = err.response?.status;
 		console.log(err.response.status);
 		console.log(err.response?.data);
 
@@ -415,6 +423,32 @@
 
 				<AlertDialog.Description>
 					{@html alertDialogDescription}
+					<!-- iterate errorMessage
+					using something along the lines of
+					
+for (var key in object) {
+  if (object.hasOwnProperty(key)) {
+    alert(key); // 'a'
+    alert(object[key]); // 'hello'
+  }
+}   
+  in a svelte way 
+
+
+					-->
+					<p class="mt-2 text-xs text-foreground/60">
+						{#if (errorMessage)}
+						 {#each Object.entries(errorMessage) as [key, value]}
+   
+						    <b>error id: </b>{typeof value === 'object' ? JSON.stringify(value.code) : value} <br>
+						       <b>error message: </b>{typeof value === 'object' ? JSON.stringify(value.message) : value}
+						   
+						  {/each}
+						{/if}
+						<br>
+							<span><b>error code: </b> {errorCode ? errorCode : ''}</span></p>
+					
+					
 				</AlertDialog.Description>
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
@@ -539,6 +573,7 @@
 							<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
 								<Input
 									type="url"
+								
 									id="url"
 									placeholder="https://open.spotify.com/xxxx...."
 									bind:value={inputText}
