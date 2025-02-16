@@ -203,7 +203,7 @@
 			if (error.includes('function') && isFirefox)
 				alert('Firefox does not support clipboard access');
 			if (error.includes('dismissed') || isIOS)
-				alert('Sorry! iOS Safari does not support clipboard access 😔');
+				alert('Sorry! iOS Safari does not support clipboard access, so you have to paste manually 😔');
 		}
 	}
 
@@ -213,6 +213,39 @@
 	//     console.log(strings)
 	// });
 
+
+
+	async function handleInputOnPaste(event) {
+		// handle paste event only for the input field not the paste button itself 
+		// and can work with ctrl + v or right click paste, on ios or android or pc
+		
+		try {
+			const text = await navigator.clipboard.readText();
+			console.log( text );
+			inputText = findUrl(text);
+			setTimeout(() => {
+	
+					isInputTextEmpty = false;
+					setAccordionValue('item-1');
+				
+					if (inputText === null) {
+						setTimeout(() => {
+							focus1 = false;
+							// alert('No Spotify URL found in clipboard');
+							isError = true;
+							alertDialogTitle = strings.ErrorClipboardNoSpotifyURLTitle;
+							alertDialogDescription = strings.ErrorClipboardNoSpotifyURLDesc;
+							errorIcon = strings.ErrorClipboardNoSpotifyURLIcon;
+							console.log(alertDialogTitle, alertDialogDescription);
+						}, 1);
+					}
+
+				}, 4);
+		} catch (error) {
+			console.error(error);
+		}
+		
+	}
 
 	function escapeSelectHandle() {
 		onMount(() => {
@@ -615,7 +648,7 @@ for (var key in object) {
 							<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
 								<Input
 									type="url"
-								
+									on:paste={handleInputOnPaste}
 									id="url"
 									placeholder="https://open.spotify.com/xxxx...."
 									bind:value={inputText}
