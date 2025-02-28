@@ -16,9 +16,9 @@ export const load = async ({ params, request }) => {
     const slug = params.slug;
     const res = await fetch(`${pocketBaseURL}/api/collections/viewList/records?filter=(id_url='${slug}')`);
     const data = await res.json();
-    console.log(data)
-    console.log(slug)
-    console.log("Initial data items:", data.items)
+    // console.log(data)
+    // console.log(slug)
+    // console.log("Initial data items:", data.items)
     try {
         const recordId = data?.items[0].id;
         link = data?.items[0].from;
@@ -35,11 +35,13 @@ export const load = async ({ params, request }) => {
         const userAgent = request.headers.get('user-agent') || 'Unknown';
         
         // Fetch country information from ipapi.co
-        let country = 'Unknown';
+        let country = 'Unknown';; // Default value if fetch fails or country is not found
         try {
-            const ipResponse = await fetch('https://ipapi.co/json');
+            const ipResponse = await fetch('http://ip-api.com/json');
             const ipData = await ipResponse.json();
-            country = ipData.country_code || 'Unknown';
+            country = ipData.countryCode || 'Unknown';
+            console.log(`[Debug] Country code: ${country}`);
+            console.log(ipData)
         } catch (err) {
             console.error('Error fetching country information:', err);
         }
@@ -53,6 +55,8 @@ export const load = async ({ params, request }) => {
                 created: new Date().toISOString()
             });
             console.log(`[Debug] Created analytics record for ${slug}`);
+            // console the respone 
+
         } catch (err) {
             console.error('Error creating analytics record', err);
             // Non-blocking error - we'll still redirect even if analytics fails

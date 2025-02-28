@@ -43,7 +43,7 @@
 
 	let utmView = data.utmView
 	let analytics = data.analytics
-	console.log('analytics: ', data.analytics);
+	// console.log('analytics: ', data.analytics);
 
 	let debugMode = import.meta.env.VITE_DEBUG_MODE;
 	console.log('debugMode: ', debugMode);
