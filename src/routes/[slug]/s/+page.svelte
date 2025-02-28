@@ -52,7 +52,7 @@
   // }
 	let debugToastVisible = false;
 	let isQrLoaded = false;
-	let visible = false;
+	let visible;
 	let scrollHere;
 	let accordionValue = 'one';
 	let customShortId;
@@ -578,8 +578,8 @@
             
         {/if}
 					<Card.Header class="pb-2">
-						<Card.Description>Unique Visitors</Card.Description>
-						<Card.Title class="text-4xl md:text-5xl">89</Card.Title>
+						<Card.Description> ? </Card.Description>
+						<Card.Title class="text-4xl md:text-5xl">?</Card.Title>
 					</Card.Header>
 					<Card.Content>
 						<div class="text-xs text-muted-foreground"></div>
@@ -644,6 +644,7 @@
                     <Table.Row>
                       <Table.Cell class="font-medium">
 						<img src={`https://www.flagsapi.com/${toUpperCase(v.utm_country)}/shiny/64.png`} alt={v.utm_country} class="w-6 h-6 mr-2" />
+						<span>{v.utm_country}</span>
 					  </Table.Cell>
                       <Table.Cell>{v.utm_userAgent}</Table.Cell>
                       <!-- <Table.Cell>{v.os}</Table.Cell>

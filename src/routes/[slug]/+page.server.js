@@ -33,16 +33,22 @@ export const load = async ({ params, request }) => {
         }
 
         const userAgent = request.headers.get('user-agent') || 'Unknown';
-        const forwardedFor = request.headers.get('x-forwarded-for');
-        const cf_ipcountry = request.headers.get('CF-IPCountry')
-        console.log('IP', cf_ipcountry)
-        const clientIP = forwardedFor ? forwardedFor.split(',')[0].trim() : 'Unknown';
+        
+        // Fetch country information from ipapi.co
+        let country = 'Unknown';
+        try {
+            const ipResponse = await fetch('https://ipapi.co/json');
+            const ipData = await ipResponse.json();
+            country = ipData.country_code || 'Unknown';
+        } catch (err) {
+            console.error('Error fetching country information:', err);
+        }
 
         try {
             await createRecord('analytics', {
                 author: recordId,
                 utm_userAgent: userAgent,
-                utm_country: clientIP, // In production, you might want to use a geo-ip service here
+                utm_country: country,
                 url_id: recordId,
                 created: new Date().toISOString()
             });
