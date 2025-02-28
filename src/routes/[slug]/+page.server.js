@@ -12,6 +12,7 @@ let pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
 let link = null
 
+
 export const load = async ({ params, request }) => {
     const slug = params.slug;
     const res = await fetch(`${pocketBaseURL}/api/collections/viewList/records?filter=(id_url='${slug}')`);
@@ -27,19 +28,21 @@ export const load = async ({ params, request }) => {
         console.log('record ID :', recordId)
 
         // Log all request headers
-        console.log('[Debug] All Request Headers:');
-        for (const [key, value] of request.headers) {
-            console.log(`${key}: ${value}`);
-        }
+        // console.log('[Debug] All Request Headers:');
+        // for (const [key, value] of request.headers) {
+        //     console.log(`${key}: ${value}`);
+        // }
 
         const userAgent = request.headers.get('user-agent') || 'Unknown';
         
         // Fetch country information from ipapi.co
         let country = 'Unknown';; // Default value if fetch fails or country is not found
+        let rawData = 'N/A'
         try {
             const ipResponse = await fetch('http://ip-api.com/json');
             const ipData = await ipResponse.json();
             country = ipData.countryCode || 'Unknown';
+            rawData = ipData.status
             console.log(`[Debug] Country code: ${country}`);
             console.log(ipData)
         } catch (err) {
@@ -52,6 +55,7 @@ export const load = async ({ params, request }) => {
                 utm_userAgent: userAgent,
                 utm_country: country,
                 url_id: recordId,
+                rawData: rawData,
                 created: new Date().toISOString()
             });
             console.log(`[Debug] Created analytics record for ${slug}`);
