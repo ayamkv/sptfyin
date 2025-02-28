@@ -12,6 +12,9 @@ let pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
 let link = null
 
+export const prerender = false;
+
+
 
 export const load = async ({ params, request }) => {
     const slug = params.slug;
