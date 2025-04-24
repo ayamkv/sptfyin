@@ -83,19 +83,35 @@ export async function deleteRecord(collection, id) {
 
 export async function generateRandomURL() {
   try {
-    let exists = true;
-    let shortId = null;
-    while (exists) {
-      const newId = Math.random().toString(36).substring(2, 6);
-      const records = await pb.collection('random_short').getList(1, 1, { 
-        filter: `id_url='${newId}'`
-      });
-      if (!records.items.length) {
-        shortId = newId;
-        exists = false;
+    //start with 4 increase if needed
+    let length = 4;
+    const maxLength = 8; 
+    const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
+    
+    while (length <= maxLength) {
+      const generateNanoId = customAlphabet(alphabet, length);
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      // this tries the current length multiple times
+      while (attempts < maxAttempts) {
+        const shortId = generateNanoId();
+        const records = await pb.collection('random_short').getList(1, 1, {
+          filter: `id_url='${shortId}'`
+        });
+
+        if (!records.items.length) {
+          return shortId;
+        }
+        attempts++;
       }
+
+      // If we've exhausted attempts at current length, increase length
+      console.warn(`URL generation with length ${length} exhausted, increasing length`);
+      length++;
     }
-    return shortId;
+
+    throw new Error(`Failed to generate unique URL even with maximum length of ${maxLength}`);
   } catch (err) {
     console.error('Generate random error', err);
     throw err;
