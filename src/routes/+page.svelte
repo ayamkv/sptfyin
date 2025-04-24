@@ -98,7 +98,7 @@
 	let totalLinkCreated;
 	
 	function formatNumber(num) {
-	  if (!num) return 0;
+	  if (!num) return 'counting';
 	  if (num >= 1000) {
 	    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
 	  }
@@ -113,6 +113,7 @@
 			
 		} catch (error) {
 			console.error(error);
+			errorMessage = 'An error occurred while fetching data.'; // Added error message handling
 		} finally {
 			recentLoading = false;
 		}
@@ -570,7 +571,7 @@ for (var key in object) {
 		text-white
 		"
 		>
-		🥳 {formatNumber(totalLinkCreated)} links created
+		₍^. .^₎⟆ {formatNumber(totalLinkCreated)} links created
 			<!-- by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a> -->
 		</h3>
 
