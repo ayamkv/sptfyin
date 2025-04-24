@@ -1,5 +1,6 @@
 <script>
 	import { Button } from '$lib/components/ui/button';
+	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { Turnstile } from 'svelte-turnstile';
 	import { fly, slide, fade, scale } from 'svelte/transition';
@@ -467,6 +468,11 @@
 
 />
 </svelte:head>
+
+
+{#if browser}
+ <script src="https://uptime.betterstack.com/widgets/announcement.js" data-id="207251" async="async" type="text/javascript"></script>
+{/if}
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div

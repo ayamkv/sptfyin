@@ -108,6 +108,7 @@
             </nav>
         </div>
         <main class="flex-1 h-screen overflow-y-auto sm:overflow-y overflow-x-hidden md:pl-0 md:py-4  md:pr-4 md:rounded-lg selection:bg-primary selection:text-background">
+           
             <slot />
         </main>
     </div>
