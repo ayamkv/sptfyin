@@ -44,16 +44,20 @@
             section: 'info'
         }
     ]
+
 </script>
 
 <Toaster duration={4000} position="top-center"/>
 
-    <div class="fixed inset-0 flex md:flex-row">
+    <div class="fixed inset-0 flex md:flex-row 
+    bg-gradient-to-br rounded-md md:rounded-none md:bg-gradient-to-t from-[#332c4e]/80 md:via-card via-card/70 via-30% to-card  text-card-foreground md:highlightNav highlightCard ">
+
+    <!--- todo: fix the gradient, we need to hide the gradient in large displays like desktop using sm:, and show it in mobile.-->
         <div data-collapsed={isCollapsed}
-            class="group flex flex-col bg-gradient-to-br rounded-md md:rounded-none md:bg-gradient-to-t from-[#332c4e]/80 md:via-card via-card/70 backdrop-blur-md via-30% to-card  text-card-foreground md:highlightNav highlightCard
+            class="group flex flex-col md:bg-none bg-gradient-to-br via-30% to-card md:backdrop-blur-[0] sm:rounded-none rounded-md backdrop-blur-sm highlightCard md:shadow-none
                    fixed md:static bottom-0 md:bottom-auto left-0 right-0 md:w-24
-                   border-t md:border md:min-h-screen
-                   data-[collapsed=true]:py-0 z-50">
+                   border-t  md:min-h-screen
+                   data-[collapsed=true]:py-0 z-50  ">
             
             <!-- Logo (desktop only) -->
             <a class="sptfyin-logo hidden md:flex size-16 items-center justify-center mx-auto my-4" href="/">
@@ -103,7 +107,7 @@
                 {/each}
             </nav>
         </div>
-        <main class="flex-1 h-screen overflow-y-auto sm:overflow-y overflow-x-hidden sm:p-4 pb-20 md:pb-4 rounded-lg">
+        <main class="flex-1 h-screen overflow-y-auto sm:overflow-y overflow-x-hidden md:pl-0 md:py-4  md:pr-4 md:rounded-lg selection:bg-primary selection:text-background">
             <slot />
         </main>
     </div>
