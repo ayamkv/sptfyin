@@ -477,7 +477,7 @@
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class="mt-0 flex md:min-h-[96vh] flex-col items-center justify-center bg-background border md:rounded-xl sm:pb-0 pb-12"
+	class="mt-0 flex md:min-h-full md:w-[98vw] flex-col items-center justify-center bg-background border md:rounded-xl sm:pb-0 pb-12"
 	data-vaul-drawer-wrapper
 >
 	<AlertDialog.Root bind:open={isError} class="transition-all">
@@ -623,7 +623,7 @@ for (var key in object) {
 
 	<div
 		class="flex
-		lg:w-[100vw]
+		lg:w-full
 		w-[23rem]
 		flex-col items-center
 		justify-center
@@ -641,7 +641,7 @@ for (var key in object) {
 		"
 	>
 		<!-- <div class="mobile flex flex-col gap-4 lg:gap-0"> -->
-			<Card.Root class="w-[23rem]   lg:w-[25rem]">
+			<Card.Root class="w-[23rem] md:h-[33rem]   lg:w-[25rem]">
 				<Card.Header>
 					<Card.Title>spotify link shortener - simplify your url</Card.Title>
 					<Card.Description
@@ -935,106 +935,36 @@ for (var key in object) {
 				</Card.Header>
 			</Card.Root>
 			
-			
-			<Card.Root class="w-[23rem] lg:w-[25rem]">
-				
+					<Card.Root class="w-[23rem] lg:w-[25rem]">
 				<Card.Content>
-					<div class="pt-6">
-						<Accordion.Root class="m-0 p-0 text-foreground ">
-							<Accordion.Item value="item-1" class>
-								<Accordion.Trigger class="py-1">🔗 recent created links</Accordion.Trigger>
-								<Accordion.Content m-0>
-									<div class="mt-1 flex flex-col transition-all" id="show-url">
-										{#await records}
-											<p>awaiting...</p>
-										{:then records}
-											<div class="max-h-fit break-all transition-all" >
-												{#each records.slice(0, currentItems) as item, i}
-													<li
-														transition:slide|global
-														class="align-center my-1 flex w-full min-w-full justify-between pl-1"
-													>
-														<a href='/{item.id_url}' class="font-thin" target="_blank">
-														<span class="text-muted-foreground/70 px-0">{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/</span><span>
-														{item.id_url}</span>
-														</a>
-														<span class="ml-2 text-muted-foreground/70">
-															{localizeDate(item.created)}
-														</span>
-													</li>
-												{/each}
-											</div>
-											{#if currentItems < records.length}
-												<Button
-													on:click={() => (currentItems = currentItems + 4)}
-													id="loadmore"
-													type="button"
-													class="my-2 w-full transition-all"
-													variant="secondary"
-												>
-													Show more
-												</Button>
-											{:else}
-												<Button
-													on:click={() => (currentItems = 4)}
-													id="loadmore"
-													type="button"
-													class="my-2 w-full transition-all"
-													variant="secondary"
-												>
-													Show less
-												</Button>
-											{/if}
-										{:catch error}
-											<p>error</p>
-										{/await}
-									</div>
-								</Accordion.Content>
-							</Accordion.Item>
-						</Accordion.Root>
-			
-						<Accordion.Root class="m-0 p-0 text-foreground ">
-							<Accordion.Item value="item-1" class>
-								<Accordion.Trigger class="py-1">🤔 about the website</Accordion.Trigger>
-								<Accordion.Content m-0>
-									
-									<div class="mb-2 flex w-full min-w-full flex-col items-center space-x-2">
-										<div class="text-sm">
-											<p class="text-sm text-foreground/80">
-												sptfyin is a simple spotify link shortener, <br>
-			paste your spotify track, album, or playlist url → slap on a custom back half (optional) → done. ✨<br>
-			no ads, no nonsense—just short links that actually work.
-											</p>
-											<a href="/about"> about page </a>
-										</div>
-									</div>
-								</Accordion.Content>
-							</Accordion.Item>
-							
-			
-						</Accordion.Root>
-			
-						<Accordion.Root class="m-0 p-0 text-foreground ">
-							<Accordion.Item value="item-1" class>
-								<Accordion.Trigger class="py-1">🧑‍💻 what's next?</Accordion.Trigger>
-								<Accordion.Content m-0>
-									
-									<div class="mb-2 flex w-full min-w-full flex-col items-center space-x-2">
-										<div class="text-sm">
-											<p class="text-sm text-foreground/80">
-												there's a lot to come, and planned for this website, stay tune! <br>
-												- analytics (on progress)<br>
-												- account and profile page<br>
-												- more customization options<br>
-											</p>
-										</div>
-									</div>
-								</Accordion.Content>
-							</Accordion.Item>
-							
-			
-						</Accordion.Root>
-			
+					<div class="pt-6 flex justify-between items-center">
+						<h3 class="text-lg">🔗 recent created links</h3>
+						<Button variant="secondary" on:click={() => goto('/recent')}>
+							View all
+						</Button>
+					</div>
+					<div class="mt-2">
+						{#await records}
+							<p>awaiting...</p>
+						{:then records}
+							<div class="max-h-fit break-all">
+								{#each records.slice(0, 2) as item}
+									<li class="align-center my-1 flex justify-between pl-1" transition:slide|global>
+										<a href='/{item.id_url}' class="font-thin" target="_blank">
+											<span class="text-muted-foreground/70 px-0">
+												{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/
+											</span>
+											<span>{item.id_url}</span>
+										</a>
+										<span class="ml-2 text-muted-foreground/70">
+											{localizeDate(item.created)}
+										</span>
+									</li>
+								{/each}
+							</div>
+						{:catch error}
+							<p>error</p>
+						{/await}
 					</div>
 				</Card.Content>
 			</Card.Root>

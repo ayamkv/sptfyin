@@ -103,6 +103,12 @@
     --nothing: #332c4e;
     
   }
+  body[data-scroll-locked][data-scroll-locked] {
+      overflow: auto !important;
+  }
+  body[data-scroll-locked] {
+      margin-right: 0 !important;
+  }
 }
  
 @layer base {

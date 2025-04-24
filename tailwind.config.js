@@ -1,11 +1,17 @@
 import { fontFamily } from "tailwindcss/defaultTheme";
 
+const { scrollbarGutter, scrollbarWidth, scrollbarColor } = require('tailwind-scrollbar-utilities');
+
 /** @type {import('tailwindcss').Config} */
 const config = {
 	darkMode: ["class"],
 	content: ["./src/**/*.{html,js,svelte,ts}"],
 	safelist: ["dark"],
-	plugins: [require("@tailwindcss/typography")],
+	plugins: [require("@tailwindcss/typography"),
+		scrollbarGutter(), // no options to configure
+	scrollbarWidth(), // no options to configure
+	scrollbarColor(), // no options to configure
+	],
 	theme: {
 		container: {
 			center: true,

@@ -111,6 +111,9 @@ importers:
       sveltekit-superforms:
         specifier: ^2.15.1
         version: 2.15.1(@sveltejs/kit@2.5.16(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.18)(vite@5.3.1))(svelte@4.2.18)(vite@5.3.1))(svelte@4.2.18)
+      tailwind-scrollbar-utilities:
+        specifier: 0.2.0
+        version: 0.2.0
       tailwindcss:
         specifier: ^3.4.4
         version: 3.4.4
@@ -2181,6 +2184,9 @@ packages:
 
   tailwind-merge@2.3.0:
     resolution: {integrity: sha512-vkYrLpIP+lgR0tQCG6AP7zZXCTLc1Lnv/CCRT3BqJ9CZ3ui2++GPaGb1x/ILsINIMSYqqvrpqjUFsMNLlW99EA==}
+
+  tailwind-scrollbar-utilities@0.2.0:
+    resolution: {integrity: sha512-he9r5Dsk/gqOUf/XGJ/p9o8INz6cO0WLxsFjxeAZXmVJiLRMHNx4FgQey35MbMT4kmRRifmwAIibVrA84aBe2Q==}
 
   tailwind-variants@0.2.1:
     resolution: {integrity: sha512-2xmhAf4UIc3PijOUcJPA1LP4AbxhpcHuHM2C26xM0k81r0maAO6uoUSHl3APmvHZcY5cZCY/bYuJdfFa4eGoaw==}
@@ -4399,6 +4405,8 @@ snapshots:
   tailwind-merge@2.3.0:
     dependencies:
       '@babel/runtime': 7.24.7
+
+  tailwind-scrollbar-utilities@0.2.0: {}
 
   tailwind-variants@0.2.1(tailwindcss@3.4.4):
     dependencies:

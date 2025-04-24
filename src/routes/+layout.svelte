@@ -2,20 +2,26 @@
     import "../app.css";
     import { Toaster } from "$lib/components/ui/sonner";
     import * as Tooltip from "$lib/components/ui/tooltip";
-    import { Button } from "$lib/components/ui/button";
-    import { Home, CircleUserRound, Library, Plus, HandHeart, Info } from "lucide-svelte";
+    import { Button } from "$lib/components/ui/button";    import { Home, CircleUserRound, Library, Plus, HandHeart, Info, History } from "lucide-svelte";
     import { page } from "$app/stores";
     import logo from "$lib/images/logo.png";
     
     let isCollapsed = true;
     $: currentPath = $page.url.pathname;
-    $: isActive = (routeLabel) => routeLabel === currentPath;
-    let routes = [
+    $: isActive = (routeLabel) => routeLabel === currentPath;    let routes = [
         {
             title: "home",
             icon: Home,
             variant: "ghost",
             label: "/",
+            visible: true,
+            section: 'actions'
+        },
+        {
+            title: "recent",
+            icon: History,
+            variant: "ghost",
+            label: "/recent",
             visible: true,
             section: 'actions'
         },
@@ -49,7 +55,7 @@
 
 <Toaster duration={4000} position="top-center"/>
 
-    <div class="fixed inset-0 flex md:flex-row 
+    <div class="fixed inset-0 flex md:flex-row scrollbar-gutter-stable
     bg-gradient-to-br rounded-md md:rounded-none md:bg-gradient-to-t from-[#332c4e]/80 md:via-card via-card/70 via-30% to-card  text-card-foreground md:highlightNav highlightCard ">
 
     <!--- todo: fix the gradient, we need to hide the gradient in large displays like desktop using sm:, and show it in mobile.-->
@@ -107,7 +113,7 @@
                 {/each}
             </nav>
         </div>
-        <main class="flex-1 h-screen overflow-y-auto sm:overflow-y overflow-x-hidden md:pl-0 md:py-4  md:pr-4 md:rounded-lg selection:bg-primary selection:text-background">
+        <main class="flex-1 h-screen max-w-screen overflow-y-auto sm:overflow-y overflow-x-hidden md:pl-0 md:py-4 md:mr-4 md:pr-4 md:rounded-lg selection:bg-primary selection:text-background">
            
             <slot />
         </main>
