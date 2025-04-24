@@ -37,19 +37,20 @@ export const load = async ({ params, request }) => {
         // }
 
         const userAgent = request.headers.get('user-agent') || 'Unknown';
-        // const cf_ipcountry = request.headers.get('CF-IPCountry')
-        // console.log('CF IP', cf_ipcountry)
+        const cf_ipcountry = request.headers.get('CF-IPCountry')
+        console.log('CF IP', cf_ipcountry)
         const forwardedFor = request.headers.get('x-forwarded-for');
-        const clientIP = forwardedFor ? forwardedFor.split(',')[0].trim() : 'Unknown';
+        console.log('Forwarded for', forwardedFor)
+        // const clientIP = forwardedFor ? forwardedFor.split(',')[0].trim() : 'Unknown';
         
         // Fetch country information from ipapi.co
         let country = 'Unknown';; // Default value if fetch fails or country is not found
-        let rawData = clientIP;
+        let rawData = 'N/A'
         try {
             const ipResponse = await fetch('http://ip-api.com/json');
             const ipData = await ipResponse.json();
             country = ipData.countryCode || 'Unknown';
-          
+            rawData = ipData.status;
             console.log(`[Debug] Country code: ${country}`);
             console.log(ipData)
         } catch (err) {
