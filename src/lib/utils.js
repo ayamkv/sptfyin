@@ -139,7 +139,7 @@ export function localizeDate(date, shorthand = false) {
 
 export function findUrl(str) {
 	const regex =
-		/^(https:\/\/[a-z]+\.spotify\.com\/)(playlist|artist|album|track|episode|show|user)\/.*$/gm;
+		/^(https:\/\/[a-z]+\.spotify\.com\/)(playlist|artist|album|track|episode|show|user|listeningstats)\/.*$/gm;
 	let urls = str.match(regex);
 	return urls ? urls[0] : null;
 }
