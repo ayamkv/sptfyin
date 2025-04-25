@@ -93,7 +93,7 @@ export const hideEmail = (email) => {
 // 	}
 // };
 
-export function localizeDate(date) {
+export function localizeDate(date, shorthand = false) {
     const inputDate = new Date(date);
     const now = new Date();
     const elapsedMs = inputDate.getTime() - now.getTime();
@@ -110,28 +110,30 @@ export function localizeDate(date) {
 
     if (days >= 1) {
         value = days;
-        unit = 'day';
+        unit = shorthand ? 'd' : 'day';
     } else if (hours >= 1) {
         value = hours;
-        unit = 'hour';
+        unit = shorthand ? 'hr' : 'hour';
     } else if (minutes >= 1) {
         value = minutes;
-        unit = 'minute';
+        unit = shorthand ? 'm' : 'minute';
     } else if (seconds >= 1) {
         value = seconds;
-        unit = 'second';
+        unit = shorthand ? 's' : 'second';
     } else {
         return 'just now';
     }
 
     const suffix = isPast ? 'ago' : 'from now';
-    let article = 'a';
-    if (value === 1) {
+    
+    if (value === 1 && !shorthand) {
+        let article = 'a';
         if (unit === 'hour') article = 'an';
         else if (['a', 'e', 'i', 'o', 'u'].includes(unit[0])) article = 'an';
         return `${article} ${unit} ${suffix}`;
     } else {
-        return `${value} ${unit}s ${suffix}`;
+        const plural = value !== 1 && !shorthand ? 's' : '';
+        return `${value}${shorthand ? '' : ' '}${unit}${plural} ${suffix}`;
     }
 }
 

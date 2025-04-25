@@ -54,4 +54,4 @@ we're working on some exciting features:
 - **enhanced qr codes**: customizable qr code designs
 
 ## have other questions?
-we're here to help! feel free to reach out through [our socials](#) or email us at hello@[sptfy.in](/).
+we're here to help! feel free to reach out through [our socials](/about/socials) or email us at [hello@sptfy.in](mailto:hello@sptfy.in).

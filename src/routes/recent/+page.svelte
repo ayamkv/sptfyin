@@ -40,57 +40,56 @@ function previousPage() {
 </script>
 
 <svelte:head>
-    <title>Recent Links - sptfy.in</title>
-    <meta name="description" content="View recently created short links on sptfy.in" />
+    <title>recent links - sptfy.in</title>
+    <meta name="description" content="view recently created short links on sptfy.in" />
 </svelte:head>
 <div
-	class="mt-0 flex md:min-h-full md:w-[98vw] flex-col items-center justify-center bg-background border md:rounded-xl sm:pb-0 pb-12"
+	class="mt-0 flex  md:min-h-[96vh] flex-col items-center justify-center bg-background border md:rounded-xl sm:pb-0 pb-12"
 	data-vaul-drawer-wrapper
 >
-<div class="container py-6">
-    <Card.Root class="w-full max-w-2xl mx-auto">
+<div class="container py-6 flex-1 min-h-full">
+    <Card.Root class="w-full h-full max-w-2xl mx-auto">
         <Card.Header>
             <div class="flex justify-between items-center">
                 <div>
-                    <Card.Title class="text-2xl">Recent Created Links</Card.Title>
-                    <Card.Description>View recently created short links</Card.Description>
+                    <Card.Title class="text-2xl">recent created links</Card.Title>
+                    <Card.Description>view recently created short links</Card.Description>
                 </div>
             
             </div>
         </Card.Header>
         <Card.Content>            {#await fetchData()}
-                <p class="text-center py-4">Loading...</p>
+                <p class="text-center py-4">loading...</p>
             {:then}
                 <div class="space-y-4">
                     {#if records.length > 0}
                         {#each currentPageItems as item}
-                            <div class="flex justify-between items-center py-2 border-b last:border-0" transition:slide>
-                                <a href="/{item.id_url}" class="font-medium hover:underline" target="_blank">
+                            <div class="flex justify-between items-center py-1 border-b last:border-0" transition:slide>
+                                <a href="/{item.id_url}" class="font-light hover:underline" target="_blank">
                                     <span class="text-muted-foreground">{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/</span><span>{item.id_url}</span>
-                                </a>
-                                <span class="text-sm text-muted-foreground">
-                                    {localizeDate(item.created)}
+                                </a>                                <span class="text-sm text-muted-foreground">
+                                    {localizeDate(item.created, true)}
                                 </span>
                             </div>
                         {/each}
                         
                         <div class="flex justify-between items-center pt-4">
                             <Button 
-                                variant="outline" 
+                                variant="ghost2" 
                                 on:click={previousPage}
                                 disabled={currentPage === 1}
                             >
-                                Previous
+                                prev
                             </Button>
                             <span class="text-sm text-muted-foreground">
-                                Page {currentPage} of {totalPages}
+                                page {currentPage} of {totalPages}
                             </span>
                             <Button 
-                                variant="outline"
+                                variant="ghost2"
                                 on:click={nextPage}
                                 disabled={currentPage === totalPages}
                             >
-                                Next
+                                next
                             </Button>
                         </div>
                     {:else}

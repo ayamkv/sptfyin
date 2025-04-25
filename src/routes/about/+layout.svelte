@@ -57,7 +57,7 @@ let showNav = false
         <nav class="subnav flex flex-col gap-4">
             {#each navItems as nav}
               <a href={nav.href} class="flex flex-row gap-2 align-center justify-start p-2 rounded-lg hover:text-white hover:bg-secondary/40 hover:outline-2 hover:outline-primary hover:inverseShadow
-              {$page.url.pathname === nav.href ? 'bg-primary text-background font-bold hover:bg-primary/80' : 'font-thin'} ">
+              {$page.url.pathname === nav.href ? 'bg-primary text-background hover:bg-primary/80' : 'font-thin'} ">
                   <div class="icon bg-primary text-background p-2 rounded-lg w-12 h-12 flex items-center justify-center">
                     <iconify-icon icon={nav.icon} width="32"  class="text-2xl w-8 h-8"></iconify-icon>
                   </div>
@@ -71,17 +71,17 @@ let showNav = false
 </div>
 {/if}
 
-<div class="container grid md:grid-cols-6 grid-rows-1 gap-4 mt-16">
+<div class="container grid md:grid-cols-6 grid-rows-1 gap-4 mx-0 min-w-full min-h-full max-h-full pt-[2rem] md:pb-12 md:rounded-xl bg-background overflow-y-hidden border border-t">
 <div class="nav-container lg:flex flex-col gap-4 w-46 px-4 hidden">
-    <div class="nav-header text-4xl">
+    <div class="nav-header text-4xl sm:hidden">
         about
     </div>
     <div class="navigation-bar">
         <nav class="subnav flex flex-col gap-4 lg:col-span-1">
             {#each navItems as nav}
               <a href={nav.href} class="flex flex-row gap-2 align-center justify-start p-2 rounded-lg hover:text-white hover:bg-secondary/40 hover:outline-2 hover:outline-primary 
-              {$page.url.pathname === nav.href ? 'bg-primary text-background font-bold hover:bg-primary/80' : 'font-thin'} ">
-                  <div class="icon bg-primary text-background p-2 rounded-lg w-12 h-12 flex items-center justify-center">
+              {$page.url.pathname === nav.href ? 'bg-secondary text-foreground  hover:bg-primary/80' : 'font-thin'} ">
+                  <div class="icon bg-primary text-background p-2 rounded-lg w-12 h-12 flex items-center justify-center {$page.url.pathname === nav.href ? 'bg-secondary text-foreground hover:bg-primary/80' : 'font-thin'} ">
                     <iconify-icon icon={nav.icon} width="32"  class="text-2xl w-8 h-8"></iconify-icon>
                   </div>
                   <span class="">{nav.label}</span>
@@ -91,7 +91,7 @@ let showNav = false
     </div>
 </div>
 
-<div class="content-container col-span-5">
+<div class="content-container overflow-y-auto col-span-5 md:pb-0 md:pt-[2rem] pb-[5rem]">
     <slot />
 </div>
 
@@ -106,7 +106,7 @@ let showNav = false
           border-collapse: collapse;
           border-spacing: 0;
           width: 100%;
-          overflow: hidden;
+
           border-radius: 0.5rem;
           border: 1px solid var(--color-border);
         }

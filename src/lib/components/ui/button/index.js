@@ -7,9 +7,10 @@ const buttonVariants = tv({
 			default: "bg-primary text-primary-foreground hover:bg-primary highlight hover:highlightHover hover:scale-95 md:hover:scale-105  hover:-rotate-1 active:scale-100 active:bg-secondary active:text-foreground transition-all active:highlightCard ",
 			destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
 			outline:
-				"border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+				"border border-input bg-background active:bg-secondary hover:bg-primary hover:text-primary-foreground hover:scale-95",
 			secondary: "bg-gradient-to-br from-[#38334f] via-secondary/40 via-30% text-secondary-foreground hover:from-[#afffdc] hover:via-primary hover:to-primary hover:text-secondary highlightSecondary active:scale-95 transition-all",
-			ghost: "hover:bg-accent hover:text-accent-foreground",
+			ghost: "hover:bg-accent hover:text-accent-foreground hover:bg-secondary/80 hover:outline-primary hover:inverseShadow",
+			ghost2: "bg-gradient-to-br from-[#38334f] via-30% text-secondary-foreground  hover:text-accent-foreground hover:bg-secondary/80 hover:outline-primary hover:inverseShadow highlightSecondary active:scale-95 active:to-primary active:from-[#afffdc] active:text-secondary active:via-primary border-t disabled:text-secondary-foreground/40 disabled:bg-background/80 disabled:to-background/80 disabled:via-background/80 disabled:from-background/60 disabled:inverseShadow",
 			link: "text-primary underline-offset-4 hover:underline",
 		},
 		size: {

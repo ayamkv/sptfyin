@@ -477,7 +477,7 @@
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class="mt-0 flex md:min-h-full md:w-[98vw] flex-col items-center justify-center bg-background border md:rounded-xl sm:pb-0 pb-12"
+	class="mt-0 flex md:min-h-[96vh] flex-col items-center justify-center bg-background border md:rounded-xl sm:pb-0 pb-12"
 	data-vaul-drawer-wrapper
 >
 	<AlertDialog.Root bind:open={isError} class="transition-all">
@@ -666,8 +666,8 @@ for (var key in object) {
 								<Button
 									type="button"
 									id="paste"
-									class="paste-button hover:bg-primary hover:text-black"
-									variant="secondary"
+									class="paste-button hover:bg-primary hover:text-black hover:from-[#afffdc]/20"
+									variant="ghost2"
 									on:click={() => handlePaste()}
 								>
 									<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
@@ -938,9 +938,9 @@ for (var key in object) {
 					<Card.Root class="w-[23rem] lg:w-[25rem]">
 				<Card.Content>
 					<div class="pt-6 flex justify-between items-center">
-						<h3 class="text-lg">🔗 recent created links</h3>
-						<Button variant="secondary" on:click={() => goto('/recent')}>
-							View all
+						<h3 class="text-lg font-bold">🔗 recent created links</h3>
+						<Button variant="ghost2" on:click={() => goto('/recent')}>
+							view all
 						</Button>
 					</div>
 					<div class="mt-2">
@@ -952,9 +952,7 @@ for (var key in object) {
 									<li class="align-center my-1 flex justify-between pl-1" transition:slide|global>
 										<a href='/{item.id_url}' class="font-thin" target="_blank">
 											<span class="text-muted-foreground/70 px-0">
-												{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/
-											</span>
-											<span>{item.id_url}</span>
+												{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/</span><span>{item.id_url}</span>
 										</a>
 										<span class="ml-2 text-muted-foreground/70">
 											{localizeDate(item.created)}

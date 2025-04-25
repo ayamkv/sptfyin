@@ -8,7 +8,13 @@
     
     let isCollapsed = true;
     $: currentPath = $page.url.pathname;
-    $: isActive = (routeLabel) => routeLabel === currentPath;    let routes = [
+    $: isActive = (routeLabel) => {
+        if (routeLabel === '/about/general' && currentPath.includes('about/')) {
+            return true;
+        }
+        return routeLabel === currentPath;
+    };
+    let routes = [
         {
             title: "home",
             icon: Home,
@@ -113,7 +119,7 @@
                 {/each}
             </nav>
         </div>
-        <main class="flex-1 h-screen max-w-screen overflow-y-auto sm:overflow-y overflow-x-hidden md:pl-0 md:py-4 md:mr-4 md:pr-4 md:rounded-lg selection:bg-primary selection:text-background">
+        <main class="flex-1 h-screen overflow-y-auto max-w-full sm:overflow-y-hidden overflow-x-hidden md:pl-0 md:py-4 md:pr-4 md:rounded-lg selection:bg-primary selection:text-background">
            
             <slot />
         </main>
