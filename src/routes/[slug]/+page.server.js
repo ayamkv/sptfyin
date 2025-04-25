@@ -14,7 +14,6 @@ let link = null;
 // Function to check if user agent is a bot or crawler
 function isBot(userAgent) {
     const botPatterns = [
-        'facebook',
         'whatsapp',
         'telegram',
         'twitter',
@@ -24,8 +23,19 @@ function isBot(userAgent) {
         'slurp',
         'mediapartners-google',
         'facebookexternalhit',
-        'whatsapp',
-        'telegrambot'
+        'telegrambot',
+        'google-safety',
+        'google-firebase',
+        'unknown',
+        'okhttp',
+        'python-requests/2.32.3',
+        'node-fetch',
+        'node',
+        'help@dataminr.com',
+        'axios',
+        'dub.co',
+        'iframe',
+        'siteinfo'
     ];
     
     userAgent = userAgent.toLowerCase();
