@@ -23,3 +23,5 @@ vite.config.ts.timestamp-*
 dev-prompts
 .clinerules
 .wrangler/
+src/routes/debug/
+
