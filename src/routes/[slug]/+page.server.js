@@ -81,7 +81,7 @@ export const load = async ({ params, request }) => {
             await createRecord('analytics', {
                 author: recordId,
                 utm_userAgent: userAgent,
-                utm_country: country,
+                utm_country: cf_ipcountry,
                 url_id: recordId,
                 rawData: cf_ipcountry,
                 created: new Date().toISOString()
