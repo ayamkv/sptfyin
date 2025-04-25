@@ -82,7 +82,7 @@ function previousPage() {
                                 prev
                             </Button>
                             <span class="text-sm text-muted-foreground">
-                                page {currentPage} of {totalPages}
+                                 {currentPage} / {totalPages}
                             </span>
                             <Button 
                                 variant="ghost2"
