@@ -935,7 +935,7 @@ for (var key in object) {
 				</Card.Header>
 			</Card.Root>
 			
-					<Card.Root class="w-[23rem] lg:w-[25rem]">
+					<Card.Root class="w-[23rem] lg:w-[25rem] lg:h-[9.8rem] h-[10rem]">
 				<Card.Content>
 					<div class="pt-6 flex justify-between items-center">
 						<h3 class="text-lg font-bold">🔗 recent created links</h3>
@@ -949,7 +949,7 @@ for (var key in object) {
 						{:then records}
 							<div class="max-h-fit break-all">
 								{#each records.slice(0, 2) as item}
-									<li class="align-center my-1 flex justify-between pl-1" transition:slide|global>
+									<li class="align-center my-1 flex justify-between pl-1" in:slide|global>
 										<a href='/{item.id_url}' class="font-thin" target="_blank">
 											<span class="text-muted-foreground/70 px-0">
 												{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/</span><span>{item.id_url}</span>
