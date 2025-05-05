@@ -96,7 +96,7 @@ export async function generateRandomURL() {
       // this tries the current length multiple times
       while (attempts < maxAttempts) {
         const shortId = generateNanoId();
-        const records = await pb.collection('random_short').getList(1, 1, {
+        const records = await pb.collection('viewList').getList(1, 1, {
           filter: `id_url='${shortId}'`
         });
 
