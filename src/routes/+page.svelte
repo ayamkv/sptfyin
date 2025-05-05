@@ -349,25 +349,32 @@
 		console.log(err.response.status);
 		console.log(err.response?.data);
 
-			// default error fallback
-			alertDialogTitle = strings.ErrorCreateRecordTitle;
-			alertDialogDescription = strings.ErrorCreateRecordDesc;
-			if (err.response?.status === 400) {
-				const errorData = err.response?.data;
-				console.log(errorData.id_url?.code);
-				// it's here to prevent duplicates, and prevent confusion to ppl
-				if (errorData.id_url?.code === 'validation_not_unique') {
-					errorIcon = strings.ErrorCustomShortIdExistsIcon;
-					alertDialogTitle = strings.ErrorCustomShortIdExistsTitle;
-					alertDialogDescription = strings.ErrorCustomShortIdExistsDesc;
-				}
-				// this checks if input empty because ppl sometimes forgor
-				else if (isInputTextEmpty) {
-					alertDialogTitle = strings.ErrorCreatedRecordNoInputTitle;
-					alertDialogDescription = strings.ErrorCreatedRecordNoInputDesc;
-				}
+		// default error fallback
+		alertDialogTitle = strings.ErrorCreateRecordTitle;
+		alertDialogDescription = strings.ErrorCreateRecordDesc;
+
+		if (err.response?.status === 400) {
+			const errorData = err.response?.data;
+			console.log(errorData.id_url?.code);
+			// it's here to prevent duplicates, and prevent confusion to ppl
+			if (errorData.id_url?.code === 'validation_not_unique') {
+				errorIcon = strings.ErrorCustomShortIdExistsIcon;
+				alertDialogTitle = strings.ErrorCustomShortIdExistsTitle;
+				alertDialogDescription = strings.ErrorCustomShortIdExistsDesc;
 			}
-			isError = true;
+			// this checks if input empty because ppl sometimes forgor
+			else if (isInputTextEmpty) {
+				alertDialogTitle = strings.ErrorCreatedRecordNoInputTitle;
+				alertDialogDescription = strings.ErrorCreatedRecordNoInputDesc;
+			}		
+		} else if (err.response?.status === 429) {
+			// Handle rate limiting error
+			errorIcon = strings.ErrorRateLimitIcon;
+			alertDialogTitle = strings.ErrorRateLimitTitle;
+			alertDialogDescription = strings.ErrorRateLimitDesc;
+		}
+
+		isError = true;
 
 			//          errorIcon = strings.ErrorCreateRecordIcon;
 		}
@@ -966,8 +973,6 @@ for (var key in object) {
 					</div>
 				</Card.Content>
 			</Card.Root>
-			
-			<!-- </div> -->
 		</div>
 	</div>
 </div>

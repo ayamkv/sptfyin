@@ -1,7 +1,9 @@
 {
     "name": "English",
-    "code": "en",
-    "strings": {
+    "code": "en",    "strings": {
+        "ErrorRateLimitIcon": "fluent-emoji:turtle",
+        "ErrorRateLimitTitle": "Whoa! Slow down buddy!",
+        "ErrorRateLimitDesc": "you're making too many requests too quickly. chill out before trying again.",
         "ErrorClipboardPermTitle": "Ouch! we have no permission :(",
         "ErrorClipboardPermissionDesc": "<b>sptfy.in</b> can't access the most recent item in your clipboard without your permission.<br><br>if you don't want to give access, you can paste the link manually instead.<br><br>if you do want to, go to site settings and enable the clipboard permission. <br><a href='https://www.google.com/search?q=enable+clipboard+permission&oq=enable+clipboard+permission'>see how to</a>",
         "ErrorClipboardNoSpotifyURLIcon": "fluent-emoji:face-with-monocle",
