@@ -5,7 +5,7 @@ export const load = async ({ params }) => {
     const { slug } = params;
 
     try {
-        const urlData = await getFilteredRecords('random_short', `(id_url='${slug}')`);
+        const urlData = await getFilteredRecords('viewList', `(id_url='${slug}')`);
         const urlRecord = urlData[0];
 
         if (!urlRecord?.id) {
