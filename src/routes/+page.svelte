@@ -77,7 +77,7 @@
 		},
 		{
 			icon: 'lucide:square-arrow-out-up-right',
-			click: () => window.open(`/${shortIdDisplay}`, '_blank')
+			click: () => window.open(`${fullShortURL}`, '_blank')
 		}
 	];
 
