@@ -286,7 +286,7 @@
 		shortIdDisplay = modifiedValue;
 		qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
 	}
-
+	const protectedRoutes = ['recent', 'about', 'terms', 'privacy'];
 	const handleSubmit = async (e) => {
 		const promise = new Promise(function (resolve, reject) {
 				promiseResolve = resolve;
@@ -295,6 +295,17 @@
 		loading = true
 		let url_id = customShortId;
 
+		// handle if customShortId Contains routes that already used by the app like '/recent' '/prev' '/about' etc
+
+		//use the protectedRoutes array to check if the url_id is in the array
+		if (protectedRoutes.includes(url_id)) {
+			isError = true;
+			alertDialogTitle = strings.ErrorCustomShortIdRouteTitle;
+			alertDialogDescription = strings.ErrorCustomShortIdRouteDesc;
+			errorIcon = strings.ErrorCustomShortIdRouteIcon;
+			loading = false;
+			return;
+		}
 		if (!customShortId) {
 			url_id = await generateRandomURL();
 		}

@@ -17,7 +17,10 @@
         "ErrorTurnstileValidationDesc": "we couldn't validate the captcha, <br> <b>please try again<b> or <a href='https://sptfy.in/about/socials'>contact me</a> if you think this is a bug.",
         "ErrorCustomShortIdExistsIcon": "fluent-emoji:face-with-open-eyes-and-hand-over-mouth",
         "ErrorCustomShortIdExistsTitle": "Welp, this already exists..",
-        "ErrorCustomShortIdExistsDesc": "the custom link you're trying to use is already taken, <br> please try another one."
+        "ErrorCustomShortIdExistsDesc": "the custom link you're trying to use is already taken, <br> please try another one.",
+        "ErrorCustomShortIdRouteTitle":"Welp, this is a reserved link..",
+        "ErrorCustomShortIdRouteDesc":"this custom link is reserved for the site as a protected routes <br> please try another one.",
+        "ErrorCustomShortIdRouteIcon":"fluent-emoji:face-with-monocle"
     }
 
 }
