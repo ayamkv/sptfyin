@@ -32,10 +32,9 @@ export async function getRecords(collection) {
     throw err;
   }
 }
-
   // get recent
-export async function getRecentRecords(collection) {
-  const res = await fetch(`${pocketBaseURL}/api/collections/viewList/records?sort=-created&fields=id_url,from,created,subdomain&perPage=200`)
+export async function getRecentRecords(collection, perPage = 10, currentPage = 1) {
+  const res = await fetch(`${pocketBaseURL}/api/collections/viewList/records?sort=-created&fields=id_url,from,created,subdomain&perPage=${perPage}&page=${currentPage}`)
   return res.json();
 }
 

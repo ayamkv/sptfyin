@@ -10,32 +10,29 @@ import { localizeDate } from '$lib/utils';
 let records = [];
 let currentPage = 1;
 let itemsPerPage = 10;
-let totalLinkCreated;
+let totalPages = 1;
 
 async function fetchData() {
     try {
-        const response = await getRecentRecords();
+        const response = await getRecentRecords('viewList', itemsPerPage, currentPage);
         records = response.items;
-        totalLinkCreated = response.totalItems;
+        totalPages = Math.ceil(response.totalItems / itemsPerPage);
     } catch (error) {
         console.error(error);
     }
 }
 
-$: totalPages = Math.ceil(records.length / itemsPerPage);
-$: startIndex = (currentPage - 1) * itemsPerPage;
-$: endIndex = startIndex + itemsPerPage;
-$: currentPageItems = records.slice(startIndex, endIndex);
-
-function nextPage() {
+async function nextPage() {
     if (currentPage < totalPages) {
         currentPage++;
+        await fetchData();
     }
 }
 
-function previousPage() {
+async function previousPage() {
     if (currentPage > 1) {
         currentPage--;
+        await fetchData();
     }
 }
 </script>
@@ -91,9 +88,8 @@ function previousPage() {
                         </div>
                 </div>
             {:then}
-                <div class="space-y-4">
-                    {#if records.length > 0}
-                        {#each currentPageItems as item, i}
+                <div class="space-y-4">                    {#if records.length > 0}
+                        {#each records as item, i}
                             <div class="flex justify-between items-center py-1 border-b last:border-0" >
                                 <a href="https://{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/{item.id_url}" class="font-light hover:underline flex-1 min-w-0 mr-4 flex items-center" target="_blank"  >
                                     <span class="text-muted-foreground">{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/</span><span class="truncate inline-block max-w-full">{item.id_url}</span>
