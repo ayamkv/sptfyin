@@ -1,5 +1,8 @@
 import { json } from '@sveltejs/kit';
 
+// not used anymore
+// moved to server side validation on pocketbase hooks 
+
 export async function POST({ request }) {
   const { token } = await request.json();
   const cfSecret = import.meta.env.VITE_CF_SECRET;

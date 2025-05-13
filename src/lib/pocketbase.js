@@ -1,5 +1,4 @@
 import PocketBase from 'pocketbase';
-import { myFetch } from './fetchWrapper.js';
 import { nanoid, customAlphabet } from 'nanoid'
 
 
@@ -53,20 +52,15 @@ export async function getFilteredRecords(collection, filter, sort = '') {
 
 
   
-export async function createRecord(collection, data) {
+export async function createRecord(collection, data, turnstileToken) {
   try {
-    return await pb.collection(collection).create(data);
+    const headers = {};
+    if (turnstileToken) {
+      headers["X-Turnstile-Token"] = turnstileToken;
+    }
+    return await pb.collection(collection).create(data, { headers });
   } catch (err) {
     console.error('Create error', err);
-    throw err;
-  }
-}
-
-export async function updateRecord(collection, id, data) {
-  try {
-    return await pb.collection(collection).update(id, data);
-  } catch (err) {
-    console.error('Update error', err);
     throw err;
   }
 }

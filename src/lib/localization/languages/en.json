@@ -13,6 +13,7 @@
         "ErrorCreateRecordDesc": "there's an <b>unexpected error</b> <br> we couldn't create the link for you 😢. <br><br>please try again or <a href='https://sptfy.in/about/socials'>contact me</a> if you think this is a bug.",
         "ErrorCreatedRecordNoInputTitle": "Um.. forgot something?",
         "ErrorCreatedRecordNoInputDesc": "it seems like you did not provide any link, or you didn't put a valid spotify link. please check the input field <br><br>please try again with a valid spotify link or <br> <a href='https://sptfy.in/about/socials'>contact me</a> if you think this is something else or a bug.",
+        "ErrorTurnstileValidationIcon": "fluent-emoji:robot",
         "ErrorTurnstileValidationTitle": "Ouch! captcha validation failed",
         "ErrorTurnstileValidationDesc": "we couldn't validate the captcha, <br> <b>please try again<b> or <a href='https://sptfy.in/about/socials'>contact me</a> if you think this is a bug.",
         "ErrorCustomShortIdExistsIcon": "fluent-emoji:face-with-open-eyes-and-hand-over-mouth",

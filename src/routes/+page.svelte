@@ -292,12 +292,9 @@
 				promiseResolve = resolve;
 				promiseReject = reject;
 			});
-		loading = true
+		loading = true;
 		let url_id = customShortId;
 
-		// handle if customShortId Contains routes that already used by the app like '/recent' '/prev' '/about' etc
-
-		//use the protectedRoutes array to check if the url_id is in the array
 		if (protectedRoutes.includes(url_id)) {
 			isError = true;
 			alertDialogTitle = strings.ErrorCustomShortIdRouteTitle;
@@ -316,17 +313,8 @@
 			enable: true
 		};
 		try {
-			const validationResponse = await validateToken(turnstileResponse);
-			if (!validationResponse.success) {
-				isError = true;
-				alertDialogTitle = strings.ErrorTurnstileValidationTitle;
-				alertDialogDescription =
-					strings.ErrorTurnstileValidationDesc +
-					`<br><br<> turnstile error: ${validationResponse.error}`;
-				throw new Error(`Turnstile validation failed: ${validationResponse.error}`);
-			}
 			console.log(url_id);
-			const response = await createRecord('random_short', dataForm);
+			const response = await createRecord('random_short', dataForm, turnstileResponse);
 			console.log('Record created');
 			shortIdDisplay = url_id;
 			qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
@@ -341,8 +329,6 @@
 					return 'Success 🥳 ';
 				},
 				error: (err) => {
-					// console.error(err);
-					// isError = true;
 					return 'Error... :( Try again!';
 				}
 			});
@@ -354,41 +340,47 @@
 				scrollToBottom();
 			}
 		} catch (err) {
-		loading = false;
-		errorMessage = err.response?.data;
+			loading = false;
+			errorMessage = err.response?.data;
+			errorCode = err.response?.status;
+			console.log('Error status:', err.response?.status);
+			console.log('Error data:', err.response?.data);
 
-		errorCode  = err.response?.status;
-		console.log(err.response.status);
-		console.log(err.response?.data);
+			// default error fallback
+			alertDialogTitle = strings.ErrorCreateRecordTitle;
+			alertDialogDescription = strings.ErrorCreateRecordDesc;
 
-		// default error fallback
-		alertDialogTitle = strings.ErrorCreateRecordTitle;
-		alertDialogDescription = strings.ErrorCreateRecordDesc;
-
-		if (err.response?.status === 400) {
-			const errorData = err.response?.data;
-			console.log(errorData.id_url?.code);
-			// it's here to prevent duplicates, and prevent confusion to ppl
-			if (errorData.id_url?.code === 'validation_not_unique') {
-				errorIcon = strings.ErrorCustomShortIdExistsIcon;
-				alertDialogTitle = strings.ErrorCustomShortIdExistsTitle;
-				alertDialogDescription = strings.ErrorCustomShortIdExistsDesc;
+			if (err.response?.status === 400) {
+				const errorData = err.response?.data;
+				console.log('Error data:', errorData);
+				console.log('why')
+				// Handle turnstile verification error
+				if (errorData?.verification) {
+					const verification = errorData.verification;
+					errorIcon = strings.ErrorTurnstileValidationIcon;
+					alertDialogTitle = strings.ErrorTurnstileValidationTitle;
+					alertDialogDescription = strings.ErrorTurnstileValidationDesc;
+					reset?.(); // Reset the turnstile widget
+				}
+				// Handle duplicate short URL error
+				else if (errorData.id_url?.code === 'validation_not_unique') {
+					errorIcon = strings.ErrorCustomShortIdExistsIcon;
+					alertDialogTitle = strings.ErrorCustomShortIdExistsTitle;
+					alertDialogDescription = strings.ErrorCustomShortIdExistsDesc;
+				}
+				// Handle empty input error
+				else if (isInputTextEmpty) {
+					alertDialogTitle = strings.ErrorCreatedRecordNoInputTitle;
+					alertDialogDescription = strings.ErrorCreatedRecordNoInputDesc;
+				}		
+			} else if (err.response?.status === 429) {
+				// Handle rate limiting error
+				errorIcon = strings.ErrorRateLimitIcon;
+				alertDialogTitle = strings.ErrorRateLimitTitle;
+				alertDialogDescription = strings.ErrorRateLimitDesc;
 			}
-			// this checks if input empty because ppl sometimes forgor
-			else if (isInputTextEmpty) {
-				alertDialogTitle = strings.ErrorCreatedRecordNoInputTitle;
-				alertDialogDescription = strings.ErrorCreatedRecordNoInputDesc;
-			}		
-		} else if (err.response?.status === 429) {
-			// Handle rate limiting error
-			errorIcon = strings.ErrorRateLimitIcon;
-			alertDialogTitle = strings.ErrorRateLimitTitle;
-			alertDialogDescription = strings.ErrorRateLimitDesc;
-		}
 
-		isError = true;
-
-			//          errorIcon = strings.ErrorCreateRecordIcon;
+			isError = true;
 		}
 	};
 
