@@ -22,6 +22,15 @@ export async function validateToken(token) {
   return data;
 }
 
+// DO NOT DELETE ANY OF THIS
+export async function updateRecord(collection, id, data) {
+  try {
+    return await pb.collection(collection).update(id, data);
+  } catch (err) {
+    console.error('Update error', err);
+    throw err;
+  }
+}
 
 export async function getRecords(collection) {
   try {
