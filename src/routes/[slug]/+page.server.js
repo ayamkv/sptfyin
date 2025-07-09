@@ -123,6 +123,6 @@ export const load = async ({ params, request }) => {
         throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
     }
     
-    redirect(302, link);
+    redirect(301, link);
 };
 
