@@ -47,18 +47,12 @@ export const prerender = false;
 export const load = async ({ params, request }) => {
     const slug = params.slug;
     const res = await fetch(`${pocketBaseURL}/api/collections/viewList/records?filter=(id_url='${slug}')`);
-    const data = await res.json();    
+    const data = await res.json();
+
     try {
-        if (!data?.items?.length) {
-            throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
-        }
-        
-        const recordId = data.items[0].id;
-        link = data.items[0].from;
-        if (!link) {
-            throw error(500, 'Invalid link data');
-        }
-        const utmView = data.items[0].utm_view;        
+        const recordId = data?.items[0].id;
+        link = data?.items[0].from;
+        const utmView = data?.items[0].utm_view;        
         const userAgent = request.headers.get('user-agent') || 'Unknown';
 
         // Log if it's a bot (for debugging) but don't block access
@@ -124,18 +118,10 @@ export const load = async ({ params, request }) => {
                 console.error('Error incrementing UTM view', err);
                 throw err;
             }
-        }    
-    } catch (err) {
-        if (err.status === 404 || err.status === 500) {
-            throw err;
         }
-        console.error('Unexpected error:', err);
-        throw error(500, 'An unexpected error occurred');
-    }    if (!link) {
-        throw error(500, 'Unable to process redirect - missing link');
+    } catch (err) {
+        throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
     }
-
-    // Use SvelteKit's redirect instead of Response
-    throw redirect(301, link);
+    
+    redirect(301, link);
 };
-
