@@ -131,21 +131,11 @@ export const load = async ({ params, request }) => {
         }
         console.error('Unexpected error:', err);
         throw error(500, 'An unexpected error occurred');
-    }
-    
-    if (!link) {
+    }    if (!link) {
         throw error(500, 'Unable to process redirect - missing link');
     }
 
-    // Return a Response object with cache control headers
-    return new Response(null, {
-        status: 301,
-        headers: {
-            'Location': link,
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        }
-    });
+    // Use SvelteKit's redirect instead of Response
+    throw redirect(301, link);
 };
 
