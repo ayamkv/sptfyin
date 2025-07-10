@@ -572,13 +572,13 @@ for (var key in object) {
 
 	<div class="logo mt-[2em] flex flex-col items-center justify-center">
 		<h1
-			class="ss03 font-jak-display text-6xl font-bold text-primary lg:text-8xl
+			class="ss03 font-jak-display text-4xl font-bold text-primary lg:text-8xl
 		"
 		>
 			Sptfy.in
 		</h1>
 		<h3
-			class="text-lg mt-4
+			class="text-xs lg:text-lg mt-4
 		text-white
 		"
 		>
@@ -639,7 +639,7 @@ for (var key in object) {
 		flex-col items-center
 		justify-center
 		px-6
-		py-10
+		py-6
 
 		lg:ml-0
 		lg:mr-4
@@ -653,13 +653,8 @@ for (var key in object) {
 	>
 		<!-- <div class="mobile flex flex-col gap-4 lg:gap-0"> -->
 			<Card.Root class="w-[23rem] md:h-[33rem]   lg:w-[25rem]">
-				<Card.Header>
-					<Card.Title>spotify link shortener - simplify your url</Card.Title>
-					<Card.Description
-						>make your Spotify URLs looks clean to share on your socials 😸</Card.Description
-					>
-				</Card.Header>
-				<Card.Content class="grid gap-4 pb-0">
+
+				<Card.Content class="grid gap-4 pb-0 pt-6">
 					<div>
 						<form on:submit|preventDefault={handleSubmit} class="flex w-[8rem] min-w-full flex-col">
 							<Label for="url" class="my-2">paste your long ass URL here</Label>
