@@ -138,11 +138,17 @@ export function localizeDate(date, shorthand = false) {
 }
 
 export function findUrl(str) {
+	
+	// clean up any duplicated URLs in parentheses (Safari fix)
+	const cleanedStr = str.replace(/^(.*?)\s*\(.*\)$/, '$1').trim();
+	
 	const regex =
 		/^(https:\/\/[a-z]+\.spotify\.com\/)(playlist|artist|album|track|episode|show|user|listeningstats)\/.*$/gm;
-	let urls = str.match(regex);
+	let urls = cleanedStr.match(regex);
 	return urls ? urls[0] : null;
 }
+
+
 
 export const createLoadObserver = handler => {
 	let waiting = 0
