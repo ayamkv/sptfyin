@@ -155,10 +155,10 @@
 		// console log the ua user is using
 		console.log(getBrowserName());
 	});
-
 	if (inputText !== null) {
 		isInputTextEmpty = false;
 	}
+
 	// const allowedLinkTypes = new Set(["text/plain", "text/uri-list"]);
 	async function handlePaste(event) {
 		try {
@@ -208,7 +208,6 @@
 				alert('Sorry! iOS Safari does not support clipboard access, so you have to paste manually 😔');
 		}
 	}
-
 
 
 	// onMount(() => {
