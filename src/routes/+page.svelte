@@ -53,7 +53,7 @@
 	let currentItems = 4;
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
 	let reset;
-	let shortIdDisplay = '####';
+	let shortIdDisplay = '****';
 	let qrUrl = `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
 	let inputText = null;
 	let isError = false;
@@ -69,6 +69,7 @@
 	let recent = [];
 	let urlInput;
 	let errorMessage;
+	let preGeneratedUrlId
 	$: console.log('errorMessage var: ', errorMessage);
 	let actions = [
 		{
@@ -117,11 +118,15 @@
 		} finally {
 			recentLoading = false;
 		}
-	}
+	}	
 	onMount(async () => {
+		// Generate random URL on page load
+		preGeneratedUrlId = await generateRandomURL();
+		console.log(preGeneratedUrlId)
+		shortIdDisplay = preGeneratedUrlId;
+		
 		recordsPromise = await fetchData();
 		rrecords = records;
-		// console.log('from onm async: ', records);
 	});
 	function getBrowserName() {
 		const userAgent = navigator.userAgent;
@@ -288,13 +293,12 @@
 	const protectedRoutes = ['recent', 'about', 'terms', 'privacy'];
 	const handleSubmit = async (e) => {
 		const promise = new Promise(function (resolve, reject) {
-				promiseResolve = resolve;
-				promiseReject = reject;
-			});
+			promiseResolve = resolve;
+			promiseReject = reject;
+		});
 		loading = true;
-		let url_id = customShortId;
-
-		if (protectedRoutes.includes(url_id)) {
+		
+		if (protectedRoutes.includes(customShortId)) {
 			isError = true;
 			alertDialogTitle = strings.ErrorCustomShortIdRouteTitle;
 			alertDialogDescription = strings.ErrorCustomShortIdRouteDesc;
@@ -302,8 +306,13 @@
 			loading = false;
 			return;
 		}
+		
+		let url_id = customShortId;
+
 		if (!customShortId) {
-			url_id = await generateRandomURL();
+			url_id = preGeneratedUrlId;
+			// Generate next random URL for future use
+			preGeneratedUrlId = await generateRandomURL();
 		}
 		inputText = findUrl(inputText); //make sure safari got this sh*t 
 		let dataForm = {
@@ -572,13 +581,13 @@ for (var key in object) {
 
 	<div class="logo mt-[2em] flex flex-col items-center justify-center">
 		<h1
-			class="ss03 font-jak-display text-4xl font-bold text-primary lg:text-8xl
+			class="ss03 font-jak-display text-2xl font-bold text-primary lg:block lg:text-8xl
 		"
 		>
 			Sptfy.in
 		</h1>
 		<h3
-			class="text-xs lg:text-lg mt-4
+			class="text-xs lg:text-lg mt-2 lg:mt-4
 		text-white
 		"
 		>
@@ -975,3 +984,59 @@ for (var key in object) {
 		</div>
 	</div>
 </div>
+
+
+<style>
+	:global(.betteruptime-announcement) {
+		border-radius: 0.7em !important;
+		background: rgba(20 17 34 / 0.43) !important;
+		color: #FFFFFF !important;
+		font-size: 14px !important;
+		line-height: 1.5 !important;
+		padding: 14px 16px !important;
+		/* m */
+		top: 0 !important;
+		margin-top: 2em !important;
+		text-align: left !important;
+		padding: 1.5em !important;
+		left: 10% !important;
+		right: 2% !important;
+		backdrop-filter: blur(10px) !important;
+		outline: 1px solid rgba(255, 255, 255, 0.178) !important;
+		width: 80% !important;
+		max-width: 80% !important;
+		z-index: 999999 !important;
+		font-family: inherit !important;
+	}
+
+	:global(.betteruptime-announcement__message) {
+		text-align: left !important;
+		padding-left: 4px !important;
+		padding-right: 45px !important;
+	}
+
+	:global(.betteruptime-announcement a) {
+		color: rgba(255 255 255 / 0.43) !important;	
+		outline: 1px solid rgba(255, 255, 255, 0.178) !important;
+		backdrop-filter: blur(10px) !important;
+		text-decoration: underline !important;
+	}
+
+	:global(.betteruptime-announcement a:hover) {
+		color: black !important;
+		background: rgb(255, 255, 255) !important;
+		outline: 1px solid rgba(255, 255, 255, 0.178) !important;
+		backdrop-filter: blur(10px) !important;
+		text-decoration: underline !important;
+	}
+
+	:global(.betteruptime-announcement__close) {
+		position: absolute;
+		top: 0;
+		right: 0;
+		margin-top: 1em;
+		margin-right: 1em;
+		padding: 0.5em !important;
+		z-index: 10;
+	}
+</style>

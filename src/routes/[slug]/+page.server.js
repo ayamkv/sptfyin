@@ -118,11 +118,19 @@ export const load = async ({ params, request }) => {
                 console.error('Error incrementing UTM view', err);
                 throw err;
             }
-        }
-    } catch (err) {
+        }    } catch (err) {
         throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
     }
     
-    redirect(301, link);
+    // Return a Response object with cache control headers
+    return new Response(null, {
+        status: 301,
+        headers: {
+            'Location': link,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    });
 };
 
