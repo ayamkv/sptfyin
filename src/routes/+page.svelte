@@ -305,6 +305,7 @@
 		if (!customShortId) {
 			url_id = await generateRandomURL();
 		}
+		inputText = findUrl(inputText); //make sure safari got this sh*t 
 		let dataForm = {
 			from: inputText,
 			id_url: url_id,
