@@ -138,15 +138,26 @@ export function localizeDate(date, shorthand = false) {
 }
 
 export function findUrl(str) {
+	console.log('Original input:', str);
 	
-	// clean up any duplicated URLs in parentheses (Safari fix)
-	const cleanedStr = str.replace(/\s*\([^)]*\)/, '')
-	console.log('Cleaned String:', cleanedStr);
-	const regex =
-		/^(https:\/\/[a-z]+\.spotify\.com\/)(playlist|artist|album|track|episode|show|user|listeningstats)\/.*$/gm;
-	let urls = cleanedStr.match(regex);
+	// remove parentheses format if present
+	str = str.replace(/\s*\([^)]*\)/g, '').trim();
 	
-	return urls ? urls[0] : null;
+	// handle concatenated URLs (urlurl case)
+	str = str.replace(/(https:\/\/[a-z]+\.spotify\.com\/[^?]+)\1/g, '$1');
+	
+	// extract the first complete Spotify URL
+	const spotifyUrlRegex = /(https:\/\/[a-z]+\.spotify\.com\/(?:playlist|artist|album|track|episode|show|user|listeningstats)\/[^\s]+?)(?:\s+https:\/\/|$)/;
+	const match = str.match(spotifyUrlRegex);
+	
+	if (match) {
+		let cleanedStr = match[1].trim();
+		console.log('Final cleaned URL:', cleanedStr);
+		return cleanedStr;
+	}
+	
+	console.log('No URL match found');
+	return null;
 }
 
 
