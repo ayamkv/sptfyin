@@ -61,27 +61,13 @@ export const load = async ({ params, request }) => {
         console.log(`[Debug] Current UTM view count for ${slug}:`, utmView);
         console.log('record ID :', recordId)
 
-        /* Temporarily disabled analytics
+        // Analytics tracking
         if (!isBot(userAgent)) {
             const cf_ipcountry = request.headers.get('CF-IPCountry')
             console.log('CF IP', cf_ipcountry)
             const forwardedFor = request.headers.get('x-forwarded-for');
             console.log('Forwarded for', forwardedFor)
             
-            // Fetch country information from ipapi.co
-            let country = 'Unknown';
-            let rawData = 'N/A'
-            try {
-                const ipResponse = await fetch('http://ip-api.com/json');
-                const ipData = await ipResponse.json();
-                country = ipData.countryCode || 'Unknown';
-                rawData = ipData.status;
-                console.log(`[Debug] Country code: ${country}`);
-                console.log(ipData)
-            } catch (err) {
-                console.error('Error fetching country information:', err);
-            }
-
             try {
                 await createRecord('analytics', {
                     author: recordId,
@@ -96,13 +82,12 @@ export const load = async ({ params, request }) => {
                 console.error('Error creating analytics record', err);
             }
         }
-        */
 
         if (!recordId) {
             throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
         }
         
-        /* Temporarily disabled view count increment
+        // View count increment
         if (!isBot(userAgent)) {
             try {
                 await updateRecord('random_short', recordId, {
@@ -114,7 +99,6 @@ export const load = async ({ params, request }) => {
                 throw err;
             }
         }
-        */
     } catch (err) {
         throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
     }

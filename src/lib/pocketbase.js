@@ -1,12 +1,13 @@
 import PocketBase from 'pocketbase';
 import { nanoid, customAlphabet } from 'nanoid'
 
-
-
 let pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 let cfSecret = import.meta.env.VITE_CF_SECRET;
 
-const pb = new PocketBase(pocketBaseURL);
+// Create a new PocketBase instance for each request
+function getPocketBaseInstance() {
+    return new PocketBase(pocketBaseURL);
+}
 
 
 export async function validateToken(token) {
@@ -25,6 +26,7 @@ export async function validateToken(token) {
 // DO NOT DELETE ANY OF THIS
 export async function updateRecord(collection, id, data) {
   try {
+    const pb = getPocketBaseInstance();
     return await pb.collection(collection).update(id, data);
   } catch (err) {
     console.error('Update error', err);
@@ -34,6 +36,7 @@ export async function updateRecord(collection, id, data) {
 
 export async function getRecords(collection) {
   try {
+    const pb = getPocketBaseInstance();
     return await pb.collection(collection).getFullList();
   } catch (err) {
     console.error('Get records error', err);
@@ -63,6 +66,7 @@ export async function getFilteredRecords(collection, filter, sort = '') {
   
 export async function createRecord(collection, data, turnstileToken) {
   try {
+    const pb = getPocketBaseInstance();
     const headers = {};
     if (turnstileToken) {
       headers["X-Turnstile-Token"] = turnstileToken;
@@ -76,6 +80,7 @@ export async function createRecord(collection, data, turnstileToken) {
 
 export async function deleteRecord(collection, id) {
   try {
+    const pb = getPocketBaseInstance();
     return await pb.collection(collection).delete(id);
   } catch (err) {
     console.error('Delete error', err);
@@ -97,6 +102,7 @@ export async function generateRandomURL() {
 
       // this tries the current length multiple times
       while (attempts < maxAttempts) {
+        const pb = getPocketBaseInstance();
         const shortId = generateNanoId();
         const records = await pb.collection('viewList').getList(1, 1, {
           filter: `id_url='${shortId}'`
