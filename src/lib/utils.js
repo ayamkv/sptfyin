@@ -137,6 +137,16 @@ export function localizeDate(date, shorthand = false) {
     }
 }
 
+//localizeDate but to DD/MM/YYYY
+export function localizeDate2(date) {
+    const inputDate = new Date(date);
+    return inputDate.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    });
+}
+
 export function findUrl(str) {
 	console.log('Original input:', str);
 	
