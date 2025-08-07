@@ -518,7 +518,7 @@
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class="mt-0 flex md:min-h-[96vh] flex-col items-center justify-center border md:rounded-xl sm:pb-0 pb-12 bg-background/40 backdrop-blur-3xl"
+	class="mt-0 flex md:min-h-[96vh] flex-col items-center justify-center border md:rounded-xl sm:pb-0 pb-12 bg-background/40 md:backdrop-blur-3xl"
 	data-vaul-drawer-wrapper
 >
 	<!-- Background decorations applied to the drawer wrapper -->
@@ -964,11 +964,10 @@ for (var key in object) {
 						
 					</Card.Content>
 					<div class="disclaim">
-						<h4 class="bold text-lg">🫡 disclaimer</h4>
-						<p class="text-xs text-foreground/60">
+						<h4 class="bold text-md">🫡 disclaimer</h4>
+						<p class="text-[10px] text-foreground/60">
 							Spotify® is a registered trademark of Spotify AB.<br />
-							this project <b>is NOT AFFILIATED</b> with, endorsed by, or sponsored by Spotify AB.<br
-							/>
+							this project <b>is NOT AFFILIATED</b> with, endorsed by, or sponsored by Spotify AB.
 							<i>(TL;DR: not officialy from spotify)</i>
 						</p>
 					</div>
@@ -980,7 +979,7 @@ for (var key in object) {
 				</Card.Header>
 			</Card.Root>
 			
-					<Card.Root class="w-[23rem] lg:w-[25rem] lg:h-[9.8rem] h-[10rem]">
+					<Card.Root class="w-[23rem] lg:w-[25rem] lg:h-[9.8rem] h-[10rem] mb-4 md:mb-0">
 				<Card.Content>
 					<div class="pt-6 flex justify-between items-center">
 						<h3 class="text-lg font-bold">🔗 recent created links</h3>

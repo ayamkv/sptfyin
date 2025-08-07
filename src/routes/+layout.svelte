@@ -78,7 +78,7 @@
 
     <!--- todo: fix the gradient, we need to hide the gradient in large displays like desktop using sm:, and show it in mobile.-->
         <div data-collapsed={isCollapsed}
-            class="group flex flex-col md:bg-none bg-gradient-to-br via-30% to-card md:backdrop-blur-[0] sm:rounded-none rounded-md backdrop-blur-sm highlightCard md:shadow-none
+            class="group flex flex-col md:bg-none bg-gradient-to-br via-30% to-card md:backdrop-blur-[0] sm:rounded-none rounded-md backdrop-blur-sm highlightNav2 md:shadow-none
                    fixed md:static bottom-0 md:bottom-auto left-0 right-0 md:w-24
                    border-t  md:min-h-screen
                    data-[collapsed=true]:py-0 z-50  ">
