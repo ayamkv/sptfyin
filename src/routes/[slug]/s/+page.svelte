@@ -52,7 +52,7 @@
 	let qrUrl = `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
 	// --- pagination state for analytics table (client-side over provided analytics array) ---
 	let currentPage = 1;
-	let itemsPerPage = 5; // limit to 3 per page to avoid overflow
+	let itemsPerPage = 6; // limit to 3 per page to avoid overflow
 	let totalPages = 1;
 
 	function computePagination() {
@@ -118,10 +118,43 @@
 		return version ? `${name}` : name;
 	}
 
+	// New function to get browser icon
+	function getBrowserIcon(ua) {
+		if (!ua) return 'mdi:question';
+		const { browser } = new UAParser(ua).getResult();
+		let name = browser?.name ? browser.name.toLowerCase() : '';
+		if(name.includes('chrome')) return 'logos:chrome';
+		if(name.includes('firefox')) return 'logos:firefox';
+		if(name.includes('safari')) return 'logos:safari';
+		if(name.includes('edge')) return 'logos:edge';
+		if(name.includes('opera')) return 'logos:opera';
+		if(name.includes('brave')) return 'logos:brave';
+		if(name.includes('internet explorer') || name.includes('ie')) return 'logos:internet-explorer';
+		if(name.includes('microsoft edge')) return 'logos:edge';
+		if(name.includes('vivaldi')) return 'logos:vivaldi';
+		if(name.includes('samsung')) return 'logos:samsung';
+		if(name.includes('instagram')) return 'simple-icons:instagram';
+		if(name.includes('facebook')) return 'simple-icons:facebook';
+		return 'mdi:help';
+	}
+
+	// New function to get OS icon
+	function getOsIcon(ua) {
+		if (!ua) return 'mdi:question';
+		const { os } = new UAParser(ua).getResult();
+		let name = os?.name ? os.name.toLowerCase() : '';
+		if(name.includes('windows')) return 'logos:microsoft-windows-icon';
+		if(name.includes('mac')) return 'simple-icons:apple';
+		if(name.includes('linux')) return 'logos:linux';
+		if(name.includes('android')) return 'simple-icons:android';
+		if(name.includes('ios')) return 'simple-icons:apple';
+		return 'mdi:help';
+	}
+
 
 </script>
 
-<div class="mt-0 flex min-h-[100vh] w-[99vw] flex-col items-center justify-center bg-background" data-vaul-drawer-wrapper>
+<div class="mt-0 flex md:min-h-[96vh] flex-col items-center justify-center bg-background border md:rounded-xl sm:pb-0 pb-12" data-vaul-drawer-wrapper>
 	<AlertDialog.Root bind:open={isError} class="transition-all">
 		<AlertDialog.Trigger></AlertDialog.Trigger>
 		<AlertDialog.Content>
@@ -164,9 +197,9 @@
 		</Dialog.Content>
 	</Dialog.Root>
 
-	<div class="logo mt-[5em] flex flex-col items-center justify-center">
+	<div class="logo mt-[2em] flex flex-col items-center justify-center">
 		<h3
-				class="text-md mt-4 flex justify-center rounded-md bg-orange-300 px-4 py-2 align-middle text-black"
+				class="md:text-md text-xs mt-4 flex justify-center rounded-md bg-orange-300 px-4 py-2 align-middle text-black"
 			>
 				this is an Upcoming Feature! you shouldn't be here (。_。)
 			</h3>
@@ -243,7 +276,7 @@
 	>
 
 		<div class="left-card">
-	    <Card.Root class="relative w-[20rem] sm:w-[20rem] md:w-[25rem]">
+	    <Card.Root class="relative w-[20rem] sm:w-[20rem] md:w-[25rem] lg:min-h-[16rem]">
         {#if !visible}
         <div in:fade out:fade={{ duration: 200 }}>
           <Skeleton class="absolute top-0 left-0 z-10 h-full w-full rounded-lg" />
@@ -252,7 +285,7 @@
         {/if}
 				<Card.Header>
 					<Card.Title>url stats</Card.Title>
-					<Card.Description>here's how your URL looks</Card.Description>
+					<Card.Description></Card.Description>
 					<Card.Content class="grid px-0 pb-0 text-left text-[#82d1af]/60">
 						<div
 							class="align-center flex w-full min-w-full items-center justify-between py-2 transition-all md:h-28 md:py-2"
@@ -394,7 +427,7 @@
             
         {/if}
 					<Card.Header class="pb-2">
-						<Card.Description>Interactions</Card.Description>
+						<Card.Description>interactions</Card.Description>
 						<Card.Title class="text-4xl md:text-5xl">{utmView}</Card.Title>
 					</Card.Header>
 					<Card.Content>
@@ -412,7 +445,7 @@
             
         {/if}
 					<Card.Header class="pb-2">
-						<Card.Description>Total Clicks</Card.Description>
+						<Card.Description>total Clicks</Card.Description>
 						<Card.Title class="text-4xl md:text-5xl">{analytics.length}</Card.Title>
 					</Card.Header>
 					<Card.Content>
@@ -427,7 +460,7 @@
 
 		<!-- Right column: analytics table with working pagination -->
 		<div class="right-card ">
-			<Card.Root class="relative min-h-full w-[35rem] transition-all sm:w-[20rem] md:w-[35rem] flex flex-col place-content-between md:h-full">
+			<Card.Root class="relative min-h-full w-[20rem] transition-all sm:w-[20rem] lg:w-[35rem] flex flex-col place-content-between md:h-full mb-14 md:mb-0">
 				{#if !visible}
 					<div in:fade out:fade={{ duration: 200 }}>
 						<Skeleton class="absolute top-0 left-0 z-10 h-full w-full rounded-lg" />
@@ -435,31 +468,52 @@
 				{/if}
 				<Card.Header class="pb-2">
 					<Card.Title>analytics</Card.Title>
-					<Card.Description>{analytics.length}</Card.Description>
+					<!-- <Card.Description>{analytics.length}</Card.Description> -->
 					<Card.Content class="grid px-0 pb-0 text-left text-muted-foreground/80 min-h-full overflow-y-auto md:max-h-[26rem]">
 						<div class="align-center flex w-full min-w-full items-start justify-between py-2 transition-all md:py-2 ">
 							<Table.Root>
 								<Table.Header>
 									<Table.Row>
-										<Table.Head class="w-[90px]  border-white/10 border-r">Country</Table.Head>
-										<Table.Head class="w-[40px] border-white/10 border-r">Browser</Table.Head>
-										<Table.Head class="w-[40px] border-white/10 border-r"> OS </Table.Head>	
-										<Table.Head>Time</Table.Head>
+										<Table.Head class="md:w-[90px]   border-white/10 border-r text-left pl-0">country</Table.Head>
+										<Table.Head class=" border-white/10 border-r w-[140px]">browser</Table.Head>
+										<Table.Head class=" border-white/10 border-r"> os </Table.Head>	
+										<Table.Head class="text-right">date</Table.Head>
 									</Table.Row>
 								</Table.Header>
 								<Table.Body>
 									{#if analytics && analytics.length}
 										{#each getCurrentItems(analytics, currentPage, itemsPerPage) as v, i (i)}
 											<Table.Row>
-												<Table.Cell class="font-medium border-white/10 border-r">
+												<Table.Cell class="font-medium border-white/10 border-r pl-0">
 													<img src={`https://www.flagsapi.com/${toUpperCase(v.utm_country || 'UN')}/shiny/64.png`} alt={v.utm_country} class="w-6 h-6 mr-2 inline-block" />
 													<span>{v.utm_country || 'Unknown'}</span>
 													
 												</Table.Cell>
 												<!-- Update browser cell to parsed label -->
-												<Table.Cell class="border-white/10 border-r">{getBrowserLabel(v.utm_userAgent)}</Table.Cell>
-												<Table.Cell class="border-white/10 border-r">{getOs(v.utm_userAgent)}</Table.Cell>
-												<Table.Cell>
+												<Table.Cell class="border-white/10 border-r">
+													<div class="flex items-center">
+
+													
+													<iconify-icon
+														icon={getBrowserIcon(v.utm_userAgent)}
+														class="inline-block mr-2"
+														width="18"
+														alt="browser icon"></iconify-icon>
+													<span>{getBrowserLabel(v.utm_userAgent)}</span>
+													</div>
+												</Table.Cell>
+												<Table.Cell class="border-white/10 border-r">
+													<div class="flex items-center">
+													
+													<iconify-icon
+														icon={getOsIcon(v.utm_userAgent)}
+														class="inline-block mr-2 {getOs(v.utm_userAgent) === 'Android' ? 'text-[#3ddc84]' : ''}"
+														width="18"
+														alt="OS icon"></iconify-icon>
+													<span>{getOs(v.utm_userAgent)}</span>
+													</div>
+												</Table.Cell>
+												<Table.Cell class="text-right">
 													{localizeDate2(v.created)}
 												</Table.Cell>
 											</Table.Row>
@@ -474,7 +528,7 @@
 						</div>
 					</Card.Content>
 				</Card.Header>
-				<Card.Footer class="flex justify-between items-center pt-2">
+				<Card.Footer class="flex justify-between items-center pt-5">
 					
 						<Button variant="ghost2" on:click={previousPage} disabled={currentPage === 1}>prev</Button>
 						<span class="text-sm text-muted-foreground">{currentPage} / {totalPages}</span>
