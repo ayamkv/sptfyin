@@ -13,7 +13,10 @@
 		createRecord,
 		generateRandomURL,
 		getRecentRecords,
-		validateToken
+		validateToken,
+
+		getTotalClicks
+
 	} from '$lib/pocketbase';
 	// import { generateRandomURL } from "$lib/utils";
 	import { localizeDate, findUrl, createLoadObserver } from '$lib/utils';
@@ -97,6 +100,7 @@
 		accordionValue = newValue;
 	}
 	let totalLinkCreated;
+	let totalClicks
 	
 	function formatNumber(num) {
 	  if (!num) return 'counting';
@@ -118,6 +122,22 @@
 		} finally {
 			recentLoading = false;
 		}
+
+		try {
+			const cresponse = await getTotalClicks();
+			totalClicks = cresponse.totalItems;
+
+			console.log('Analytics Records: ', cresponse);
+
+
+
+		} catch (error) {
+			console.error(error);
+			errorMessage = 'An error occurred while fetching data.'; // Added error message handling
+
+		} 
+
+
 	}	
 	onMount(async () => {
 		// Generate random URL on page load
@@ -591,7 +611,14 @@ for (var key in object) {
 		text-white
 		"
 		>
-		₍^. .^₎⟆ {formatNumber(totalLinkCreated)} links created
+		<div class="text-center">
+
+		
+		<span>
+		₍^. .^₎⟆ {formatNumber(totalLinkCreated)} links created</span>
+		<span class="block">
+		{formatNumber(totalClicks)} links clicked</span>
+		</div>
 			<!-- by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a> -->
 		</h3>
 

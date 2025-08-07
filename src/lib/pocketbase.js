@@ -49,6 +49,11 @@ export async function getRecentRecords(collection, perPage = 10, currentPage = 1
   return res.json();
 }
 
+export async function getTotalClicks(collection, perPage = 10, currentPage = 1) {
+  const res = await fetch(`${pocketBaseURL}/api/collections/analytics/records?sort=-created&perPage=${perPage}&page=${currentPage}`)
+  return res.json();
+}
+
 export async function getFilteredRecords(collection, filter, sort = '') {
   try {
     const filterParam = filter ? `?filter=${filter}` : '';
