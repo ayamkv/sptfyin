@@ -5,7 +5,9 @@
     import { Button } from "$lib/components/ui/button";    import { Home, CircleUserRound, Library, Plus, HandHeart, Info, History } from "lucide-svelte";
     import { page } from "$app/stores";
     import logo from "$lib/images/logo.png";
-    
+    import BackgroundNoise from "$lib/components/BackgroundNoise.svelte";
+    import { onMount } from "svelte";
+
     let isCollapsed = true;
     $: currentPath = $page.url.pathname;
     $: isActive = (routeLabel) => {
@@ -57,12 +59,22 @@
         }
     ]
 
+    // enable background decorations globally via class toggle
+    onMount(() => {
+        if (typeof document !== 'undefined') {
+            document.body.classList.add('bg-decor-enabled');
+            return () => document.body.classList.remove('bg-decor-enabled');
+        }
+    });
 </script>
 
 <Toaster duration={4000} position="top-center"/>
 
-    <div class="fixed inset-0 flex md:flex-row scrollbar-gutter-stable
-    bg-gradient-to-br rounded-md md:rounded-none md:bg-gradient-to-t from-[#332c4e]/80 md:via-card via-card/70 via-30% to-card  text-card-foreground md:highlightNav highlightCard ">
+<!-- Global background noise overlay (z-index behind content) -->
+<!-- <BackgroundNoise baseFrequency={0.8} numOctaves={2} scale={1} /> -->
+
+<div class="fixed inset-0 flex md:flex-row scrollbar-gutter-stable
+    bg-gradient-to-br rounded-md md:rounded-none md:bg-gradient-to-t from-[#332c4e]/80 md:via-card via-card/70 via-30% to-card  text-card-foreground md:highlightN bg-background/30  ">
 
     <!--- todo: fix the gradient, we need to hide the gradient in large displays like desktop using sm:, and show it in mobile.-->
         <div data-collapsed={isCollapsed}
@@ -73,7 +85,7 @@
             
             <!-- Logo (desktop only) -->
             <a class="sptfyin-logo hidden md:flex size-16 items-center justify-center mx-auto my-4" href="/">
-                <img src={logo} alt="Sptfyin Logo" class="h-full w-full shadow-lg" />
+                <img src={logo} alt="Sptfyin Logo" class="h-full w-full" />
             </a>
 
             <!-- Navigation -->
@@ -86,13 +98,13 @@
                                 href={route.label}
                                 variant={route.variant}
                                 size="icon"
-                                class="size-14 md:size-20 
+                                class="size-14 md:size-20
                                 hover:bg-secondary/80
                                 hover:outline-primary
                                 hover:inverseShadow
                                 {
                                     isActive(route.label)
-                                        ? ' bg-background/40 md:bg-primary/90 md:text-background md:hover:text-background md:hover:bg-primary/90 md:hover:highlight inverseShadow'
+                                        ? ' bg-background/40 md:bg-background/60 md:text-foreground md:hover:text-background md:hover:bg-primary/90 md:hover:highlight inverseShadow'
                                         : route.variant === 'default'
                                             ? 'dark:bg-muted dark:text-muted-foreground dark:hover:bg-secondary/40  highlightCard'
                                             : ''

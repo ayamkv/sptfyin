@@ -71,7 +71,7 @@ let showNav = false
 </div>
 {/if}
 
-<div class="container grid md:grid-cols-6 grid-rows-1 gap-4 mx-0 min-w-full min-h-full max-h-full pt-[2rem] md:pb-12 pb-16 md:rounded-xl bg-background overflow-y-hidden border border-t">
+<div class="container grid md:grid-cols-6 grid-rows-1 gap-4 mx-0 min-w-full min-h-full max-h-full pt-[2rem] md:pb-12 pb-16 md:rounded-xl bg-background/40 overflow-y-hidden border border-t">
 <div class="nav-container lg:flex flex-col gap-4 w-46 px-4 hidden">
     <div class="nav-header text-4xl sm:hidden">
         about

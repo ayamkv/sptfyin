@@ -14,9 +14,9 @@
 		generateRandomURL,
 		getRecentRecords,
 		validateToken,
-
+ 
 		getTotalClicks
-
+ 
 	} from '$lib/pocketbase';
 	// import { generateRandomURL } from "$lib/utils";
 	import { localizeDate, findUrl, createLoadObserver } from '$lib/utils';
@@ -36,7 +36,8 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { toastGroups } from '$lib/debug';
-
+	import BackgroundNoise from '$lib/components/BackgroundNoise.svelte';
+ 
 	let debugMode = import.meta.env.VITE_DEBUG_MODE;
 	console.log('debugMode: ', debugMode);
 	let debugToastVisible = false;
@@ -84,18 +85,18 @@
 			click: () => window.open(`${fullShortURL}`, '_blank')
 		}
 	];
-
+ 
 	$: isInputTextEmpty = true;
-
+ 
 	const onload = createLoadObserver(() => {
 		isQrLoaded = true;
 		console.log('loaded!!!');
 	});
-
+ 
 	function scrollToBottom() {
 		scrollHere.scrollIntoView();
 	}
-
+ 
 	function setAccordionValue(newValue) {
 		accordionValue = newValue;
 	}
@@ -122,23 +123,23 @@
 		} finally {
 			recentLoading = false;
 		}
-
+ 
 		try {
 			const cresponse = await getTotalClicks();
 			totalClicks = cresponse.totalItems;
-
+ 
 			console.log('Analytics Records: ', cresponse);
-
-
-
+ 
+ 
+ 
 		} catch (error) {
 			console.error(error);
 			errorMessage = 'An error occurred while fetching data.'; // Added error message handling
-
-		} 
-
-
-	}	
+ 
+		}
+ 
+ 
+	}
 	onMount(async () => {
 		// Generate random URL on page load
 		preGeneratedUrlId = await generateRandomURL();
@@ -150,7 +151,7 @@
 	});
 	function getBrowserName() {
 		const userAgent = navigator.userAgent;
-
+ 
 		switch (true) {
 			case userAgent.includes('Chrome') && !userAgent.includes('Edg'):
 				return 'Chrome';
@@ -183,25 +184,25 @@
 	if (inputText !== null) {
 		isInputTextEmpty = false;
 	}
-
+ 
 	// const allowedLinkTypes = new Set(["text/plain", "text/uri-list"]);
 	async function handlePaste(event) {
 		try {
 			// Request permission to access the clipboard
 			const permission = await navigator.permissions.query({ name: 'clipboard-read' });
-
+ 
 			if (permission.state === 'granted' || permission.state === 'prompt') {
 				// Read from the clipboard
 				const text = await navigator.clipboard.readText();
 				let clipboardContent = text;
-
+ 
 				// console.log(clipboardContent);
 				// console.log(findUrl(clipboardContent));
 				setTimeout(() => {
 					inputText = findUrl(clipboardContent);
 					isInputTextEmpty = false;
 					setAccordionValue('item-1');
-
+ 
 					if (inputText === null) {
 						setTimeout(() => {
 							focus1 = false;
@@ -224,7 +225,7 @@
 			}
 		} catch (e) {
 			let error = String(e).toLowerCase();
-
+ 
 			if (error.includes('denied')) isError = true;
 			console.error('Failed to read clipboard: ', error);
 			if (error.includes('function') && isFirefox)
@@ -233,16 +234,16 @@
 				alert('Sorry! iOS Safari does not support clipboard access, so you have to paste manually 😔');
 		}
 	}
-
-
+ 
+ 
 	// onMount(() => {
 	//     console.log(strings)
 	// });
-
-
-
-	async function handleInputOnPaste(event) {
-		// handle paste event only for the input field not the paste button itself 
+ 
+ 
+ 
+ 	async function handleInputOnPaste(event) {
+		// handle paste event only for the input field not the paste button itself
 		// and can work with ctrl + v or right click paste, on ios or android or pc
 		
 		try {
@@ -265,14 +266,14 @@
 							console.log(alertDialogTitle, alertDialogDescription);
 						}, 1);
 					}
-
+ 
 				}, 4);
 		} catch (error) {
 			console.error(error);
 		}
 		
 	}
-
+ 
 	function escapeSelectHandle() {
 		onMount(() => {
 			setTimeout(() => {
@@ -281,27 +282,27 @@
 		});
 		console.log('something is selected');
 	}
-
+ 
 	// onMount(() => {
 	//   escapeSelectHandle();
 	// })
-
+ 
 	let promiseResolve, promiseReject;
-
+ 
 	let selected = { value: 'sptfy.in', label: 'default: sptfy.in' };
 	const domainList = [
 		{ value: 'sptfy.in', label: 'sptfy.in' },
 		{ value: 'artist', label: 'artist.sptfy.in', disabled: false },
 		{ value: 'profile', label: 'profile.sptfy.in', disabled: false },
 		{ value: 'playlist', label: 'playlist.sptfy.in', disabled: false },
-
+ 
 		{ value: 'track', label: 'track.sptfy.in', disabled: false },
 		{ value: 'COMING SOON', label: '--- COMING SOON ---', disabled: true },
 		
 		{ value: 'album', label: 'album.sptfy.in', disabled: true }
 		
 	];
-
+ 
 	$: console.log('domain selected: ', selected)
 	function handleCustomUrl() {
 		const value = customShortId;
@@ -328,13 +329,13 @@
 		}
 		
 		let url_id = customShortId;
-
+ 
 		if (!customShortId) {
 			url_id = preGeneratedUrlId;
 			// Generate next random URL for future use
 			preGeneratedUrlId = await generateRandomURL();
 		}
-		inputText = findUrl(inputText); //make sure safari got this sh*t 
+		inputText = findUrl(inputText); //make sure safari got this sh*t
 		let dataForm = {
 			from: inputText,
 			id_url: url_id,
@@ -349,7 +350,7 @@
 			qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
 			inputText = '';
 			customShortId = '';
-
+ 
 			toast.promise(promise, {
 				class: 'my-toast',
 				description: 'The link has been shortened!',
@@ -374,11 +375,11 @@
 			errorCode = err.response?.status;
 			console.log('Error status:', err.response?.status);
 			console.log('Error data:', err.response?.data);
-
+ 
 			// default error fallback
 			alertDialogTitle = strings.ErrorCreateRecordTitle;
 			alertDialogDescription = strings.ErrorCreateRecordDesc;
-
+ 
 			if (err.response?.status === 400) {
 				const errorData = err.response?.data;
 				console.log('Error data:', errorData);
@@ -401,23 +402,23 @@
 				else if (isInputTextEmpty) {
 					alertDialogTitle = strings.ErrorCreatedRecordNoInputTitle;
 					alertDialogDescription = strings.ErrorCreatedRecordNoInputDesc;
-				}		
+				}
 			} else if (err.response?.status === 429) {
 				// Handle rate limiting error
 				errorIcon = strings.ErrorRateLimitIcon;
 				alertDialogTitle = strings.ErrorRateLimitTitle;
 				alertDialogDescription = strings.ErrorRateLimitDesc;
 			}
-
+ 
 			isError = true;
 		}
 	};
-
+ 
 	async function handleCopy(event) {
 		try {
 			// Request permission to access the clipboard
 			const permission = await navigator.permissions.query({ name: 'clipboard-write' });
-
+ 
 			if (permission.state === 'granted' || permission.state === 'prompt') {
 				// Write to the clipboard
 				await navigator.clipboard.writeText(fullShortURL);
@@ -433,7 +434,7 @@
 			}
 		} catch (e) {
 			let error = String(e).toLowerCase();
-
+ 
 			if (error.includes('denied')) alert('Clipboard access denied');
 			console.error('Failed to write to clipboard: ', error);
 		}
@@ -443,15 +444,15 @@
     //     if (e.metaKey || e.ctrlKey || e.key === "/") {
     //         urlInput.focus();
     //     }
-
-
+ 
+ 
     //     if (e.target === urlInput) {
     //         return;
     //     }
-
-
+ 
+ 
     // };
-
+ 
 	// $: console.log('isDrawer open' + qrDrawerOpen);
 	// console.log(generateRandomURL());
 	// $: console.log(selected.value)
@@ -517,9 +518,11 @@
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class="mt-0 flex md:min-h-[96vh] flex-col items-center justify-center bg-background border md:rounded-xl sm:pb-0 pb-12"
+	class="mt-0 flex md:min-h-[96vh] flex-col items-center justify-center border md:rounded-xl sm:pb-0 pb-12 bg-background/40 backdrop-blur-3xl"
 	data-vaul-drawer-wrapper
 >
+	<!-- Background decorations applied to the drawer wrapper -->
+	
 	<AlertDialog.Root bind:open={isError} class="transition-all">
 		<AlertDialog.Trigger></AlertDialog.Trigger>
 		<AlertDialog.Content>

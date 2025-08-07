@@ -154,7 +154,7 @@
 
 </script>
 
-<div class="mt-0 flex md:min-h-[96vh] flex-col items-center justify-center bg-background border md:rounded-xl sm:pb-0 pb-12" data-vaul-drawer-wrapper>
+<div class="mt-0 flex md:min-h-[96vh] flex-col items-center justify-center bg-background/40 border md:rounded-xl sm:pb-0 pb-12" data-vaul-drawer-wrapper>
 	<AlertDialog.Root bind:open={isError} class="transition-all">
 		<AlertDialog.Trigger></AlertDialog.Trigger>
 		<AlertDialog.Content>
