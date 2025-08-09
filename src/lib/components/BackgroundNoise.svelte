@@ -1,7 +1,13 @@
 <script>
-  export let scale = 1;            // 0.6–1.2
-  export let baseFrequency = 0.9;  // 0.7–1.2 subtle grain
-  export let numOctaves = 2;       // 1–3
+  /**
+   * @typedef {Object} Props
+   * @property {number} [scale] - 0.6–1.2
+   * @property {number} [baseFrequency] - 0.7–1.2 subtle grain
+   * @property {number} [numOctaves] - 1–3
+   */
+
+  /** @type {Props} */
+  let { scale = 1, baseFrequency = 0.9, numOctaves = 2 } = $props();
 </script>
 
 <svg class="bg-noise" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true">

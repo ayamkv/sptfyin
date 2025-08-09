@@ -1,13 +1,30 @@
 <script>
 	import { Pagination as PaginationPrimitive } from "bits-ui";
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export let count = 0;
-	export let perPage = 10;
-	export let page = 1;
-	export let siblingCount = 1;
-	export { className as class };
-	$: currentPage = page;
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} [class]
+	 * @property {number} [count]
+	 * @property {number} [perPage]
+	 * @property {number} [page]
+	 * @property {number} [siblingCount]
+	 * @property {import('svelte').Snippet<[any]>} [children]
+	 */
+
+	/** @type {Props & { [key: string]: any }} */
+	let {
+		class: className = undefined,
+		count = 0,
+		perPage = 10,
+		page = $bindable(1),
+		siblingCount = 1,
+		children,
+		...rest
+	} = $props();
+	
+	let currentPage = $derived(page);
+
+	const children_render = $derived(children);
 </script>
 
 <PaginationPrimitive.Root
@@ -15,13 +32,15 @@
 	{perPage}
 	{siblingCount}
 	bind:page
-	let:builder
-	let:pages
-	let:range
+	
+	
+	
 	asChild
-	{...$$restProps}
+	{...rest}
 >
-	<nav {...builder} class={cn("mx-auto flex w-full flex-col items-center", className)}>
-		<slot {pages} {range} {currentPage} />
-	</nav>
+	{#snippet children({ builder, pages, range })}
+		<nav {...builder} class={cn("mx-auto flex w-full flex-col items-center", className)}>
+			{@render children_render?.({ pages, range, currentPage, })}
+		</nav>
+	{/snippet}
 </PaginationPrimitive.Root>

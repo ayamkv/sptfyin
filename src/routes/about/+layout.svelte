@@ -1,7 +1,17 @@
 <script>
+  import { createBubbler, stopPropagation } from 'svelte/legacy';
+
+  const bubble = createBubbler();
 import 'iconify-icon'
 import { fly } from 'svelte/transition'
-import { page } from '$app/stores'
+import { page } from '$app/state'
+  /**
+   * @typedef {Object} Props
+   * @property {import('svelte').Snippet} [children]
+   */
+
+  /** @type {Props} */
+  let { children } = $props();
 
 const navItems = [
     {
@@ -25,28 +35,28 @@ const navItems = [
       icon: "lucide:at-sign"
     }
   ]
-let showNav = false
+let showNav = $state(false)
   
 </script>
 
 {#if (!showNav)}
 <button 
   class="fixed top-4 left-4 z-50 bg-secondary text-foreground p-2 rounded-lg flex items-center justify-center lg:hidden md:left-28 w-10 h-10 "
-   on:click={() => showNav = true}>
+   onclick={() => showNav = true}>
    <iconify-icon icon='lucide:align-left' width="24" class="w-[24px] h-[24px]"></iconify-icon>
 </button>
 {/if}
 
 {#if showNav}
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden" on:click={() => showNav = false} in:fly={{ x:-200, duration: 100 }} out:fly={{ x:-200, duration: 100 }}>
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="fixed left-0 top-0 h-full w-72 bg-background border-r p-6 md:left-28" on:click|stopPropagation>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden" onclick={() => showNav = false} in:fly={{ x:-200, duration: 100 }} out:fly={{ x:-200, duration: 100 }}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="fixed left-0 top-0 h-full w-72 bg-background border-r p-6 md:left-28" onclick={stopPropagation(bubble('click'))}>
     <button 
       class="absolute top-4 right-4 bg-secondary text-foreground p-2 rounded-lg flex items-center justify-center"
-      on:click={() => showNav = false}>
+      onclick={() => showNav = false}>
       <iconify-icon icon='lucide:x' width="24"></iconify-icon>
     </button>
     <div class="nav-container flex flex-col gap-4 w-46 mt-16">
@@ -57,7 +67,7 @@ let showNav = false
         <nav class="subnav flex flex-col gap-4">
             {#each navItems as nav}
               <a href={nav.href} class="flex flex-row gap-2 align-center justify-start p-2 rounded-lg hover:text-white hover:bg-secondary/40 hover:outline-2 hover:outline-primary hover:inverseShadow
-              {$page.url.pathname === nav.href ? 'bg-primary text-background hover:bg-primary/80' : 'font-thin'} ">
+              {page.url.pathname === nav.href ? 'bg-primary text-background hover:bg-primary/80' : 'font-thin'} ">
                   <div class="icon bg-primary text-background p-2 rounded-lg w-12 h-12 flex items-center justify-center">
                     <iconify-icon icon={nav.icon} width="32"  class="text-2xl w-8 h-8"></iconify-icon>
                   </div>
@@ -80,8 +90,8 @@ let showNav = false
         <nav class="subnav flex flex-col gap-4 lg:col-span-1">
             {#each navItems as nav}
               <a href={nav.href} class="flex flex-row gap-2 align-center justify-start p-2 rounded-lg hover:text-white hover:bg-secondary/40 hover:outline-2 hover:outline-primary 
-              {$page.url.pathname === nav.href ? 'bg-secondary text-foreground  hover:bg-primary/80' : 'font-thin'} ">
-                  <div class="icon bg-primary text-background p-2 rounded-lg w-12 h-12 flex items-center justify-center {$page.url.pathname === nav.href ? 'bg-secondary text-foreground hover:bg-primary/80' : 'font-thin'} ">
+              {page.url.pathname === nav.href ? 'bg-secondary text-foreground  hover:bg-primary/80' : 'font-thin'} ">
+                  <div class="icon bg-primary text-background p-2 rounded-lg w-12 h-12 flex items-center justify-center {page.url.pathname === nav.href ? 'bg-secondary text-foreground hover:bg-primary/80' : 'font-thin'} ">
                     <iconify-icon icon={nav.icon} width="32"  class="text-2xl w-8 h-8"></iconify-icon>
                   </div>
                   <span class="">{nav.label}</span>
@@ -92,7 +102,7 @@ let showNav = false
 </div>
 
 <div class="content-container overflow-y-auto col-span-5 md:pb-0 md:pt-[2rem] pb-[5rem]">
-    <slot />
+    {@render children?.()}
 </div>
 
 </div>

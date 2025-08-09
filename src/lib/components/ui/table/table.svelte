@@ -1,11 +1,11 @@
 <script>
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export { className as class };
+	let { class: className = undefined, children, ...rest } = $props();
+	
 </script>
 
 <div class="relative w-full overflow-auto">
-	<table class={cn("w-full caption-bottom text-sm", className)} {...$$restProps}>
-		<slot />
+	<table class={cn("w-full caption-bottom text-sm", className)} {...rest}>
+		{@render children?.()}
 	</table>
 </div>

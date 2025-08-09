@@ -1,4 +1,6 @@
 <script>
+	import { run, preventDefault } from 'svelte/legacy';
+
 	import { Button } from '$lib/components/ui/button';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
@@ -40,41 +42,43 @@
  
 	let debugMode = import.meta.env.VITE_DEBUG_MODE;
 	console.log('debugMode: ', debugMode);
-	let debugToastVisible = false;
-	let isQrLoaded = false;
-	let visible = false;
-	let scrollHere;
-	let accordionValue = 'one';
-	let customShortId;
-	let turnstileResponse;
+	let debugToastVisible = $state(false);
+	let isQrLoaded = $state(false);
+	let visible = $state(false);
+	let scrollHere = $state();
+	let accordionValue = $state('one');
+	let customShortId = $state();
+	let turnstileResponse = $state();
 	let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
-	let records = [];
+	let records = $state([]);
 	let rrecords;
 	let recordsPromise;
 	let error = null;
-	let loading = false;
+	let loading = $state(false);
 	let recentLoading = true;
 	let currentItems = 4;
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
-	let reset;
-	let shortIdDisplay = '****';
-	let qrUrl = `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
-	let inputText = null;
-	let isError = false;
-	let alertDialogTitle = '';
-	let alertDialogDescription = '';
+    let reset = $state();
+    let shortIdDisplay = $state('****');
+    let qrUrl = $derived(() => `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`);
+    let inputText = $state(null);
+    let isError = $state(false);
+	let alertDialogTitle = $state('');
+	let alertDialogDescription = $state('');
 	let errorIconDefault = 'fluent-emoji:crying-cat';
-	let errorIcon = errorIconDefault;
-	let errorCode;
+	let errorIcon = $state(errorIconDefault);
+	let errorCode = $state();
 	let focus1 = false;
-	let theButton;
-	let fullShortURL;
-	let qrDrawerOpen = false;
+	let theButton = $state();
+	let fullShortURL = $state();
+	let qrDrawerOpen = $state(false);
 	let recent = [];
 	let urlInput;
-	let errorMessage;
+	let errorMessage = $state();
 	let preGeneratedUrlId
-	$: console.log('errorMessage var: ', errorMessage);
+	run(() => {
+		console.log('errorMessage var: ', errorMessage);
+	});
 	let actions = [
 		{
 			icon: 'lucide:copy',
@@ -86,7 +90,8 @@
 		}
 	];
  
-	$: isInputTextEmpty = true;
+    let isInputTextEmpty = $derived(() => inputText === null);
+	
  
 	const onload = createLoadObserver(() => {
 		isQrLoaded = true;
@@ -100,8 +105,8 @@
 	function setAccordionValue(newValue) {
 		accordionValue = newValue;
 	}
-	let totalLinkCreated;
-	let totalClicks
+	let totalLinkCreated = $state();
+	let totalClicks = $state()
 	
 	function formatNumber(num) {
 	  if (!num) return 'counting';
@@ -169,7 +174,7 @@
 				return 'Unknown Browser';
 		}
 	}
-	onMount(() => {
+    onMount(() => {
 		visible = true;
 		const ua = navigator.userAgent.toLowerCase();
 		isIOS = ua.includes('iphone os') || (ua.includes('mac os') && navigator.maxTouchPoints > 0);
@@ -181,9 +186,7 @@
 		// console log the ua user is using
 		console.log(getBrowserName());
 	});
-	if (inputText !== null) {
-		isInputTextEmpty = false;
-	}
+    
  
 	// const allowedLinkTypes = new Set(["text/plain", "text/uri-list"]);
 	async function handlePaste(event) {
@@ -289,7 +292,7 @@
  
 	let promiseResolve, promiseReject;
  
-	let selected = { value: 'sptfy.in', label: 'default: sptfy.in' };
+	let selected = $state({ value: 'sptfy.in', label: 'default: sptfy.in' });
 	const domainList = [
 		{ value: 'sptfy.in', label: 'sptfy.in' },
 		{ value: 'artist', label: 'artist.sptfy.in', disabled: false },
@@ -303,7 +306,9 @@
 		
 	];
  
-	$: console.log('domain selected: ', selected)
+	run(() => {
+		console.log('domain selected: ', selected)
+	});
 	function handleCustomUrl() {
 		const value = customShortId;
 		const modifiedValue = value.toLocaleLowerCase().replace(/[^a-zA-Z0-9-]/g, '-');
@@ -695,7 +700,7 @@ for (var key in object) {
 
 				<Card.Content class="grid gap-4 pb-0 pt-6">
 					<div>
-						<form on:submit|preventDefault={handleSubmit} class="flex w-[8rem] min-w-full flex-col">
+						<form onsubmit={preventDefault(handleSubmit)} class="flex w-[8rem] min-w-full flex-col">
 							<Label for="url" class="my-2">paste your long ass URL here</Label>
 							<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
 								<Input
@@ -881,7 +886,7 @@ for (var key in object) {
 												<div class="relative-wrapper relative inline-block">
 													<img
 														class="w-[200px] min-w-[50%] rounded-lg shadow-lg lg:w-[350px] lg:min-w-[20%]"
-														on:load={() => (isQrLoaded = true)}
+														onload={() => (isQrLoaded = true)}
 														transition:fade={{ duration: 1200 }}
 														src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/{shortIdDisplay}"
 														alt="QR Code"

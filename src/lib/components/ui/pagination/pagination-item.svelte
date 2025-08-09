@@ -1,9 +1,9 @@
 <script>
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export { className as class };
+	let { class: className = undefined, children, ...rest } = $props();
+	
 </script>
 
-<li class={cn("", className)} {...$$restProps}>
-	<slot />
+<li class={cn("", className)} {...rest}>
+	{@render children?.()}
 </li>

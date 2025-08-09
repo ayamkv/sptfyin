@@ -1,7 +1,10 @@
 <script>
+	import { createBubbler } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export { className as class };
+	let { class: className = undefined, children, ...rest } = $props();
+	
 </script>
 
 <tr
@@ -9,9 +12,9 @@
 		"border-b transition-colors hover:bg-secondary/50 data-[state=selected]:bg-secondary",
 		className
 	)}
-	{...$$restProps}
-	on:click
-	on:keydown
+	{...rest}
+	onclick={bubble('click')}
+	onkeydown={bubble('keydown')}
 >
-	<slot />
+	{@render children?.()}
 </tr>
