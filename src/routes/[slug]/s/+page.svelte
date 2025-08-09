@@ -1,5 +1,5 @@
 <script>
-	import { run } from 'svelte/legacy';
+// legacy run not needed with runes; use $effect when needed
 
 	import * as Avatar from "$lib/components/ui/avatar/index.js";
 	import { goto } from '$app/navigation';
@@ -61,7 +61,7 @@
 		totalPages = Math.max(1, Math.ceil((analytics?.length || 0) / itemsPerPage));
 		if (currentPage > totalPages) currentPage = totalPages;
 	}
-	run(() => { computePagination(); });
+    $effect(() => { computePagination(); });
 
 	function getCurrentItems(list, page, perPage) {
 		const startIndex = (page - 1) * perPage;
@@ -174,7 +174,7 @@
 				</AlertDialog.Description>
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
-				<AlertDialog.Action class="min-w-full font-semibold" on:click={() => (isError = false)}
+                <AlertDialog.Action class="min-w-full font-semibold" onclick={() => (isError = false)}
 					>okay, got it</AlertDialog.Action
 				>
 			</AlertDialog.Footer>
@@ -297,10 +297,10 @@
 							</p>
 
 							<div class="buttons button-copy flex max-h-20 gap-1 md:flex-col-reverse">
-								<Button variant="secondary" class="p-3 hover:bg-primary hover:text-black md:mx-0" on:click={handleCopy}>
+                                <Button variant="secondary" class="p-3 hover:bg-primary hover:text-black md:mx-0" onclick={handleCopy}>
 									<iconify-icon icon="lucide:copy" class="w-[24px]" width="24" alt="copy"></iconify-icon>
 								</Button>
-								<Button variant="secondary" class="p-3 hover:bg-primary hover:text-black md:mx-0" on:click={openShort}>
+                                <Button variant="secondary" class="p-3 hover:bg-primary hover:text-black md:mx-0" onclick={openShort}>
 									<iconify-icon icon="lucide:square-arrow-out-up-right" class="w-[24px]" width="24" alt="open"></iconify-icon>
 								</Button>
 							</div>
@@ -532,9 +532,9 @@
 				</Card.Header>
 				<Card.Footer class="flex justify-between items-center pt-5">
 					
-						<Button variant="ghost2" on:click={previousPage} disabled={currentPage === 1}>prev</Button>
+                        <Button variant="ghost2" onclick={previousPage} disabled={currentPage === 1}>prev</Button>
 						<span class="text-sm text-muted-foreground">{currentPage} / {totalPages}</span>
-						<Button variant="ghost2" on:click={nextPage} disabled={currentPage === totalPages}>next</Button>
+                        <Button variant="ghost2" onclick={nextPage} disabled={currentPage === totalPages}>next</Button>
 				
 				</Card.Footer>
 			</Card.Root>

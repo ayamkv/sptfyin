@@ -1,5 +1,5 @@
 <script>
-	import { run, preventDefault } from 'svelte/legacy';
+import { preventDefault } from 'svelte/legacy';
 
 	import { Button } from '$lib/components/ui/button';
 	import { browser } from '$app/environment';
@@ -75,9 +75,9 @@
 	let urlInput;
 	let errorMessage = $state();
 	let preGeneratedUrlId
-	run(() => {
-		console.log('errorMessage var: ', errorMessage);
-	});
+    $effect(() => {
+        console.log('errorMessage var: ', errorMessage);
+    });
 	let actions = [
 		{
 			icon: 'lucide:copy',
@@ -305,9 +305,9 @@
 		
 	];
  
-	run(() => {
-		console.log('domain selected: ', selected)
-	});
+    $effect(() => {
+        console.log('domain selected: ', selected)
+    });
 	function handleCustomUrl() {
 		const value = customShortId;
 		const modifiedValue = value.toLocaleLowerCase().replace(/[^a-zA-Z0-9-]/g, '-');
@@ -568,7 +568,7 @@ for (var key in object) {
 				</AlertDialog.Description>
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
-				<AlertDialog.Action class="min-w-full font-semibold" on:click={() => (isError = false)}
+    <AlertDialog.Action class="min-w-full font-semibold" onclick={() => (isError = false)}
 					>okay, got it</AlertDialog.Action
 				>
 			</AlertDialog.Footer>
@@ -636,7 +636,7 @@ for (var key in object) {
 					TOAST <Button
 						class="mt-2 pt-1"
 						variant="secondary"
-						on:click={() => (debugToastVisible = !debugToastVisible)}
+                        onclick={() => (debugToastVisible = !debugToastVisible)}
 					>
 						{debugToastVisible ? 'Hide' : 'Show'} Toast
 					</Button>
@@ -649,7 +649,7 @@ for (var key in object) {
 								<h4 class="text-lg">{group.title}</h4>
 								{#each group.buttons as btn}
 									<div class="mx-1 inline-block">
-										<Button class={btn.class} on:click={btn.onClick}>
+                                        <Button class={btn.class} onclick={btn.onClick}>
 											{btn.label}
 										</Button>
 									</div>
@@ -704,7 +704,7 @@ for (var key in object) {
 									id="paste"
 									class="paste-button hover:bg-primary hover:text-black hover:from-[#afffdc]/20"
 									variant="ghost2"
-									on:click={() => handlePaste()}
+                                    onclick={() => handlePaste()}
 								>
 									<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
 									</iconify-icon>
@@ -730,7 +730,7 @@ for (var key in object) {
 											<Select.Item
 												value={domain.value}
 												label={domain.label}
-												on:click={() => escapeSelectHandle()}
+                                                onclick={() => escapeSelectHandle()}
 												disabled={domain.disabled}>{domain.label}</Select.Item
 											>
 										{/each}
