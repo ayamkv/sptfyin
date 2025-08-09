@@ -42,7 +42,8 @@ let showNav = $state(false)
 {#if (!showNav)}
 <button 
   class="fixed top-4 left-4 z-50 bg-secondary text-foreground p-2 rounded-lg flex items-center justify-center lg:hidden md:left-28 w-10 h-10 "
-   onclick={() => showNav = true}>
+   onclick={() => showNav = true}
+   aria-label="Open navigation">
    <iconify-icon icon='lucide:align-left' width="24" class="w-[24px] h-[24px]"></iconify-icon>
 </button>
 {/if}
@@ -56,7 +57,8 @@ let showNav = $state(false)
   <div class="fixed left-0 top-0 h-full w-72 bg-background border-r p-6 md:left-28" onclick={stopPropagation(bubble('click'))}>
     <button 
       class="absolute top-4 right-4 bg-secondary text-foreground p-2 rounded-lg flex items-center justify-center"
-      onclick={() => showNav = false}>
+      onclick={() => showNav = false}
+      aria-label="Close navigation">
       <iconify-icon icon='lucide:x' width="24"></iconify-icon>
     </button>
     <div class="nav-container flex flex-col gap-4 w-46 mt-16">
