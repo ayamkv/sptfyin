@@ -1,7 +1,5 @@
 <script>
-  import { createBubbler, stopPropagation } from 'svelte/legacy';
-
-  const bubble = createBubbler();
+  import { stopPropagation } from 'svelte/legacy';
 import 'iconify-icon'
 import { fly } from 'svelte/transition'
 import { page } from '$app/state'
@@ -54,7 +52,7 @@ let showNav = $state(false)
 <div class="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden" onclick={() => showNav = false} in:fly={{ x:-200, duration: 100 }} out:fly={{ x:-200, duration: 100 }}>
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="fixed left-0 top-0 h-full w-72 bg-background border-r p-6 md:left-28" onclick={stopPropagation(bubble('click'))}>
+  <div class="fixed left-0 top-0 h-full w-72 bg-background border-r p-6 md:left-28" onclick={stopPropagation((e) => e)}>
     <button 
       class="absolute top-4 right-4 bg-secondary text-foreground p-2 rounded-lg flex items-center justify-center"
       onclick={() => showNav = false}

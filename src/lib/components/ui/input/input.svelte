@@ -1,10 +1,7 @@
 <script>
-	import { createBubbler, passive } from 'svelte/legacy';
-
-	const bubble = createBubbler();
-	import { cn } from "$lib/utils.js";
-	
-	let { class: className = undefined, value = $bindable(undefined), readonly = undefined, ...rest } = $props();
+    import { cn } from "$lib/utils.js";
+    
+    let { class: className = undefined, value = $bindable(undefined), readonly = undefined, ...rest } = $props();
 </script>
 
 <input
@@ -14,21 +11,6 @@
 	)}
 	bind:value
 	{readonly}
-	onblur={bubble('blur')}
-	onchange={bubble('change')}
-	onclick={bubble('click')}
-	onfocus={bubble('focus')}
-	onfocusin={bubble('focusin')}
-	onfocusout={bubble('focusout')}
-	onkeydown={bubble('keydown')}
-	onkeypress={bubble('keypress')}
-	onkeyup={bubble('keyup')}
-	onmouseover={bubble('mouseover')}
-	onmouseenter={bubble('mouseenter')}
-	onmouseleave={bubble('mouseleave')}
-	onmousemove={bubble('mousemove')}
-	onpaste={bubble('paste')}
-	oninput={bubble('input')}
-	use:passive={['wheel', () => bubble('wheel')]}
+    {...rest}
 	{...rest}
 />
