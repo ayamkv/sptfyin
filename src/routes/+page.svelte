@@ -9,7 +9,6 @@
 	import { toast } from 'svelte-sonner';
 	import { expoOut } from 'svelte/easing';
 	import { scaleWithEase } from '$lib/animations/customSpring';
-	import { MetaTags } from 'svelte-meta-tags';
 	import {
 		getRecords,
 		createRecord,
@@ -492,28 +491,15 @@
 	<meta name="twitter:image:alt" content="sptfyin - free spotify link shortener">
 	
 
-	<MetaTags
-  title="free spotify link shortener"
-  titleTemplate="sptfy.in - %s"
-  description="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸"
-  canonical="https://www.sptfy.in/"
-  openGraph={{
-	type: 'website',
-    url: 'https://www.sptfy.in/',
-    title: 'free spotify link shortener',
-    description: "make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸",
-    images: [
-      {
-        url: 'https://raw.githubusercontent.com/ayamkv/sptfyin/refs/heads/main/src/lib/images/og/og.png',
-        width: 800,
-        height: 600,
-        alt: 'sptfyin - free spotify link shortener'
-      }
-    ],
-    siteName: 'sptfyin'
-  }}
-
-/>
+    <!-- svelte-meta-tags is not yet Svelte 5-ready; inline basic SEO instead -->
+    <title>sptfy.in - free spotify link shortener</title>
+    <meta name="description" content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸" />
+    <link rel="canonical" href="https://www.sptfy.in/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.sptfy.in/" />
+    <meta property="og:title" content="free spotify link shortener" />
+    <meta property="og:description" content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/ayamkv/sptfyin/refs/heads/main/src/lib/images/og/og.png" />
 </svelte:head>
 
 
