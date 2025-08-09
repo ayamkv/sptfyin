@@ -32,9 +32,6 @@ importers:
       svelte-headless-table:
         specifier: ^0.18.3
         version: 0.18.3(svelte@5.38.0)
-      svelte-meta-tags:
-        specifier: 3.1.4
-        version: 3.1.4(svelte@5.38.0)(typescript@5.7.3)
       svelte-sonner:
         specifier: ^0.3.27
         version: 0.3.27(svelte@5.38.0)
@@ -2326,11 +2323,6 @@ packages:
     resolution: {integrity: sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==}
     engines: {node: '>=6'}
 
-  schema-dts@1.1.2:
-    resolution: {integrity: sha512-MpNwH0dZJHinVxk9bT8XUdjKTxMYrA5bLtrrGmFA6PTLwlOKnhi67XoRd6/ty+Djt6ZC0slR57qFhZDNMI6DhQ==}
-    peerDependencies:
-      typescript: '>=4.1.0'
-
   semver@7.7.1:
     resolution: {integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==}
     engines: {node: '>=10'}
@@ -2458,11 +2450,6 @@ packages:
     peerDependencies:
       svelte: ^4.0.0
 
-  svelte-meta-tags@3.1.4:
-    resolution: {integrity: sha512-TUIfhut0iVeTm7f5v/ZuU/tZ9XsNig9bNN8yK0t2x2WL9qw6AxAVRe9i5XddYJE0SuVwkoDCzjoSg5hXv7oWbQ==}
-    peerDependencies:
-      svelte: ^3.55.0 || ^4.0.0
-
   svelte-render@2.0.1:
     resolution: {integrity: sha512-RpB0SurwXm4xhjvHHtjeqMmvd645FURb79GFOotScOSqnKK5vpqBgoBPGC0pp+E/eZgDSQ9rRAdn/+N4ys1mXQ==}
     peerDependencies:
@@ -2589,11 +2576,6 @@ packages:
   type-fest@2.19.0:
     resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
     engines: {node: '>=12.20'}
-
-  typescript@5.7.3:
-    resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
 
   ua-is-frozen@0.1.2:
     resolution: {integrity: sha512-RwKDW2p3iyWn4UbaxpP2+VxwqXh0jpvdxsYpZ5j/MLLiQOfbsV5shpgQiw93+KMYQPcteeMQ289MaAFzs3G9pw==}
@@ -4770,10 +4752,6 @@ snapshots:
     dependencies:
       mri: 1.2.0
 
-  schema-dts@1.1.2(typescript@5.7.3):
-    dependencies:
-      typescript: 5.7.3
-
   semver@7.7.1:
     optional: true
 
@@ -4916,13 +4894,6 @@ snapshots:
   svelte-keyed@2.0.0(svelte@5.38.0):
     dependencies:
       svelte: 5.38.0
-
-  svelte-meta-tags@3.1.4(svelte@5.38.0)(typescript@5.7.3):
-    dependencies:
-      schema-dts: 1.1.2(typescript@5.7.3)
-      svelte: 5.38.0
-    transitivePeerDependencies:
-      - typescript
 
   svelte-render@2.0.1(svelte@5.38.0):
     dependencies:
@@ -5084,8 +5055,6 @@ snapshots:
 
   type-fest@2.19.0:
     optional: true
-
-  typescript@5.7.3: {}
 
   ua-is-frozen@0.1.2: {}
 
