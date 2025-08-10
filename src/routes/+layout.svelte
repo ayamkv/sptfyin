@@ -7,15 +7,22 @@
     import logo from "$lib/images/logo.png";
     import BackgroundNoise from "$lib/components/BackgroundNoise.svelte";
     import { onMount } from "svelte";
+    /**
+     * @typedef {Object} Props
+     * @property {import('svelte').Snippet} [children]
+     */
+
+    /** @type {Props} */
+    let { children } = $props();
 
     let isCollapsed = true;
-    $: currentPath = $page.url.pathname;
-    $: isActive = (routeLabel) => {
+    let currentPath = $derived($page.url.pathname);
+    let isActive = $derived((routeLabel) => {
         if (routeLabel === '/about/general' && currentPath.includes('about/')) {
             return true;
         }
         return routeLabel === currentPath;
-    };
+    });
     let routes = [
         {
             title: "home",
@@ -93,29 +100,31 @@
                         group-[[data-collapsed=true]]:md:justify-center">
                 {#each routes.filter(route => route.visible) as route}
                     <Tooltip.Root openDelay={0}>
-                        <Tooltip.Trigger asChild let:builder>
-                            <Button
-                                href={route.label}
-                                variant={route.variant}
-                                size="icon"
-                                class="size-14 md:size-20
-                                hover:bg-secondary/80
-                                hover:outline-primary
-                                hover:inverseShadow
-                                {
-                                    isActive(route.label)
-                                        ? ' bg-background/40 md:bg-background/60 md:text-foreground md:hover:text-background md:hover:bg-primary/90 md:hover:highlight inverseShadow'
-                                        : route.variant === 'default'
-                                            ? 'dark:bg-muted dark:text-muted-foreground dark:hover:bg-secondary/40  highlightCard'
-                                            : ''
-                                }
-                                flex flex-col items-center justify-center no-underline md:gap-1 gap-0 w-full px-2 md:px-0 rounded-md md:rounded-md
-                                "
-                            >
-                                <svelte:component this={route.icon} class="size-6 md:size-8" aria-hidden="true" />
-                                <span class="text-xs no-underline md:inline-block hidden">{route.title}</span>
-                            </Button>
-                        </Tooltip.Trigger>
+                        <Tooltip.Trigger asChild >
+                            {#snippet children({ builder })}
+                                                <Button
+                                    href={route.label}
+                                    variant={route.variant}
+                                    size="icon"
+                                    class="size-14 md:size-20
+                                    hover:bg-secondary/80
+                                    hover:outline-primary
+                                    hover:inverseShadow
+                                    {
+                                        isActive(route.label)
+                                            ? ' bg-background/40 md:bg-background/60 md:text-foreground md:hover:text-background md:hover:bg-primary/90 md:hover:highlight inverseShadow'
+                                            : route.variant === 'default'
+                                                ? 'dark:bg-muted dark:text-muted-foreground dark:hover:bg-secondary/40  highlightCard'
+                                                : ''
+                                    }
+                                    flex flex-col items-center justify-center no-underline md:gap-1 gap-0 w-full px-2 md:px-0 rounded-md md:rounded-md
+                                    "
+                                >
+                                    <route.icon class="size-6 md:size-8" aria-hidden="true" />
+                                    <span class="text-xs no-underline md:inline-block hidden">{route.title}</span>
+                                </Button>
+                                                                        {/snippet}
+                                        </Tooltip.Trigger>
                         <Tooltip.Content side="top" class="flex items-center gap-4">
                             {route.title}
                         </Tooltip.Content>
@@ -133,6 +142,6 @@
         </div>
         <main class="flex-1 h-screen overflow-y-auto max-w-full sm:overflow-y-hidden overflow-x-hidden md:pl-0 md:py-4 md:pr-4 md:rounded-lg selection:bg-primary selection:text-background">
            
-            <slot />
+            {@render children?.()}
         </main>
     </div>

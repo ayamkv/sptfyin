@@ -7,10 +7,10 @@ import { slide } from 'svelte/transition';
 import { getRecentRecords } from '$lib/pocketbase';
 import { localizeDate } from '$lib/utils';
 
-let records = [];
-let currentPage = 1;
+let records = $state([]);
+let currentPage = $state(1);
 let itemsPerPage = 10;
-let totalPages = 1;
+let totalPages = $state(1);
 
 async function fetchData() {
     try {

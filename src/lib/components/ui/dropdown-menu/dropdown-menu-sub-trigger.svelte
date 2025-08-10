@@ -2,9 +2,8 @@
 	import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
 	import ChevronRight from "lucide-svelte/icons/chevron-right";
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export let inset = undefined;
-	export { className as class };
+	let { class: className = undefined, inset = undefined, children, ...rest } = $props();
+	
 </script>
 
 <DropdownMenuPrimitive.SubTrigger
@@ -13,7 +12,7 @@
 		inset && "pl-8",
 		className
 	)}
-	{...$$restProps}
+	{...rest}
 	on:click
 	on:keydown
 	on:focusin
@@ -21,6 +20,6 @@
 	on:pointerleave
 	on:pointermove
 >
-	<slot />
+	{@render children?.()}
 	<ChevronRight class="ml-auto h-4 w-4" />
 </DropdownMenuPrimitive.SubTrigger>

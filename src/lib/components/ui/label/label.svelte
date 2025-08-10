@@ -1,8 +1,8 @@
 <script>
 	import { Label as LabelPrimitive } from "bits-ui";
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export { className as class };
+	let { class: className = undefined, children, ...rest } = $props();
+	
 </script>
 
 <LabelPrimitive.Root
@@ -10,8 +10,8 @@
 		"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
 		className
 	)}
-	{...$$restProps}
+	{...rest}
 	on:mousedown
 >
-	<slot />
+	{@render children?.()}
 </LabelPrimitive.Root>

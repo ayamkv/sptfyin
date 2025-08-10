@@ -1,9 +1,8 @@
 <script>
 	import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export let inset = undefined;
-	export { className as class };
+	let { class: className = undefined, inset = undefined, children, ...rest } = $props();
+	
 </script>
 
 <DropdownMenuPrimitive.Item
@@ -12,7 +11,7 @@
 		inset && "pl-8",
 		className
 	)}
-	{...$$restProps}
+	{...rest}
 	on:click
 	on:keydown
 	on:focusin
@@ -21,5 +20,5 @@
 	on:pointerleave
 	on:pointermove
 >
-	<slot />
+	{@render children?.()}
 </DropdownMenuPrimitive.Item>

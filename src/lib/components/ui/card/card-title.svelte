@@ -1,14 +1,21 @@
 <script>
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export let tag = "h3";
-	export { className as class };
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} [class]
+	 * @property {string} [tag]
+	 * @property {import('svelte').Snippet} [children]
+	 */
+
+	/** @type {Props & { [key: string]: any }} */
+	let { class: className = undefined, tag = "h3", children, ...rest } = $props();
+	
 </script>
 
 <svelte:element
 	this={tag}
 	class={cn("text-lg font-semibold leading-none tracking-tight", className)}
-	{...$$restProps}
+	{...rest}
 >
-	<slot />
+	{@render children?.()}
 </svelte:element>

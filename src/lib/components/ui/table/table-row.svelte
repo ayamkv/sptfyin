@@ -1,7 +1,8 @@
 <script>
-	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export { className as class };
+    import { cn } from "$lib/utils.js";
+    let { class: className = undefined, children, ...rest } = $props();
+    
+    // Events are forwarded via `{...rest}` so parents can pass onclick/keydown, etc.
 </script>
 
 <tr
@@ -9,9 +10,7 @@
 		"border-b transition-colors hover:bg-secondary/50 data-[state=selected]:bg-secondary",
 		className
 	)}
-	{...$$restProps}
-	on:click
-	on:keydown
+    {...rest}
 >
-	<slot />
+	{@render children?.()}
 </tr>
