@@ -1,4 +1,6 @@
 <script>
+import { preventDefault } from 'svelte/legacy';
+
 	import { Button } from '$lib/components/ui/button';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
@@ -7,7 +9,6 @@
 	import { toast } from 'svelte-sonner';
 	import { expoOut } from 'svelte/easing';
 	import { scaleWithEase } from '$lib/animations/customSpring';
-	import { MetaTags } from 'svelte-meta-tags';
 	import {
 		getRecords,
 		createRecord,
@@ -40,41 +41,43 @@
  
 	let debugMode = import.meta.env.VITE_DEBUG_MODE;
 	console.log('debugMode: ', debugMode);
-	let debugToastVisible = false;
-	let isQrLoaded = false;
-	let visible = false;
-	let scrollHere;
-	let accordionValue = 'one';
-	let customShortId;
-	let turnstileResponse;
+	let debugToastVisible = $state(false);
+	let isQrLoaded = $state(false);
+	let visible = $state(false);
+	let scrollHere = $state();
+	let accordionValue = $state('one');
+	let customShortId = $state();
+	let turnstileResponse = $state();
 	let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
-	let records = [];
+	let records = $state([]);
 	let rrecords;
 	let recordsPromise;
 	let error = null;
-	let loading = false;
+	let loading = $state(false);
 	let recentLoading = true;
 	let currentItems = 4;
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
-	let reset;
-	let shortIdDisplay = '****';
-	let qrUrl = `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
-	let inputText = null;
-	let isError = false;
-	let alertDialogTitle = '';
-	let alertDialogDescription = '';
+    let reset = $state();
+    let shortIdDisplay = $state('****');
+    let qrUrl = $derived(() => `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`);
+    let inputText = $state(null);
+    let isError = $state(false);
+	let alertDialogTitle = $state('');
+	let alertDialogDescription = $state('');
 	let errorIconDefault = 'fluent-emoji:crying-cat';
-	let errorIcon = errorIconDefault;
-	let errorCode;
+	let errorIcon = $state(errorIconDefault);
+	let errorCode = $state();
 	let focus1 = false;
-	let theButton;
-	let fullShortURL;
-	let qrDrawerOpen = false;
+	let theButton = $state();
+	let fullShortURL = $state();
+	let qrDrawerOpen = $state(false);
 	let recent = [];
 	let urlInput;
-	let errorMessage;
+	let errorMessage = $state();
 	let preGeneratedUrlId
-	$: console.log('errorMessage var: ', errorMessage);
+    $effect(() => {
+        console.log('errorMessage var: ', errorMessage);
+    });
 	let actions = [
 		{
 			icon: 'lucide:copy',
@@ -86,7 +89,8 @@
 		}
 	];
  
-	$: isInputTextEmpty = true;
+    let isInputTextEmpty = $derived(() => inputText === null);
+	
  
 	const onload = createLoadObserver(() => {
 		isQrLoaded = true;
@@ -100,8 +104,8 @@
 	function setAccordionValue(newValue) {
 		accordionValue = newValue;
 	}
-	let totalLinkCreated;
-	let totalClicks
+	let totalLinkCreated = $state();
+	let totalClicks = $state()
 	
 	function formatNumber(num) {
 	  if (!num) return 'counting';
@@ -169,7 +173,7 @@
 				return 'Unknown Browser';
 		}
 	}
-	onMount(() => {
+    onMount(() => {
 		visible = true;
 		const ua = navigator.userAgent.toLowerCase();
 		isIOS = ua.includes('iphone os') || (ua.includes('mac os') && navigator.maxTouchPoints > 0);
@@ -181,9 +185,7 @@
 		// console log the ua user is using
 		console.log(getBrowserName());
 	});
-	if (inputText !== null) {
-		isInputTextEmpty = false;
-	}
+    
  
 	// const allowedLinkTypes = new Set(["text/plain", "text/uri-list"]);
 	async function handlePaste(event) {
@@ -289,7 +291,7 @@
  
 	let promiseResolve, promiseReject;
  
-	let selected = { value: 'sptfy.in', label: 'default: sptfy.in' };
+	let selected = $state({ value: 'sptfy.in', label: 'default: sptfy.in' });
 	const domainList = [
 		{ value: 'sptfy.in', label: 'sptfy.in' },
 		{ value: 'artist', label: 'artist.sptfy.in', disabled: false },
@@ -303,7 +305,9 @@
 		
 	];
  
-	$: console.log('domain selected: ', selected)
+    $effect(() => {
+        console.log('domain selected: ', selected)
+    });
 	function handleCustomUrl() {
 		const value = customShortId;
 		const modifiedValue = value.toLocaleLowerCase().replace(/[^a-zA-Z0-9-]/g, '-');
@@ -487,28 +491,15 @@
 	<meta name="twitter:image:alt" content="sptfyin - free spotify link shortener">
 	
 
-	<MetaTags
-  title="free spotify link shortener"
-  titleTemplate="sptfy.in - %s"
-  description="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸"
-  canonical="https://www.sptfy.in/"
-  openGraph={{
-	type: 'website',
-    url: 'https://www.sptfy.in/',
-    title: 'free spotify link shortener',
-    description: "make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸",
-    images: [
-      {
-        url: 'https://raw.githubusercontent.com/ayamkv/sptfyin/refs/heads/main/src/lib/images/og/og.png',
-        width: 800,
-        height: 600,
-        alt: 'sptfyin - free spotify link shortener'
-      }
-    ],
-    siteName: 'sptfyin'
-  }}
-
-/>
+    <!-- svelte-meta-tags is not yet Svelte 5-ready; inline basic SEO instead -->
+    <title>sptfy.in - free spotify link shortener</title>
+    <meta name="description" content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸" />
+    <link rel="canonical" href="https://www.sptfy.in/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.sptfy.in/" />
+    <meta property="og:title" content="free spotify link shortener" />
+    <meta property="og:description" content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/ayamkv/sptfyin/refs/heads/main/src/lib/images/og/og.png" />
 </svelte:head>
 
 
@@ -577,7 +568,7 @@ for (var key in object) {
 				</AlertDialog.Description>
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
-				<AlertDialog.Action class="min-w-full font-semibold" on:click={() => (isError = false)}
+    <AlertDialog.Action class="min-w-full font-semibold" onclick={() => (isError = false)}
 					>okay, got it</AlertDialog.Action
 				>
 			</AlertDialog.Footer>
@@ -645,7 +636,7 @@ for (var key in object) {
 					TOAST <Button
 						class="mt-2 pt-1"
 						variant="secondary"
-						on:click={() => (debugToastVisible = !debugToastVisible)}
+                        onclick={() => (debugToastVisible = !debugToastVisible)}
 					>
 						{debugToastVisible ? 'Hide' : 'Show'} Toast
 					</Button>
@@ -658,7 +649,7 @@ for (var key in object) {
 								<h4 class="text-lg">{group.title}</h4>
 								{#each group.buttons as btn}
 									<div class="mx-1 inline-block">
-										<Button class={btn.class} on:click={btn.onClick}>
+                                        <Button class={btn.class} onclick={btn.onClick}>
 											{btn.label}
 										</Button>
 									</div>
@@ -695,7 +686,7 @@ for (var key in object) {
 
 				<Card.Content class="grid gap-4 pb-0 pt-6">
 					<div>
-						<form on:submit|preventDefault={handleSubmit} class="flex w-[8rem] min-w-full flex-col">
+						<form onsubmit={preventDefault(handleSubmit)} class="flex w-[8rem] min-w-full flex-col">
 							<Label for="url" class="my-2">paste your long ass URL here</Label>
 							<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
 								<Input
@@ -713,7 +704,7 @@ for (var key in object) {
 									id="paste"
 									class="paste-button hover:bg-primary hover:text-black hover:from-[#afffdc]/20"
 									variant="ghost2"
-									on:click={() => handlePaste()}
+                                    onclick={() => handlePaste()}
 								>
 									<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
 									</iconify-icon>
@@ -739,7 +730,7 @@ for (var key in object) {
 											<Select.Item
 												value={domain.value}
 												label={domain.label}
-												on:click={() => escapeSelectHandle()}
+                                                onclick={() => escapeSelectHandle()}
 												disabled={domain.disabled}>{domain.label}</Select.Item
 											>
 										{/each}
@@ -881,7 +872,7 @@ for (var key in object) {
 												<div class="relative-wrapper relative inline-block">
 													<img
 														class="w-[200px] min-w-[50%] rounded-lg shadow-lg lg:w-[350px] lg:min-w-[20%]"
-														on:load={() => (isQrLoaded = true)}
+														onload={() => (isQrLoaded = true)}
 														transition:fade={{ duration: 1200 }}
 														src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/{shortIdDisplay}"
 														alt="QR Code"

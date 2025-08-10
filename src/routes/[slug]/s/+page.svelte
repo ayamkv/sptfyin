@@ -1,4 +1,6 @@
 <script>
+// legacy run not needed with runes; use $effect when needed
+
 	import * as Avatar from "$lib/components/ui/avatar/index.js";
 	import { goto } from '$app/navigation';
 	import { localizeDate2 } from '$lib/utils.js';
@@ -31,35 +33,35 @@
 	import { toastGroups } from '$lib/debug';
 	import { UAParser } from 'ua-parser-js';
 
-	export let data;
+	let { data } = $props();
 	// analytics and utm view come from load
 	let utmView = data.utmView;
 	let analytics = data.analytics || [];
 
 	let debugMode = import.meta.env.VITE_DEBUG_MODE;
-	let debugToastVisible = false;
-	let isQrLoaded = false;
-	let visible;
-	let scrollHere;
-	let isError = false;
+	let debugToastVisible = $state(false);
+	let isQrLoaded = $state(false);
+	let visible = $state();
+	let scrollHere = $state();
+	let isError = $state(false);
 	let alertDialogTitle = '';
 	let alertDialogDescription = '';
 	let errorIconDefault = 'fluent-emoji:crying-cat';
 	let errorIcon = errorIconDefault;
-	let fullShortURL = true;
-	let qrDrawerOpen = false;
-	let shortIdDisplay = '####';
-	let qrUrl = `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
+	let fullShortURL = $state(true);
+	let qrDrawerOpen = $state(false);
+    let shortIdDisplay = $state('####');
+    let qrUrl = $derived(() => `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`);
 	// --- pagination state for analytics table (client-side over provided analytics array) ---
-	let currentPage = 1;
+	let currentPage = $state(1);
 	let itemsPerPage = 6; // limit to 3 per page to avoid overflow
-	let totalPages = 1;
+	let totalPages = $state(1);
 
 	function computePagination() {
 		totalPages = Math.max(1, Math.ceil((analytics?.length || 0) / itemsPerPage));
 		if (currentPage > totalPages) currentPage = totalPages;
 	}
-	$:{ computePagination(); }
+    $effect(() => { computePagination(); });
 
 	function getCurrentItems(list, page, perPage) {
 		const startIndex = (page - 1) * perPage;
@@ -75,13 +77,13 @@
 
 	function toUpperCase(str) { return (str || '').toUpperCase(); }
 
-	onMount(() => {
+    onMount(() => {
 		visible = true;
 		// derive slug from current path: /{slug}/s
 		const path = $page.url.pathname;
 		// remove leading '/', trailing '/s'
 		shortIdDisplay = path.replace(/^\//, '').replace(/\/s\/?$/, '');
-		qrUrl = `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
+        // qrUrl is derived
 	});
 
 	function openShort() {
@@ -172,7 +174,7 @@
 				</AlertDialog.Description>
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
-				<AlertDialog.Action class="min-w-full font-semibold" on:click={() => (isError = false)}
+                <AlertDialog.Action class="min-w-full font-semibold" onclick={() => (isError = false)}
 					>okay, got it</AlertDialog.Action
 				>
 			</AlertDialog.Footer>
@@ -295,11 +297,11 @@
 							</p>
 
 							<div class="buttons button-copy flex max-h-20 gap-1 md:flex-col-reverse">
-								<Button variant="secondary" class="p-3 hover:bg-primary hover:text-black md:mx-0" on:click={handleCopy}>
-									<iconify-icon icon="lucide:copy" class="w-[24px]" width="24" alt="copy" />
+                                <Button variant="secondary" class="p-3 hover:bg-primary hover:text-black md:mx-0" onclick={handleCopy}>
+									<iconify-icon icon="lucide:copy" class="w-[24px]" width="24" alt="copy"></iconify-icon>
 								</Button>
-								<Button variant="secondary" class="p-3 hover:bg-primary hover:text-black md:mx-0" on:click={openShort}>
-									<iconify-icon icon="lucide:square-arrow-out-up-right" class="w-[24px]" width="24" alt="open" />
+                                <Button variant="secondary" class="p-3 hover:bg-primary hover:text-black md:mx-0" onclick={openShort}>
+									<iconify-icon icon="lucide:square-arrow-out-up-right" class="w-[24px]" width="24" alt="open"></iconify-icon>
 								</Button>
 							</div>
 						</div>
@@ -331,7 +333,7 @@
 												<div class="relative-wrapper relative inline-block">
 													<img
 														class="w-[200px] min-w-[50%] rounded-md shadow-md md:w-[350px] md:min-w-[20%]"
-														on:load={() => (isQrLoaded = true)}
+														onload={() => (isQrLoaded = true)}
 														transition:fade={{ duration: 1200 }}
 														src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/{shortIdDisplay}"
 														alt="QR Code"
@@ -530,9 +532,9 @@
 				</Card.Header>
 				<Card.Footer class="flex justify-between items-center pt-5">
 					
-						<Button variant="ghost2" on:click={previousPage} disabled={currentPage === 1}>prev</Button>
+                        <Button variant="ghost2" onclick={previousPage} disabled={currentPage === 1}>prev</Button>
 						<span class="text-sm text-muted-foreground">{currentPage} / {totalPages}</span>
-						<Button variant="ghost2" on:click={nextPage} disabled={currentPage === totalPages}>next</Button>
+                        <Button variant="ghost2" onclick={nextPage} disabled={currentPage === totalPages}>next</Button>
 				
 				</Card.Footer>
 			</Card.Root>

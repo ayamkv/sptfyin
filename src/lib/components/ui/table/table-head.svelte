@@ -1,7 +1,7 @@
 <script>
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export { className as class };
+	let { class: className = undefined, children, ...rest } = $props();
+	
 </script>
 
 <th
@@ -9,7 +9,7 @@
 		"h-12 px-4 text-left align-middle font-medium text-foreground [&:has([role=checkbox])]:pr-0",
 		className
 	)}
-	{...$$restProps}
+	{...rest}
 >
-	<slot />
+	{@render children?.()}
 </th>

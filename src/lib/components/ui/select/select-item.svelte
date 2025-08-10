@@ -2,11 +2,15 @@
 	import Check from "lucide-svelte/icons/check";
 	import { Select as SelectPrimitive } from "bits-ui";
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export let value;
-	export let label = undefined;
-	export let disabled = undefined;
-	export { className as class };
+	let {
+		class: className = undefined,
+		value,
+		label = undefined,
+		disabled = undefined,
+		children,
+		...rest
+	} = $props();
+	
 </script>
 
 <SelectPrimitive.Item
@@ -17,7 +21,7 @@
 		"relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none  data-[disabled]:pointer-events-none data-[highlighted]:bg-secondary/80 data-[highlighted]:text-accent-foreground data-[disabled]:opacity-30",
 		className
 	)}
-	{...$$restProps}
+	{...rest}
 	on:click
 	on:keydown
 	on:focusin
@@ -30,7 +34,7 @@
 			<Check class="h-4 w-4" />
 		</SelectPrimitive.ItemIndicator>
 	</span>
-	<slot>
+	{#if children}{@render children()}{:else}
 		{label || value}
-	</slot>
+	{/if}
 </SelectPrimitive.Item>

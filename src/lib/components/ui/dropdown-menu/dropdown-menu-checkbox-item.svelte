@@ -2,9 +2,8 @@
 	import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
 	import Check from "lucide-svelte/icons/check";
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export let checked = undefined;
-	export { className as class };
+	let { class: className = undefined, checked = $bindable(undefined), children, ...rest } = $props();
+	
 </script>
 
 <DropdownMenuPrimitive.CheckboxItem
@@ -13,7 +12,7 @@
 		"data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 		className
 	)}
-	{...$$restProps}
+	{...rest}
 	on:click
 	on:keydown
 	on:focusin
@@ -27,5 +26,5 @@
 			<Check class="h-4 w-4" />
 		</DropdownMenuPrimitive.CheckboxIndicator>
 	</span>
-	<slot />
+	{@render children?.()}
 </DropdownMenuPrimitive.CheckboxItem>

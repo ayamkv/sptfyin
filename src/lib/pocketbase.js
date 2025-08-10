@@ -9,6 +9,11 @@ function getPocketBaseInstance() {
     return new PocketBase(pocketBaseURL);
 }
 
+export function createBatch() {
+  const pb = getPocketBaseInstance();
+  return pb.createBatch();
+}
+
 
 export async function validateToken(token) {
   const response = await fetch('/api/verify-turnstile', {

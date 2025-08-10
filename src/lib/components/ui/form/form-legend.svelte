@@ -1,14 +1,18 @@
 <script>
 	import * as FormPrimitive from "formsnap";
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export { className as class };
+	let { class: className = undefined, children, ...rest } = $props();
+	
+
+	const children_render = $derived(children);
 </script>
 
 <FormPrimitive.Legend
-	{...$$restProps}
+	{...rest}
 	class={cn("text-sm font-medium leading-none data-[fs-error]:text-destructive", className)}
-	let:legendAttrs
+	
 >
-	<slot {legendAttrs} />
+	{#snippet children({ legendAttrs })}
+		{@render children_render?.({ legendAttrs, })}
+	{/snippet}
 </FormPrimitive.Legend>

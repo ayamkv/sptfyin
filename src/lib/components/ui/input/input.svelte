@@ -1,9 +1,7 @@
 <script>
-	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export let value = undefined;
-	export { className as class };
-	export let readonly = undefined;
+    import { cn } from "$lib/utils.js";
+    
+    let { class: className = undefined, value = $bindable(undefined), readonly = undefined, ...rest } = $props();
 </script>
 
 <input
@@ -13,21 +11,6 @@
 	)}
 	bind:value
 	{readonly}
-	on:blur
-	on:change
-	on:click
-	on:focus
-	on:focusin
-	on:focusout
-	on:keydown
-	on:keypress
-	on:keyup
-	on:mouseover
-	on:mouseenter
-	on:mouseleave
-	on:mousemove
-	on:paste
-	on:input
-	on:wheel|passive
-	{...$$restProps}
+    {...rest}
+	{...rest}
 />

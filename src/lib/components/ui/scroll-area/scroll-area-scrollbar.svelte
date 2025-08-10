@@ -1,9 +1,16 @@
 <script>
 	import { ScrollArea as ScrollAreaPrimitive } from "bits-ui";
 	import { cn } from "$lib/utils.js";
-	let className = undefined;
-	export let orientation = "vertical";
-	export { className as class };
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} [class]
+	 * @property {string} [orientation]
+	 * @property {import('svelte').Snippet} [children]
+	 */
+
+	/** @type {Props} */
+	let { class: className = undefined, orientation = "vertical", children } = $props();
+	
 </script>
 
 <ScrollAreaPrimitive.Scrollbar
@@ -15,7 +22,7 @@
 		className
 	)}
 >
-	<slot />
+	{@render children?.()}
 	<ScrollAreaPrimitive.Thumb
 		class={cn("bg-border relative rounded-full", orientation === "vertical" && "flex-1")}
 	/>
