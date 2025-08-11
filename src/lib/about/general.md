@@ -49,7 +49,6 @@ there's no limit! create as many shortened urls as you need, but do keep in mind
 ## planned features
 we're working on some exciting features:
 - **detailed analytics**: view comprehensive stats about your links *WORK IN PROGRESS*
-- **subdomain choices**: you can choose your favorite subdomain like `artist.sptfy.in`, `playlist.sptfy.in`, etc
 - **user accounts**: manage all your links in one dashboard
 - **enhanced qr codes**: customizable qr code designs
 

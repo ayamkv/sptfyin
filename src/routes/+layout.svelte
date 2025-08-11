@@ -41,12 +41,12 @@
             section: 'actions'
         },
         {
-            title: "profile",
+            title: "dash",
             icon: CircleUserRound,
             variant: "ghost",
-            label: "/dashboard/profile",
-            visible: false,
-            section: 'info'
+            label: "/dash/links",
+            visible: true,
+            section: 'actions'
         },
         {
             title: "donate",

@@ -25,3 +25,4 @@ dev-prompts
 .wrangler/
 src/routes/debug/
 
+src/lib/dev_task/

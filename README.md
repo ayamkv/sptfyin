@@ -22,7 +22,7 @@ paste your spotify track, album, or playlist url → slap on a custom back half 
 
 ## acknowledgements  
 shoutout to the open-source community for the tools that made this possible:  
-- [svelte](https://svelte.dev/) for the magic 🪄   
+- [svelte 5](https://svelte.dev/) for the magic 🪄   
 - [shadcn-svelte](https://shadcn-svelte.com) for the pretty parts  
 - [pocketbase](https://pocketbase.io) for the backend 📁
 - [plus jakarta sans](https://github.com/tokotype/PlusJakartaSans) for the clean fonts  
