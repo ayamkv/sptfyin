@@ -21,7 +21,11 @@
         "ErrorCustomShortIdExistsDesc": "the custom link you're trying to use is already taken, <br> please try another one.",
         "ErrorCustomShortIdRouteTitle":"Welp, this is a reserved link..",
         "ErrorCustomShortIdRouteDesc":"this custom link is reserved for the site as a protected routes <br> please try another one.",
-        "ErrorCustomShortIdRouteIcon":"fluent-emoji:face-with-monocle"
+        "ErrorCustomShortIdRouteIcon":"fluent-emoji:face-with-monocle",
+        "ErrorDashboardURLRequiredTitle": "Um.. forgot something?",
+        "ErrorDashboardURLRequiredDesc": "Please enter a Spotify URL to shorten before creating the link.",
+        "ErrorDashboardCreationFailedTitle": "uh oh. can't create link",
+        "ErrorDashboardCreationFailedDesc": "Failed to create the link. Please try again or contact support if the issue persists."
     }
 
 }

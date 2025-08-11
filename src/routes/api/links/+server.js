@@ -3,20 +3,33 @@ import { generateRandomURL } from '$lib/pocketbase';
 const pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
 export async function GET({ locals, url, fetch }) {
-  if (!locals.user) throw error(401);
+  if (!locals.user) throw error(401, 'Authentication required');
+  
   const page = Number(url.searchParams.get('page') || 1);
   const perPage = Math.min(Number(url.searchParams.get('perPage') || 20), 50);
+
+  console.log('[API Links GET] Fetching links for user:', locals.user.id);
 
   // Read via viewList to avoid superuser requirement
   const qs = new URLSearchParams({
     page: String(page),
     perPage: String(perPage),
     sort: '-created',
-    filter: `user='${locals.user.id}'`
+    filter: `user.id='${locals.user.id}'`
   });
-  const resp = await fetch(`${pocketBaseURL}/api/collections/viewList/records?${qs.toString()}`);
-  if (!resp.ok) throw error(resp.status, 'failed to fetch');
+  
+  const fetchUrl = `${pocketBaseURL}/api/collections/viewList/records?${qs.toString()}`;
+  console.log('[API Links GET] Fetching from:', fetchUrl);
+  
+  const resp = await fetch(fetchUrl);
+  if (!resp.ok) {
+    console.error('[API Links GET] Fetch failed:', resp.status, resp.statusText);
+    throw error(resp.status, 'failed to fetch links');
+  }
+  
   const data = await resp.json();
+  console.log('[API Links GET] Retrieved', data.items?.length || 0, 'links for user:', locals.user.id);
+  
   return json({
     items: data.items || [],
     page: data.page,
@@ -28,7 +41,7 @@ export async function GET({ locals, url, fetch }) {
 
 export async function POST({ locals, request }) {
   const body = await request.json();
-  const { from, slug, subdomain, turnstileToken } = body || {};
+  const { from, slug, subdomain, turnstileToken, users } = body || {};
   if (!from) throw error(400, 'from is required');
 
   const id_url = slug || (await generateRandomURL());
@@ -40,7 +53,12 @@ export async function POST({ locals, request }) {
     enable: true
   };
 
-  if (locals.user) data.user = locals.user.id;
+  // Use the user ID from the request body if provided, otherwise use the authenticated user
+  if (users) {
+    data.user = users;
+  } else if (locals.user) {
+    data.user = locals.user.id;
+  }
 
   try {
     const record = await locals.pb

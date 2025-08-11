@@ -3,9 +3,36 @@ import { saveOAuthState } from '$lib/oauthStateStore.js';
 
 export async function GET({ locals, url, cookies }) {
   const pb = locals.pb;
-  const authMethods = await pb.collection('users').listAuthMethods();
-  const provider = authMethods.oauth2?.providers?.find((p) => p.name === 'spotify');
-  if (!provider) throw error(500, 'Spotify OAuth is not configured');
+  
+  console.log('[OAuth Init] Starting Spotify OAuth flow');
+  console.log('[OAuth Init] PocketBase URL:', import.meta.env.VITE_POCKETBASE_URL);
+  
+  let authMethods, provider;
+  try {
+    authMethods = await pb.collection('users').listAuthMethods();
+    console.log('[OAuth Init] Auth methods retrieved successfully');
+    
+    provider = authMethods.oauth2?.providers?.find((p) => p.name === 'spotify');
+    if (!provider) {
+      console.error('[OAuth Init] Spotify provider not found in:', authMethods.oauth2?.providers);
+      throw error(500, 'Spotify OAuth is not configured');
+    }
+    
+    console.log('[OAuth Init] Spotify provider found:', provider.name);
+  } catch (e) {
+    console.error('[OAuth Init] Failed to get auth methods:', {
+      message: e.message,
+      status: e.status,
+      url: e.url,
+      response: e.response
+    });
+    
+    if (e.message?.includes('fetch failed') || e.message?.includes('timeout')) {
+      throw error(503, 'Unable to connect to authentication service. Please check your PocketBase connection.');
+    }
+    
+    throw error(500, `Authentication setup failed: ${e.message}`);
+  }
 
   const appUrl = import.meta.env.VITE_APP_URL || url.origin;
   const redirectUrl = `${appUrl}/auth/spotify/callback`;
