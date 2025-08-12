@@ -58,8 +58,42 @@ import { preventDefault } from 'svelte/legacy';
 	let currentItems = 4;
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
     let reset = $state();
-    let shortIdDisplay = $state('****');
-    let qrUrl = $derived(() => `https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`);
+    let preGeneratedUrlId = $state();
+    
+    // Make shortIdDisplay reactive to show either custom slug or generated URL
+    let shortIdDisplay = $derived(
+        (customShortId && customShortId.length > 0) ? customShortId : (preGeneratedUrlId || '****')
+    );
+    
+    // Reactive slug sanitization - automatically sanitizes customShortId when it changes
+    let sanitizedCustomShortId = $derived(
+        !customShortId ? '' : customShortId
+            .toLowerCase()
+            .replace(/[^a-zA-Z0-9\-_]/g, '-')
+            // Remove multiple consecutive hyphens/underscores
+            .replace(/[-_]{2,}/g, '-')
+            // Remove leading/trailing hyphens/underscores
+            .replace(/^[-_]+|[-_]+$/g, '')
+    );
+    
+    // Function to update customShortId with sanitized value
+    function updateCustomShortId(value) {
+        if (!value) {
+            customShortId = '';
+            return;
+        }
+        
+        const sanitized = value
+            .toLowerCase()
+            .replace(/[^a-zA-Z0-9\-_]/g, '-')
+            // Remove multiple consecutive hyphens/underscores
+            .replace(/[-_]{2,}/g, '-')
+            // Remove leading/trailing hyphens/underscores
+            .replace(/^[-_]+|[-_]+$/g, '');
+            
+        customShortId = sanitized;
+    }
+    let qrUrl = $derived(`https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`);
     let inputText = $state(null);
     let isError = $state(false);
 	let alertDialogTitle = $state('');
@@ -74,9 +108,13 @@ import { preventDefault } from 'svelte/legacy';
 	let recent = [];
 	let urlInput;
 	let errorMessage = $state();
-	let preGeneratedUrlId
     $effect(() => {
         console.log('errorMessage var: ', errorMessage);
+    });
+    
+    // Debug inputText reactivity
+    $effect(() => {
+        console.log('inputText changed:', inputText, 'isEmpty:', isInputTextEmpty);
     });
 	let actions = [
 		{
@@ -89,7 +127,7 @@ import { preventDefault } from 'svelte/legacy';
 		}
 	];
  
-    let isInputTextEmpty = $derived(() => inputText === null);
+    let isInputTextEmpty = $derived(inputText === null || inputText === '' || inputText === undefined);
 	
  
 	const onload = createLoadObserver(() => {
@@ -148,7 +186,6 @@ import { preventDefault } from 'svelte/legacy';
 		// Generate random URL on page load
 		preGeneratedUrlId = await generateRandomURL();
 		console.log(preGeneratedUrlId)
-		shortIdDisplay = preGeneratedUrlId;
 		
 		recordsPromise = await fetchData();
 		rrecords = records;
@@ -202,7 +239,6 @@ import { preventDefault } from 'svelte/legacy';
 				// console.log(findUrl(clipboardContent));
 				setTimeout(() => {
 					inputText = findUrl(clipboardContent);
-					isInputTextEmpty = false;
 					setAccordionValue('item-1');
  
 					if (inputText === null) {
@@ -254,7 +290,6 @@ import { preventDefault } from 'svelte/legacy';
 			inputText = findUrl(text);
 			setTimeout(() => {
 	
-					isInputTextEmpty = false;
 					setAccordionValue('item-1');
 				
 					if (inputText === null) {
@@ -308,13 +343,6 @@ import { preventDefault } from 'svelte/legacy';
     $effect(() => {
         console.log('domain selected: ', selected)
     });
-	function handleCustomUrl() {
-		const value = customShortId;
-		const modifiedValue = value.toLocaleLowerCase().replace(/[^a-zA-Z0-9-]/g, '-');
-		customShortId = modifiedValue;
-		shortIdDisplay = modifiedValue;
-		qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
-	}
 	const protectedRoutes = ['recent', 'about', 'terms', 'privacy'];
 	const handleSubmit = async (e) => {
 		const promise = new Promise(function (resolve, reject) {
@@ -323,7 +351,10 @@ import { preventDefault } from 'svelte/legacy';
 		});
 		loading = true;
 		
-		if (protectedRoutes.includes(customShortId)) {
+		// Use sanitized version for validation and submission
+		const finalCustomShortId = sanitizedCustomShortId;
+		
+		if (protectedRoutes.includes(finalCustomShortId)) {
 			isError = true;
 			alertDialogTitle = strings.ErrorCustomShortIdRouteTitle;
 			alertDialogDescription = strings.ErrorCustomShortIdRouteDesc;
@@ -332,9 +363,9 @@ import { preventDefault } from 'svelte/legacy';
 			return;
 		}
 		
-		let url_id = customShortId;
+		let url_id = finalCustomShortId;
  
-		if (!customShortId) {
+		if (!finalCustomShortId) {
 			url_id = preGeneratedUrlId;
 			// Generate next random URL for future use
 			preGeneratedUrlId = await generateRandomURL();
@@ -350,8 +381,6 @@ import { preventDefault } from 'svelte/legacy';
 			console.log(url_id);
 			const response = await createRecord('random_short', dataForm, turnstileResponse);
 			console.log('Record created');
-			shortIdDisplay = url_id;
-			qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`;
 			inputText = '';
 			customShortId = '';
  
@@ -755,8 +784,7 @@ for (var key in object) {
 												type="text"
 												id="short_id"
 												placeholder="coolplaylist4"
-												bind:value={customShortId}
-												on:input={handleCustomUrl}
+												bind:value={() => customShortId, updateCustomShortId}
 											/>
 										</div>
 									</Accordion.Content>
