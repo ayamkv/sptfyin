@@ -15,17 +15,12 @@ export const handle = async ({ event, resolve }) => {
   console.log('[Auth] Auth store valid:', pb.authStore.isValid);
   console.log('[Auth] User ID:', pb.authStore.model?.id || 'none');
 
-  // Try to refresh session if valid to keep cookie fresh
-  let refreshFailed = false;
   if (pb.authStore.isValid) {
     try {
       await pb.collection('users').authRefresh();
       console.log('[Auth] Session refreshed successfully');
     } catch (error) {
       console.log('[Auth] Session refresh failed:', error.message);
-      refreshFailed = true;
-      
-      // Only clear auth store for definitive auth failures
       if (error.status === 401 || error.status === 403) {
         console.log('[Auth] Auth invalid, clearing store');
         pb.authStore.clear();
@@ -35,35 +30,36 @@ export const handle = async ({ event, resolve }) => {
     }
   }
 
-  // Expose PocketBase and user on locals for server routes
   event.locals.pb = pb;
   event.locals.user = pb.authStore.model;
 
   const response = await resolve(event);
 
-  // Only persist auth cookie if we have a valid auth state
+  const hadPbAuthCookie = cookieHeader.includes('pb_auth=');
+  const secureFlag = !dev && event.url.protocol === 'https:';
+
+  // Collect additional Set-Cookie values to append (never overwrite existing ones from routes)
+  const extraCookies = [];
+
   if (pb.authStore.isValid && pb.authStore.token) {
-    const authCookie = pb.authStore.exportToCookie({
+    console.log('[Auth] Appending valid auth cookie');
+    const exported = pb.authStore.exportToCookie({
       httpOnly: true,
-      secure: !dev && event.url.protocol === 'https:',
+      secure: secureFlag,
       sameSite: 'lax',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60 // 7 days
+      maxAge: 7 * 24 * 60 * 60
     });
-    
-    console.log('[Auth] Setting valid cookie');
-    if (authCookie) {
-      response.headers.set('set-cookie', authCookie);
-    }
-  } else if (!pb.authStore.isValid) {
-    // Clear the cookie if auth is definitely invalid
-    console.log('[Auth] Clearing invalid cookie');
-    const isSecure = !dev && event.url.protocol === 'https:';
-    const cookieValue = `pb_auth=; Path=/; HttpOnly; Max-Age=0; SameSite=lax${isSecure ? '; Secure' : ''}`;
-    response.headers.set('set-cookie', cookieValue);
+    if (exported) extraCookies.push(exported);
+  } else if (!pb.authStore.isValid && hadPbAuthCookie) {
+    console.log('[Auth] Appending clear auth cookie');
+    extraCookies.push(`pb_auth=; Path=/; HttpOnly; Max-Age=0; SameSite=lax${secureFlag ? '; Secure' : ''}`);
   }
 
-  // Keep no-cache headers for slug routes
+  for (const c of extraCookies) {
+    response.headers.append('set-cookie', c);
+  }
+
   if (event.route.id?.includes('[slug]')) {
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     response.headers.set('Pragma', 'no-cache');
