@@ -26,3 +26,4 @@ dev-prompts
 src/routes/debug/
 
 src/lib/dev_task/
+.roo/mcp.json
