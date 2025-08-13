@@ -6,8 +6,23 @@ export async function GET({ locals, url, cookies }) {
   const state = url.searchParams.get('state');
   if (!code || !state) throw error(400, 'Missing code/state');
 
+  console.log('[OAuth Callback] Received parameters:', {
+    hasCode: Boolean(code),
+    state: state,
+    origin: url.origin,
+    hostname: url.hostname
+  });
+
   const storedState = cookies.get('pb_oauth_state');
   const decodedState = storedState ? decodeURIComponent(storedState) : undefined;
+
+  console.log('[OAuth Callback] Cookie values:', {
+    storedState: storedState,
+    decodedState: decodedState,
+    hasVerifier: Boolean(cookies.get('pb_oauth_verifier')),
+    hasProvider: Boolean(cookies.get('pb_oauth_provider')),
+    allCookieNames: Object.keys(cookies.getAll())
+  });
 
   // In Cloudflare Pages (stateless), prefer cookies over in-memory store
   let decodedVerifier;

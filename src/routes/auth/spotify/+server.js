@@ -19,6 +19,9 @@ export async function GET({ locals, url, cookies }) {
     }
     
     console.log('[OAuth Init] Spotify provider found:', provider.name);
+  console.log('[OAuth Init] Provider authUrl:', provider.authUrl);
+  console.log('[OAuth Init] State:', provider.state);
+  console.log('[OAuth Init] Code verifier length:', provider.codeVerifier?.length);
   } catch (e) {
     console.error('[OAuth Init] Failed to get auth methods:', {
       message: e.message,
@@ -63,6 +66,14 @@ export async function GET({ locals, url, cookies }) {
     maxAge: 600
   });
 
+  console.log('[OAuth Init] Cookies set, redirecting to:', provider.authUrl + encodeURIComponent(redirectUrl));
+  console.log('[OAuth Init] Setting cookies with values:', {
+    state: provider.state,
+    verifier: provider.codeVerifier?.substring(0, 10) + '...',
+    provider: provider.name,
+    isSecure
+  });
+  
   // Important: encode the redirect URL passed to Spotify
   throw redirect(302, provider.authUrl + encodeURIComponent(redirectUrl));
 }
