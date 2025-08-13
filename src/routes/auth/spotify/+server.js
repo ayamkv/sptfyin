@@ -46,14 +46,14 @@ export async function GET({ locals, url, cookies }) {
   cookies.set('pb_oauth_state', encodeURIComponent(provider.state), {
     path: '/',
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     secure: isSecure,
     maxAge: 600
   });
   cookies.set('pb_oauth_provider', provider.name, {
     path: '/',
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     secure: isSecure,
     maxAge: 600
   });
@@ -61,7 +61,7 @@ export async function GET({ locals, url, cookies }) {
   cookies.set('pb_oauth_verifier', encodeURIComponent(provider.codeVerifier), {
     path: '/',
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     secure: isSecure,
     maxAge: 600
   });
