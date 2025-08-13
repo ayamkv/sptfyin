@@ -9,16 +9,31 @@ export async function GET({ locals, url, cookies }) {
   const storedState = cookies.get('pb_oauth_state');
   const decodedState = storedState ? decodeURIComponent(storedState) : undefined;
 
-  // Prefer in-memory store to retrieve the verifier; fallback to cookie
-  let decodedVerifier = takeOAuthVerifier(state);
+  // In Cloudflare Pages (stateless), prefer cookies over in-memory store
+  let decodedVerifier;
+  
+  // Try in-memory store first (will be empty in CF Pages but doesn't hurt)
+  decodedVerifier = takeOAuthVerifier(state);
+  
+  // Always fallback to cookie for stateless environments like CF Pages
   if (!decodedVerifier) {
     const fallbackCookieVerifier = cookies.get('pb_oauth_verifier');
     decodedVerifier = fallbackCookieVerifier ? decodeURIComponent(fallbackCookieVerifier) : undefined;
   }
-  if (!decodedVerifier) throw error(400, 'Missing verifier');
+  
+  if (!decodedVerifier) {
+    console.error('[OAuth] Missing verifier - cookies:', {
+      hasState: Boolean(storedState),
+      hasVerifier: Boolean(cookies.get('pb_oauth_verifier')),
+      allCookies: Object.keys(cookies.getAll())
+    });
+    throw error(400, 'Missing verifier');
+  }
+  
   if (!decodedState || decodedState !== state) {
     const isLocal = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
     if (!isLocal) {
+      console.error('[OAuth] State mismatch:', { returned: state, stored: decodedState });
       throw error(400, 'Invalid state');
     }
     console.warn('[OAuth] State missing/mismatch in dev, continuing', { returned: state, stored: decodedState });
@@ -28,6 +43,14 @@ export async function GET({ locals, url, cookies }) {
   const redirectUrl = `${appUrl}/auth/spotify/callback`;
 
   const provider = cookies.get('pb_oauth_provider') || 'spotify';
+
+  console.log('[OAuth] Attempting authentication with:', {
+    provider,
+    redirectUrl,
+    hasCode: Boolean(code),
+    hasVerifier: Boolean(decodedVerifier),
+    stateMatch: decodedState === state
+  });
 
   try {
     const result = await locals.pb
