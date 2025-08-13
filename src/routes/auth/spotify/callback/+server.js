@@ -23,7 +23,10 @@ export async function GET({ locals, url, cookies }) {
     hasProvider: Boolean(cookies.get('pb_oauth_provider')),
     hasStateRaw: Boolean(cookies.get('pb_oauth_state_raw')),
     hasVerifierRaw: Boolean(cookies.get('pb_oauth_verifier_raw')),
-    allCookieNames: Object.keys(cookies.getAll())
+    hasOauthData: Boolean(cookies.get('oauth_data')),
+    hasOauthBackup: Boolean(cookies.get('oauth_backup')),
+    allCookieNames: Object.keys(cookies.getAll()),
+    rawCookieHeader: cookies.getAll()
   });
 
   // In Cloudflare Pages (stateless), prefer cookies over in-memory store
@@ -41,6 +44,34 @@ export async function GET({ locals, url, cookies }) {
   // Try raw cookies as additional fallback
   if (!decodedVerifier) {
     decodedVerifier = cookies.get('pb_oauth_verifier_raw');
+  }
+  
+  // Try JSON oauth_data cookie
+  if (!decodedVerifier) {
+    try {
+      const oauthDataStr = cookies.get('oauth_data');
+      if (oauthDataStr) {
+        const oauthData = JSON.parse(oauthDataStr);
+        if (oauthData.state === state) {
+          decodedVerifier = oauthData.verifier;
+          console.log('[OAuth Callback] Using oauth_data cookie');
+        }
+      }
+    } catch (error) {
+      console.error('[OAuth Callback] Error parsing oauth_data:', error);
+    }
+  }
+  
+  // Try backup cookie format
+  if (!decodedVerifier) {
+    const backupData = cookies.get('oauth_backup');
+    if (backupData) {
+      const [backupState, backupVerifier, backupProvider] = backupData.split('|');
+      if (backupState === state) {
+        decodedVerifier = backupVerifier;
+        console.log('[OAuth Callback] Using oauth_backup cookie');
+      }
+    }
   }
   
   if (!decodedVerifier) {

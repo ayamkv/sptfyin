@@ -61,6 +61,26 @@ export async function GET({ locals, url, cookies }) {
   cookies.set('pb_oauth_state_raw', provider.state, { ...cookieOptions, sameSite: 'lax' });
   cookies.set('pb_oauth_verifier_raw', provider.codeVerifier, { ...cookieOptions, sameSite: 'lax' });
 
+  // EXPERIMENTAL: For Cloudflare Pages, also try localStorage approach
+  // Store in a way that can survive the stateless environment
+  try {
+    // Store oauth data in a simple format that might work better
+    const oauthData = {
+      state: provider.state,
+      verifier: provider.codeVerifier,
+      provider: provider.name,
+      timestamp: Date.now()
+    };
+    
+    // Try multiple cookie names in case there's a parsing issue
+    cookies.set('oauth_data', JSON.stringify(oauthData), { ...cookieOptions, sameSite: 'none' });
+    cookies.set('oauth_backup', `${provider.state}|${provider.codeVerifier}|${provider.name}`, { ...cookieOptions, sameSite: 'lax' });
+    
+    console.log('[OAuth Init] Set multiple cookie formats for debugging');
+  } catch (error) {
+    console.error('[OAuth Init] Error setting cookies:', error);
+  }
+
   console.log('[OAuth Init] Cookies set, redirecting to:', provider.authUrl + encodeURIComponent(redirectUrl));
   console.log('[OAuth Init] Setting cookies with values:', {
     state: provider.state,
