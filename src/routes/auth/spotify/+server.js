@@ -74,8 +74,18 @@ export async function GET({ locals, url, cookies }) {
     isSecure
   });
   
+  // EXPERIMENTAL: Try to encode state and verifier in the redirect URL itself for CF Pages
+  const redirectUrlWithParams = new URL(redirectUrl);
+  redirectUrlWithParams.searchParams.set('oauth_state', encodeURIComponent(provider.state));
+  redirectUrlWithParams.searchParams.set('oauth_verifier', encodeURIComponent(provider.codeVerifier));
+  redirectUrlWithParams.searchParams.set('oauth_provider', provider.name);
+  
+  const finalOAuthUrl = provider.authUrl + encodeURIComponent(redirectUrlWithParams.toString());
+  
+  console.log('[OAuth Init] Final OAuth URL:', finalOAuthUrl);
+  
   // Important: encode the redirect URL passed to Spotify
-  throw redirect(302, provider.authUrl + encodeURIComponent(redirectUrl));
+  throw redirect(302, finalOAuthUrl);
 }
 
 

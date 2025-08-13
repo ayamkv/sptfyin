@@ -36,28 +36,53 @@ export async function GET({ locals, url, cookies }) {
     decodedVerifier = fallbackCookieVerifier ? decodeURIComponent(fallbackCookieVerifier) : undefined;
   }
   
+  // EXPERIMENTAL: Try URL parameters as ultimate fallback for CF Pages
+  if (!decodedVerifier) {
+    const urlVerifier = url.searchParams.get('oauth_verifier');
+    decodedVerifier = urlVerifier ? decodeURIComponent(urlVerifier) : undefined;
+    console.log('[OAuth Callback] Using URL verifier fallback:', Boolean(decodedVerifier));
+  }
+  
   if (!decodedVerifier) {
     console.error('[OAuth] Missing verifier - cookies:', {
       hasState: Boolean(storedState),
       hasVerifier: Boolean(cookies.get('pb_oauth_verifier')),
+      hasUrlVerifier: Boolean(url.searchParams.get('oauth_verifier')),
       allCookies: Object.keys(cookies.getAll())
     });
     throw error(400, 'Missing verifier');
   }
   
+  // Also check URL parameters for state fallback
   if (!decodedState || decodedState !== state) {
-    const isLocal = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
-    if (!isLocal) {
-      console.error('[OAuth] State mismatch:', { returned: state, stored: decodedState });
-      throw error(400, 'Invalid state');
+    const urlState = url.searchParams.get('oauth_state');
+    const decodedUrlState = urlState ? decodeURIComponent(urlState) : undefined;
+    
+    if (decodedUrlState && decodedUrlState === state) {
+      console.log('[OAuth Callback] Using URL state fallback');
+      // State matches from URL parameters, continue
+    } else {
+      const isLocal = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+      if (!isLocal) {
+        console.error('[OAuth] State mismatch:', { 
+          returned: state, 
+          stored: decodedState, 
+          urlStored: decodedUrlState 
+        });
+        throw error(400, 'Invalid state');
+      }
+      console.warn('[OAuth] State missing/mismatch in dev, continuing', { 
+        returned: state, 
+        stored: decodedState, 
+        urlStored: decodedUrlState 
+      });
     }
-    console.warn('[OAuth] State missing/mismatch in dev, continuing', { returned: state, stored: decodedState });
   }
 
   const appUrl = import.meta.env.VITE_APP_URL || url.origin;
   const redirectUrl = `${appUrl}/auth/spotify/callback`;
 
-  const provider = cookies.get('pb_oauth_provider') || 'spotify';
+  const provider = cookies.get('pb_oauth_provider') || url.searchParams.get('oauth_provider') || 'spotify';
 
   console.log('[OAuth] Attempting authentication with:', {
     provider,
@@ -89,9 +114,10 @@ export async function GET({ locals, url, cookies }) {
     throw error(401, 'OAuth failed');
   } finally {
     const isSecure = url.protocol === 'https:';
-    cookies.delete('pb_oauth_state', { path: '/', secure: isSecure });
-    cookies.delete('pb_oauth_verifier', { path: '/', secure: isSecure });
-    cookies.delete('pb_oauth_provider', { path: '/', secure: isSecure });
+    // Use the same SameSite settings for deletion as we used for setting
+    cookies.delete('pb_oauth_state', { path: '/', secure: isSecure, sameSite: 'none' });
+    cookies.delete('pb_oauth_verifier', { path: '/', secure: isSecure, sameSite: 'none' });
+    cookies.delete('pb_oauth_provider', { path: '/', secure: isSecure, sameSite: 'none' });
   }
 
   // Determine first-login by fetching fresh user record
