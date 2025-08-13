@@ -14,13 +14,15 @@ export async function GET({ locals, url, cookies }) {
   });
 
   const storedState = cookies.get('pb_oauth_state');
-  const decodedState = storedState ? decodeURIComponent(storedState) : undefined;
+  const decodedState = storedState ? (storedState.includes('%') ? decodeURIComponent(storedState) : storedState) : undefined;
 
   console.log('[OAuth Callback] Cookie values:', {
     storedState: storedState,
     decodedState: decodedState,
     hasVerifier: Boolean(cookies.get('pb_oauth_verifier')),
     hasProvider: Boolean(cookies.get('pb_oauth_provider')),
+    hasStateRaw: Boolean(cookies.get('pb_oauth_state_raw')),
+    hasVerifierRaw: Boolean(cookies.get('pb_oauth_verifier_raw')),
     allCookieNames: Object.keys(cookies.getAll())
   });
 
@@ -33,48 +35,44 @@ export async function GET({ locals, url, cookies }) {
   // Always fallback to cookie for stateless environments like CF Pages
   if (!decodedVerifier) {
     const fallbackCookieVerifier = cookies.get('pb_oauth_verifier');
-    decodedVerifier = fallbackCookieVerifier ? decodeURIComponent(fallbackCookieVerifier) : undefined;
+    decodedVerifier = fallbackCookieVerifier ? (fallbackCookieVerifier.includes('%') ? decodeURIComponent(fallbackCookieVerifier) : fallbackCookieVerifier) : undefined;
   }
   
-  // EXPERIMENTAL: Try URL parameters as ultimate fallback for CF Pages
+  // Try raw cookies as additional fallback
   if (!decodedVerifier) {
-    const urlVerifier = url.searchParams.get('oauth_verifier');
-    decodedVerifier = urlVerifier ? decodeURIComponent(urlVerifier) : undefined;
-    console.log('[OAuth Callback] Using URL verifier fallback:', Boolean(decodedVerifier));
+    decodedVerifier = cookies.get('pb_oauth_verifier_raw');
   }
   
   if (!decodedVerifier) {
     console.error('[OAuth] Missing verifier - cookies:', {
       hasState: Boolean(storedState),
       hasVerifier: Boolean(cookies.get('pb_oauth_verifier')),
-      hasUrlVerifier: Boolean(url.searchParams.get('oauth_verifier')),
-      allCookies: Object.keys(cookies.getAll())
+      allCookies: Object.keys(cookies.getAll()),
+      cookieHeader: cookies.getAll()
     });
     throw error(400, 'Missing verifier');
   }
   
-  // Also check URL parameters for state fallback
   if (!decodedState || decodedState !== state) {
-    const urlState = url.searchParams.get('oauth_state');
-    const decodedUrlState = urlState ? decodeURIComponent(urlState) : undefined;
-    
-    if (decodedUrlState && decodedUrlState === state) {
-      console.log('[OAuth Callback] Using URL state fallback');
-      // State matches from URL parameters, continue
+    // Try raw state cookie as fallback
+    const rawState = cookies.get('pb_oauth_state_raw');
+    if (rawState && rawState === state) {
+      console.log('[OAuth Callback] Using raw state cookie fallback');
+      // State matches from raw cookie, continue
     } else {
       const isLocal = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
       if (!isLocal) {
         console.error('[OAuth] State mismatch:', { 
           returned: state, 
-          stored: decodedState, 
-          urlStored: decodedUrlState 
+          stored: decodedState,
+          raw: rawState
         });
         throw error(400, 'Invalid state');
       }
       console.warn('[OAuth] State missing/mismatch in dev, continuing', { 
         returned: state, 
-        stored: decodedState, 
-        urlStored: decodedUrlState 
+        stored: decodedState,
+        raw: rawState
       });
     }
   }
@@ -82,7 +80,7 @@ export async function GET({ locals, url, cookies }) {
   const appUrl = import.meta.env.VITE_APP_URL || url.origin;
   const redirectUrl = `${appUrl}/auth/spotify/callback`;
 
-  const provider = cookies.get('pb_oauth_provider') || url.searchParams.get('oauth_provider') || 'spotify';
+  const provider = cookies.get('pb_oauth_provider') || 'spotify';
 
   console.log('[OAuth] Attempting authentication with:', {
     provider,

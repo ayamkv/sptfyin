@@ -43,28 +43,23 @@ export async function GET({ locals, url, cookies }) {
 
   // save state and PKCE verifier for the callback step (both in memory and cookie)
   saveOAuthState(provider.state, provider.codeVerifier);
-  cookies.set('pb_oauth_state', encodeURIComponent(provider.state), {
+  
+  // Try setting cookies with different configurations for Cloudflare Pages
+  const cookieOptions = {
     path: '/',
     httpOnly: true,
-    sameSite: 'none',
     secure: isSecure,
     maxAge: 600
-  });
-  cookies.set('pb_oauth_provider', provider.name, {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'none',
-    secure: isSecure,
-    maxAge: 600
-  });
-  // also persist verifier in a cookie to survive dev server reloads
-  cookies.set('pb_oauth_verifier', encodeURIComponent(provider.codeVerifier), {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'none',
-    secure: isSecure,
-    maxAge: 600
-  });
+  };
+  
+  // Set with SameSite none for cross-origin
+  cookies.set('pb_oauth_state', provider.state, { ...cookieOptions, sameSite: 'none' });
+  cookies.set('pb_oauth_verifier', provider.codeVerifier, { ...cookieOptions, sameSite: 'none' });
+  cookies.set('pb_oauth_provider', provider.name, { ...cookieOptions, sameSite: 'none' });
+  
+  // Also try setting without encoding as a backup
+  cookies.set('pb_oauth_state_raw', provider.state, { ...cookieOptions, sameSite: 'lax' });
+  cookies.set('pb_oauth_verifier_raw', provider.codeVerifier, { ...cookieOptions, sameSite: 'lax' });
 
   console.log('[OAuth Init] Cookies set, redirecting to:', provider.authUrl + encodeURIComponent(redirectUrl));
   console.log('[OAuth Init] Setting cookies with values:', {
@@ -74,18 +69,10 @@ export async function GET({ locals, url, cookies }) {
     isSecure
   });
   
-  // EXPERIMENTAL: Try to encode state and verifier in the redirect URL itself for CF Pages
-  const redirectUrlWithParams = new URL(redirectUrl);
-  redirectUrlWithParams.searchParams.set('oauth_state', encodeURIComponent(provider.state));
-  redirectUrlWithParams.searchParams.set('oauth_verifier', encodeURIComponent(provider.codeVerifier));
-  redirectUrlWithParams.searchParams.set('oauth_provider', provider.name);
-  
-  const finalOAuthUrl = provider.authUrl + encodeURIComponent(redirectUrlWithParams.toString());
-  
-  console.log('[OAuth Init] Final OAuth URL:', finalOAuthUrl);
+  console.log('[OAuth Init] Redirecting to Spotify with redirect_uri:', redirectUrl);
   
   // Important: encode the redirect URL passed to Spotify
-  throw redirect(302, finalOAuthUrl);
+  throw redirect(302, provider.authUrl + encodeURIComponent(redirectUrl));
 }
 
 
