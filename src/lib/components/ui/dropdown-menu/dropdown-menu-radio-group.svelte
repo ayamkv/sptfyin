@@ -1,5 +1,5 @@
 <script>
-	import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
+	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 	let { value = $bindable(undefined), children, ...rest } = $props();
 </script>
 

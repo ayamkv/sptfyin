@@ -1,5 +1,5 @@
 <script>
-	import { AlertDialog as AlertDialogPrimitive } from "bits-ui";
+	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
 	/**
 	 * @typedef {Object} Props
 	 * @property {import('svelte').Snippet} [children]

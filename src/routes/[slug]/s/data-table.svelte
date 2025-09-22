@@ -1,23 +1,16 @@
 <script>
-    import * as Table from '$lib/components/ui/table/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
 	import * as Pagination from '$lib/components/ui/pagination';
-		import {
-		Render,
-		Subscribe,
-		createRender,
-		createTable
-	} from "svelte-headless-table";
+	import { Render, Subscribe, createRender, createTable } from 'svelte-headless-table';
 	import {
 		addHiddenColumns,
 		addPagination,
 		addSelectedRows,
 		addSortBy,
 		addTableFilter
-	} from "svelte-headless-table/plugins";
-	import { readable } from "svelte/store";
+	} from 'svelte-headless-table/plugins';
+	import { readable } from 'svelte/store';
 
-    
-	
 	const placeholderList = [
 		{
 			country: 'indonesia',
@@ -78,67 +71,61 @@
 			country_flag: 'kr',
 			browser: 'Chrome',
 			os: 'Desktop/Windows'
-		},
-		
-
-
+		}
 	];
 
 	const table = createTable(readable(placeholderList));
 	const columns = table.createColumns([
-		table.column({ accessor: "country", header: "Country" }),
-		table.column({ accessor: "browser", header: "Browser" }),
-		table.column({ accessor: "os", header: "OS" }),
+		table.column({ accessor: 'country', header: 'Country' }),
+		table.column({ accessor: 'browser', header: 'Browser' }),
+		table.column({ accessor: 'os', header: 'OS' })
 	]);
 
-	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } =
-    table.createViewModel(columns);
-
+	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } = table.createViewModel(columns);
 </script>
 
 <div
-              class="align-center flex w-full min-w-full h-full items-center justify-between py-2 transition-all md:py-2 rounded-md border "
-            >
-              <Table.Root class="" {...$tableAttrs}>
-               
-				<Table.Header>
-					{#each $headerRows as headerRow}
-					  <Subscribe rowAttrs={headerRow.attrs()}>
-						<Table.Row>
-						  {#each headerRow.cells as cell (cell.id)}
-							<Subscribe attrs={cell.attrs()}  props={cell.props()}>
-							  {#snippet children({ attrs })}
-																<Table.Head {...attrs}>
-									<Render of={cell.render()} />
-								  </Table.Head>
-																							{/snippet}
-														</Subscribe>
-						  {/each}
-						</Table.Row>
-					  </Subscribe>
-					{/each}
-				  </Table.Header>
-				  <Table.Body {...$tableBodyAttrs}>
-					{#each $pageRows as row (row.id)}
-					  <Subscribe rowAttrs={row.attrs()} >
-						{#snippet children({ rowAttrs })}
-										<Table.Row {...rowAttrs}>
-							  {#each row.cells as cell (cell.id)}
-								<Subscribe attrs={cell.attrs()} >
-								  {#snippet children({ attrs })}
-																<Table.Cell {...attrs}>
+	class="align-center flex h-full w-full min-w-full items-center justify-between rounded-md border py-2 transition-all md:py-2"
+>
+	<Table.Root class="" {...$tableAttrs}>
+		<Table.Header>
+			{#each $headerRows as headerRow}
+				<Subscribe rowAttrs={headerRow.attrs()}>
+					<Table.Row>
+						{#each headerRow.cells as cell (cell.id)}
+							<Subscribe attrs={cell.attrs()} props={cell.props()}>
+								{#snippet children({ attrs })}
+									<Table.Head {...attrs}>
 										<Render of={cell.render()} />
-									  </Table.Cell>
-																								{/snippet}
-														</Subscribe>
-							  {/each}
-							</Table.Row>
-						  									{/snippet}
+									</Table.Head>
+								{/snippet}
+							</Subscribe>
+						{/each}
+					</Table.Row>
+				</Subscribe>
+			{/each}
+		</Table.Header>
+		<Table.Body {...$tableBodyAttrs}>
+			{#each $pageRows as row (row.id)}
+				<Subscribe rowAttrs={row.attrs()}>
+					{#snippet children({ rowAttrs })}
+						<Table.Row {...rowAttrs}>
+							{#each row.cells as cell (cell.id)}
+								<Subscribe attrs={cell.attrs()}>
+									{#snippet children({ attrs })}
+										<Table.Cell {...attrs}>
+											<Render of={cell.render()} />
+										</Table.Cell>
+									{/snippet}
 								</Subscribe>
-					{/each}
-				  </Table.Body>
-              </Table.Root>
-            </div>
+							{/each}
+						</Table.Row>
+					{/snippet}
+				</Subscribe>
+			{/each}
+		</Table.Body>
+	</Table.Root>
+</div>
 
 <!-- render table -->
 <!-- https://shadcn-svelte.com/docs/components/data-table -->

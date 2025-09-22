@@ -3,50 +3,50 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Fixel';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/FixelText-Regular.woff2') format('woff2')
+	font-family: 'Fixel';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/FixelText-Regular.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Fixel';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/FixelText-Bold.woff2') format('woff2');
+	font-family: 'Fixel';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('/fonts/FixelText-Bold.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Fixel';
-  font-weight: 200;
-  font-display: swap;
-  src: url('/fonts/FixelText-Light.woff2') format('woff2');
+	font-family: 'Fixel';
+	font-weight: 200;
+	font-display: swap;
+	src: url('/fonts/FixelText-Light.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Fixel';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/FixelText-Medium.woff2') format('woff2')
+	font-family: 'Fixel';
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('/fonts/FixelText-Medium.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Fixel';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('/fonts/FixelText-SemiBold.woff2') format('woff2')
+	font-family: 'Fixel';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('/fonts/FixelText-SemiBold.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Fixel Display';
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/FixelDisplay-SemiBold.woff2') format('woff2');
+	font-family: 'Fixel Display';
+	font-weight: 700;
+	font-display: swap;
+	src: url('/fonts/FixelDisplay-SemiBold.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Plus Jakarta Display Bold'; 
-  font-weight: 800;
-  font-display: swap;
-  src: url('/fonts/PlusJakartaDisplay-Bold.woff2') format('woff2');
+	font-family: 'Plus Jakarta Display Bold';
+	font-weight: 800;
+	font-display: swap;
+	src: url('/fonts/PlusJakartaDisplay-Bold.woff2') format('woff2');
 }
 /* @font-face {
   font-family: "Plus Jakarta Sans Display Bold", sans-serif;
@@ -55,247 +55,267 @@
 }
  */
 
- 
 @layer base {
-  :root {
-    --scrollbar-width: 0;
-    --background: 0 0% 89%;
-    --foreground: 210 17.3% 19.6%;
-    --card: 0 0% 89%;
-    --card-foreground: 210 17.3% 19.6%;
-    --popover: 0 0% 89%;
-    --popover-foreground: 210 17.3% 19.6%;
-    --primary: 156 64% 42%;
-    --primary-foreground: 0 100% 96.8%;
-    --secondary: 210 25% 96.1%;
-    --secondary-foreground: 210 17.3% 19.6%;
-    --muted: 210 25% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 210 25% 96.1%;
-    --accent-foreground: 210 17.3% 19.6%;
-    --destructive: 0 100% 64.7%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 210 28.6% 91.8%;
-    --input: 210 28.6% 91.8%;
-    --ring: 156 64% 42%;
-    --radius: 0.5rem;
-  }
-  .dark {
-    --background: 249 30% 5%;
-    --foreground: 0 0% 90%;
-    --card: 248 32% 10%;
-    --card-foreground: 0 0% 90%;
-    --popover: 249 30% 5%;
-    --popover-foreground: 0 0% 90%;
-    --primary-foreground: 105.7 76.1% 13.7%;
-    --primary: 154 73% 59%;
-    --secondary: 247 28% 25%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 15.1%;
-    --muted-foreground: 222 20% 77%;
-    --accent: 0 0% 18%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 348.6 69.2% 38.4%;
-    --destructive-foreground: 0 85.7% 97.3%;
-    --border: 247 26% 13%;
-    --input: 247 26% 13%;
-    --ring: 157.3 100% 33.3%;
-    --nothing: 252.35 17.25% 69.41%;
-    --h-secondary: 247.7 32.9% 28%;
-    
-  }
-  body[data-scroll-locked][data-scroll-locked] {
-      overflow: auto !important;
-  }
-  body[data-scroll-locked] {
-      margin-right: 0 !important;
-  }
-}
- 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  a {
-    @apply underline underline-offset-4 font-semibold hover:outline outline-offset-4 rounded hover:text-primary focus:ring-offset-2 focus:ring-primary focus:ring-opacity-50;
-  }
-  .highlight {
-    box-shadow: inset 0 1px 0 0 #c7ffe796, 0 2px 20px 2px #43c99665;
-  }
-  .highlightHover {
-    box-shadow: inset 0px -5px 10px 8px #afffdc, 0 1px 20px 2px #09071180, -1px 1px 20px 8px #43c99665;
-  }
-  .highlightSecondary {
-    box-shadow: inset 1px 2px 2px 0px #38334f, 1px 2px 1px 1px #09071182;
-  }
-  .highlightCard {
-    box-shadow: inset 0.1px 1px 0 0 #555068, 0 1px 20px 2px #090711b6,0 0 0 1px #FFFFFF2F, 0 2px 6px 3px #040e119c, 0 0 0px 7px #0e0d1a, 0 0 2px 7.5px #ffffff12, 4px 4px 8.5px 5px #6554A825;
-
-  .highlightNav2 {
-    box-shadow: inset 0.1px 1px 0 0 #555068, 0 1px 20px 2px #090711b6,0 0 0 2px #FFFFFF2F;
-
-  }
-  
-  }
-  .highlightNav {
-    box-shadow: inset -0.5px 0 0 0 #555068, 0 1px 20px 2px #090711b6;
-  
-  }
-  .inverseShadow {
-    box-shadow: 0.1px 1px 4px 0px #3E3858, inset 1px 3px 3px 2px #09071177
-  
-  }
-
-  .highlightGhost {
-    box-shadow: 0 0 0 1px #ffffff1a, 0 2px 6px 1px #040e119c, 0 0 0px 4px #0e0d1a, 0 0 2px 4.5px #ffffff12, 4px 4px 3.5px 3px #6554A825;
-  }
-  
-  
-  html {
-    scrollbar-gutter: stable;
-    scroll-behavior: smooth;
-    width: 100vw;
-    /* overflow: auto; */
-    overflow-y: scroll;
-    overflow-x: hidden;
-    background: var(--background);
-  }
-
-  /* ===== App background decorations (gated by body.bg-decor-enabled) ===== */
-  /* Theme tokens for gradients/blobs */
-  :root {
-    --bg1: hsl(246 42% 8%);    /* deep indigo */
-    --bg2: hsl(270 35% 12%);   /* purple */
-    --bg3: hsl(210 40% 10%);   /* blue-ish */
-    --blob-a: hsla(170 85.29% 60% / 0.35);
-    --blob-b: hsla(165 90.2% 60% / 0.73);
-    --blob-c: hsla(150 85.39% 65.1% / 0.66);
-    --noise-opacity: 0.05;     /* 0.03–0.08 usually good */
-  }
-  .dark:root {
-    /* slightly darker hues for dark theme */
-    --bg1: hsl(248 40% 6%);
-    --bg2: hsl(270 32% 10%);
-    --bg3: hsl(210 35% 9%);
-  }
-
-  /* Base gradient layer (fixed) */
-  body.bg-decor-enabled {
-    position: relative;
-    overflow-x: hidden;
-    background:
-      radial-gradient(1200px 900px at 20% -10%, var(--bg2) 0%, transparent 60%),
-      radial-gradient(900px 700px at 90% 20%, var(--bg3) 0%, transparent 60%),
-      linear-gradient(180deg, var(--bg1), var(--bg3));
-    background-attachment: fixed, fixed, fixed;
-  }
-
-  /* Blurred organic blobs using pseudo-elements */
-  body.bg-decor-enabled::before,
-  body.bg-decor-enabled::after {
-    content: "";
-    position: fixed;
-    inset: -20vmax;                 /* bleed out for smooth blur edges */
-    filter: blur(80px) saturate(120%);
-    pointer-events: none;
-    z-index: -2;
-    transform: translateZ(0);
-  }
-  body.bg-decor-enabled::before {
-    background:
-      radial-gradient(40vmax 30vmax at 10% 20%, var(--blob-a) 0%, transparent 70%),
-      radial-gradient(35vmax 28vmax at 80% 10%, var(--blob-b) 0%, transparent 70%),
-      radial-gradient(45vmax 40vmax at 70% 80%, var(--blob-c) 0%, transparent 70%);
-    animation: float-blobs 26s ease-in-out infinite alternate;
-  }
-  body.bg-decor-enabled::after {
-    background:
-      radial-gradient(30vmax 26vmax at 20% 80%, var(--blob-b) 0%, transparent 70%),
-      radial-gradient(35vmax 30vmax at 85% 60%, var(--blob-a) 0%, transparent 70%);
-    opacity: 0.85;
-    animation: float-blobs-2 32s ease-in-out infinite alternate;
-  }
-
-  @keyframes float-blobs {
-    0%   { transform: translate3d(0, 0, 0) scale(1); }
-    100% { transform: translate3d(2rem, -1.5rem, 0) scale(1.03); }
-  }
-  @keyframes float-blobs-2 {
-    0%   { transform: translate3d(0, 0, 0) scale(1); }
-    100% { transform: translate3d(-2rem, 1.25rem, 0) scale(0.98); }
-  }
-
-  /* Subtle SVG noise layer (fixed). Component will render <svg.bg-noise/> */
-  .bg-noise {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    mix-blend-mode: overlay;     /* try soft-light/normal/overlay per theme */
-    opacity: var(--noise-opacity);
-  }
-
-  /* Utility for glass panels if needed */
-  .backdrop-blur {
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-
-
+	:root {
+		--scrollbar-width: 0;
+		--background: 0 0% 89%;
+		--foreground: 210 17.3% 19.6%;
+		--card: 0 0% 89%;
+		--card-foreground: 210 17.3% 19.6%;
+		--popover: 0 0% 89%;
+		--popover-foreground: 210 17.3% 19.6%;
+		--primary: 156 64% 42%;
+		--primary-foreground: 0 100% 96.8%;
+		--secondary: 210 25% 96.1%;
+		--secondary-foreground: 210 17.3% 19.6%;
+		--muted: 210 25% 96.1%;
+		--muted-foreground: 0 0% 45.1%;
+		--accent: 210 25% 96.1%;
+		--accent-foreground: 210 17.3% 19.6%;
+		--destructive: 0 100% 64.7%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 210 28.6% 91.8%;
+		--input: 210 28.6% 91.8%;
+		--ring: 156 64% 42%;
+		--radius: 0.5rem;
+	}
+	.dark {
+		--background: 249 30% 5%;
+		--foreground: 0 0% 90%;
+		--card: 248 32% 10%;
+		--card-foreground: 0 0% 90%;
+		--popover: 249 30% 5%;
+		--popover-foreground: 0 0% 90%;
+		--primary-foreground: 105.7 76.1% 13.7%;
+		--primary: 154 73% 59%;
+		--secondary: 247 28% 25%;
+		--secondary-foreground: 0 0% 98%;
+		--muted: 0 0% 15.1%;
+		--muted-foreground: 222 20% 77%;
+		--accent: 0 0% 18%;
+		--accent-foreground: 0 0% 98%;
+		--destructive: 348.6 69.2% 38.4%;
+		--destructive-foreground: 0 85.7% 97.3%;
+		--border: 247 26% 13%;
+		--input: 247 26% 13%;
+		--ring: 157.3 100% 33.3%;
+		--nothing: 252.35 17.25% 69.41%;
+		--h-secondary: 247.7 32.9% 28%;
+	}
+	body[data-scroll-locked][data-scroll-locked] {
+		overflow: auto !important;
+	}
+	body[data-scroll-locked] {
+		margin-right: 0 !important;
+	}
 }
 
- 
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+	a {
+		@apply rounded font-semibold underline underline-offset-4 outline-offset-4 hover:text-primary hover:outline focus:ring-primary focus:ring-opacity-50 focus:ring-offset-2;
+	}
+	.highlight {
+		box-shadow:
+			inset 0 1px 0 0 #c7ffe796,
+			0 2px 20px 2px #43c99665;
+	}
+	.highlightHover {
+		box-shadow:
+			inset 0px -5px 10px 8px #afffdc,
+			0 1px 20px 2px #09071180,
+			-1px 1px 20px 8px #43c99665;
+	}
+	.highlightSecondary {
+		box-shadow:
+			inset 1px 2px 2px 0px #38334f,
+			1px 2px 1px 1px #09071182;
+	}
+	.highlightCard {
+		box-shadow:
+			inset 0.1px 1px 0 0 #555068,
+			0 1px 20px 2px #090711b6,
+			0 0 0 1px #ffffff2f,
+			0 2px 6px 3px #040e119c,
+			0 0 0px 7px #0e0d1a,
+			0 0 2px 7.5px #ffffff12,
+			4px 4px 8.5px 5px #6554a825;
 
+		.highlightNav2 {
+			box-shadow:
+				inset 0.1px 1px 0 0 #555068,
+				0 1px 20px 2px #090711b6,
+				0 0 0 2px #ffffff2f;
+		}
+	}
+	.highlightNav {
+		box-shadow:
+			inset -0.5px 0 0 0 #555068,
+			0 1px 20px 2px #090711b6;
+	}
+	.inverseShadow {
+		box-shadow:
+			0.1px 1px 4px 0px #3e3858,
+			inset 1px 3px 3px 2px #09071177;
+	}
+
+	.highlightGhost {
+		box-shadow:
+			0 0 0 1px #ffffff1a,
+			0 2px 6px 1px #040e119c,
+			0 0 0px 4px #0e0d1a,
+			0 0 2px 4.5px #ffffff12,
+			4px 4px 3.5px 3px #6554a825;
+	}
+
+	html {
+		scrollbar-gutter: stable;
+		scroll-behavior: smooth;
+		width: 100vw;
+		/* overflow: auto; */
+		overflow-y: scroll;
+		overflow-x: hidden;
+		background: var(--background);
+	}
+
+	/* ===== App background decorations (gated by body.bg-decor-enabled) ===== */
+	/* Theme tokens for gradients/blobs */
+	:root {
+		--bg1: hsl(246 42% 8%); /* deep indigo */
+		--bg2: hsl(270 35% 12%); /* purple */
+		--bg3: hsl(210 40% 10%); /* blue-ish */
+		/* --blob-a: hsla(170 85.29% 60% / 0.35);
+		--blob-b: hsla(165 90.2% 60% / 0.73);
+		--blob-c: hsla(150 85.39% 65.1% / 0.66); */
+		--noise-opacity: 0.05; /* 0.03–0.08 usually good */
+	}
+	.dark:root {
+		/* slightly darker hues for dark theme */
+		--bg1: hsl(248 40% 6%);
+		--bg2: hsl(270 32% 10%);
+		--bg3: hsl(210 35% 9%);
+	}
+}
+
+	/* Base gradient layer (fixed) */
+	/* body.bg-decor-enabled {
+		position: relative;
+		overflow-x: hidden;
+		background:
+			radial-gradient(1200px 900px at 20% -10%, var(--bg2) 0%, transparent 60%),
+			radial-gradient(900px 700px at 90% 20%, var(--bg3) 0%, transparent 60%),
+			linear-gradient(180deg, var(--bg1), var(--bg3));
+		background-attachment: fixed, fixed, fixed;
+	} */
+
+	/* Blurred organic blobs using pseudo-elements */
+	/* body.bg-decor-enabled::before,
+	body.bg-decor-enabled::after {
+		content: '';
+		position: fixed;
+		inset: -20vmax;
+		filter: blur(80px) saturate(120%);
+		pointer-events: none;
+		z-index: -2;
+		transform: translateZ(0);
+	} */
+	/* body.bg-decor-enabled::before {
+		background:
+			radial-gradient(40vmax 30vmax at 10% 20%, var(--blob-a) 0%, transparent 70%),
+			radial-gradient(35vmax 28vmax at 80% 10%, var(--blob-b) 0%, transparent 70%),
+			radial-gradient(45vmax 40vmax at 70% 80%, var(--blob-c) 0%, transparent 70%);
+		animation: float-blobs 26s ease-in-out infinite alternate;
+	}
+	body.bg-decor-enabled::after {
+		background:
+			radial-gradient(30vmax 26vmax at 20% 80%, var(--blob-b) 0%, transparent 70%),
+			radial-gradient(35vmax 30vmax at 85% 60%, var(--blob-a) 0%, transparent 70%);
+		opacity: 0.85;
+		animation: float-blobs-2 32s ease-in-out infinite alternate;
+	} */
+/* 
+	@keyframes float-blobs {
+		0% {
+			transform: translate3d(0, 0, 0) scale(1);
+		}
+		100% {
+			transform: translate3d(2rem, -1.5rem, 0) scale(1.03);
+		}
+	}
+	@keyframes float-blobs-2 {
+		0% {
+			transform: translate3d(0, 0, 0) scale(1);
+		}
+		100% {
+			transform: translate3d(-2rem, 1.25rem, 0) scale(0.98);
+		}
+	} */
+
+	/* Subtle SVG noise layer (fixed). Component will render <svg.bg-noise/> */
+	/* .bg-noise {
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		mix-blend-mode: overlay; 
+		opacity: var(--noise-opacity);
+	} */
+
+	/* Utility for solid panels replacing glass effect */
+	/* .solid-panel {
+		background: hsl(var(--card) / 0.95);
+		border: 1px solid hsl(var(--border) / 0.5);
+	}
+} */
 
 @layer utilities {
-  .ss03 {
-    font-feature-settings: "ss03";
-  }
-
+	.ss03 {
+		font-feature-settings: 'ss03';
+	}
 }
-
 
 /* Scoped decorated surface styles to apply gradients + blurred blobs to a specific container */
-@layer utilities {
-  .decorated-surface {
-    position: relative;
-    overflow: hidden;
-    background:
-      radial-gradient(1200px 900px at 20% -10%, var(--bg2) 0%, transparent 60%),
-      radial-gradient(900px 700px at 90% 20%, var(--bg3) 0%, transparent 60%),
-      linear-gradient(180deg, var(--bg1), var(--bg3));
-    background-attachment: local, local, local;
-    isolation: isolate; /* keep pseudo layers contained */
-  }
-  .decorated-surface::before,
-  .decorated-surface::after {
-    content: "";
-    position: absolute;
-    inset: -20vmax;
-    filter: blur(60px) saturate(120%);
-    pointer-events: none;
-    z-index: -1;
-    transform: translateZ(0);
-  }
-  .decorated-surface::before {
-    background:
-      radial-gradient(40vmax 30vmax at 10% 20%, var(--blob-a) 0%, transparent 70%),
-      radial-gradient(35vmax 28vmax at 80% 10%, var(--blob-b) 0%, transparent 70%),
-      radial-gradient(45vmax 40vmax at 70% 80%, var(--blob-c) 0%, transparent 70%);
-    animation: float-blobs 24s ease-in-out infinite alternate;
-  }
-  .decorated-surface::after {
-    background:
-      radial-gradient(30vmax 26vmax at 20% 80%, var(--blob-b) 0%, transparent 70%),
-      radial-gradient(35vmax 30vmax at 85% 60%, var(--blob-a) 0%, transparent 70%);
-    opacity: 0.85;
-    animation: float-blobs-2 28s ease-in-out infinite alternate;
-  }
+/* @layer utilities {
+	.decorated-surface {
+		position: relative;
+		overflow: hidden;
+		background:
+			radial-gradient(1200px 900px at 20% -10%, var(--bg2) 0%, transparent 60%),
+			radial-gradient(900px 700px at 90% 20%, var(--bg3) 0%, transparent 60%),
+			linear-gradient(180deg, var(--bg1), var(--bg3));
+		background-attachment: local, local, local;
+		isolation: isolate; 
+	}
+	.decorated-surface::before,
+	.decorated-surface::after {
+		content: '';
+		position: absolute;
+		inset: -20vmax;
+		filter: blur(60px) saturate(120%);
+		pointer-events: none;
+		z-index: -1;
+		transform: translateZ(0);
+	}
+	.decorated-surface::before {
+		background:
+			radial-gradient(40vmax 30vmax at 10% 20%, var(--blob-a) 0%, transparent 70%),
+			radial-gradient(35vmax 28vmax at 80% 10%, var(--blob-b) 0%, transparent 70%),
+			radial-gradient(45vmax 40vmax at 70% 80%, var(--blob-c) 0%, transparent 70%);
+		animation: float-blobs 24s ease-in-out infinite alternate;
+	}
+	.decorated-surface::after {
+		background:
+			radial-gradient(30vmax 26vmax at 20% 80%, var(--blob-b) 0%, transparent 70%),
+			radial-gradient(35vmax 30vmax at 85% 60%, var(--blob-a) 0%, transparent 70%);
+		opacity: 0.85;
+		animation: float-blobs-2 28s ease-in-out infinite alternate;
+	}
 }
 
 @layer components {
-
-}
+} */

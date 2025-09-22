@@ -1,7 +1,7 @@
 <script>
-	import { Button as ButtonPrimitive } from "bits-ui";
-	import { buttonVariants } from "./index.js";
-	import { cn } from "$lib/utils.js";
+	import { Button as ButtonPrimitive } from 'bits-ui';
+	import { buttonVariants } from './index.js';
+	import { cn } from '$lib/utils.js';
 	/**
 	 * @typedef {Object} Props
 	 * @property {any} [class]
@@ -15,14 +15,13 @@
 	/** @type {Props & { [key: string]: any }} */
 	let {
 		class: className = undefined,
-		variant = "default",
-		size = "default",
+		variant = 'default',
+		size = 'default',
 		builders = [],
 		ref = $bindable(null),
 		children,
 		...rest
 	} = $props();
-	
 </script>
 
 <ButtonPrimitive.Root

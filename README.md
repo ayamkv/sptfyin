@@ -2,7 +2,6 @@
 
 # [sptfy.in](https://sptfy.in) ![GitHub deployments](https://img.shields.io/github/deployments/ayamkv/sptfyin/production)
 
-
 sptfyin is a simple spotify link shortener,
 
 paste your spotify track, album, or playlist url → slap on a custom back half (optional) → done. ✨
@@ -19,19 +18,22 @@ paste your spotify track, album, or playlist url → slap on a custom back half 
 
 <a href="https://sptfy.in/"><img src="https://sptfy.in/prev" alt="image" border="0"></a>
 
+## acknowledgements
 
-## acknowledgements  
-shoutout to the open-source community for the tools that made this possible:  
-- [svelte 5](https://svelte.dev/) for the magic 🪄   
-- [shadcn-svelte](https://shadcn-svelte.com) for the pretty parts  
+shoutout to the open-source community for the tools that made this possible:
+
+- [svelte 5](https://svelte.dev/) for the magic 🪄
+- [shadcn-svelte](https://shadcn-svelte.com) for the pretty parts
 - [pocketbase](https://pocketbase.io) for the backend 📁
-- [plus jakarta sans](https://github.com/tokotype/PlusJakartaSans) for the clean fonts  
+- [plus jakarta sans](https://github.com/tokotype/PlusJakartaSans) for the clean fonts
 
-## disclaimer  
-*Spotify®* is a registered trademark of Spotify AB.  
-this project is **not** affiliated with, endorsed by, or sponsored by Spotify AB. 
+## disclaimer
 
-*(TL;DR: we just like their music links, okay?)*  
+_Spotify®_ is a registered trademark of Spotify AB.  
+this project is **not** affiliated with, endorsed by, or sponsored by Spotify AB.
+
+_(TL;DR: we just like their music links, okay?)_
 
 ## license
+
 this repository is licensed under [AGPL-3.0](https://github.com/ayamkv/sptfyin?tab=License-1-ov-file)

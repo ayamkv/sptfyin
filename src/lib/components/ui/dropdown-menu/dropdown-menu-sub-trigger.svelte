@@ -1,15 +1,14 @@
 <script>
-	import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
-	import ChevronRight from "lucide-svelte/icons/chevron-right";
-	import { cn } from "$lib/utils.js";
+	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
+	import ChevronRight from 'lucide-svelte/icons/chevron-right';
+	import { cn } from '$lib/utils.js';
 	let { class: className = undefined, inset = undefined, children, ...rest } = $props();
-	
 </script>
 
 <DropdownMenuPrimitive.SubTrigger
 	class={cn(
-		"data-[highlighted]:bg-accent data-[state=open]:bg-accent data-[highlighted]:text-accent-foreground data-[state=open]:text-accent-foreground flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
-		inset && "pl-8",
+		'flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[highlighted]:bg-accent data-[state=open]:bg-accent data-[highlighted]:text-accent-foreground data-[state=open]:text-accent-foreground',
+		inset && 'pl-8',
 		className
 	)}
 	{...rest}

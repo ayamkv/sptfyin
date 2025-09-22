@@ -1,26 +1,22 @@
 <script>
-import { preventDefault } from 'svelte/legacy';
+	import { preventDefault } from 'svelte/legacy';
 
 	import { Button } from '$lib/components/ui/button';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { Turnstile } from 'svelte-turnstile';
-	import { fly, slide, fade, scale } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
 	import { expoOut } from 'svelte/easing';
-	import { scaleWithEase } from '$lib/animations/customSpring';
 	import {
-		getRecords,
 		createRecord,
-		generateRandomURL,
+		getTotalClicks,
 		getRecentRecords,
-		validateToken,
- 
-		getTotalClicks
- 
+		generateRandomURL
 	} from '$lib/pocketbase';
 	// import { generateRandomURL } from "$lib/utils";
 	import { localizeDate, findUrl, createLoadObserver } from '$lib/utils';
+	import { WithEase } from '$lib/animations/customSpring';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
 	import * as Card from '$lib/components/ui/card';
@@ -29,16 +25,16 @@ import { preventDefault } from 'svelte/legacy';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Label } from '$lib/components/ui/label';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { Separator } from '$lib/components/ui/separator';
+
 	import * as Accordion from '$lib/components/ui/accordion';
 	import 'iconify-icon';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { strings } from '$lib/localization/languages/en.json';
 	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
+
 	import { toastGroups } from '$lib/debug';
 	import BackgroundNoise from '$lib/components/BackgroundNoise.svelte';
- 
+
 	let debugMode = import.meta.env.VITE_DEBUG_MODE;
 	console.log('debugMode: ', debugMode);
 	let debugToastVisible = $state(false);
@@ -57,45 +53,49 @@ import { preventDefault } from 'svelte/legacy';
 	let recentLoading = true;
 	let currentItems = 4;
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
-    let reset = $state();
-    let preGeneratedUrlId = $state();
-    
-    // Make shortIdDisplay reactive to show either custom slug or generated URL
-    let shortIdDisplay = $derived(
-        (customShortId && customShortId.length > 0) ? customShortId : (preGeneratedUrlId || '****')
-    );
-    
-    // Reactive slug sanitization - automatically sanitizes customShortId when it changes
-    let sanitizedCustomShortId = $derived(
-        !customShortId ? '' : customShortId
-            .toLowerCase()
-            .replace(/[^a-zA-Z0-9\-_]/g, '-')
-            // Remove multiple consecutive hyphens/underscores
-            .replace(/[-_]{2,}/g, '-')
-            // Remove leading/trailing hyphens/underscores
-            .replace(/^[-_]+|[-_]+$/g, '')
-    );
-    
-    // Function to update customShortId with sanitized value
-    function updateCustomShortId(value) {
-        if (!value) {
-            customShortId = '';
-            return;
-        }
-        
-        const sanitized = value
-            .toLowerCase()
-            .replace(/[^a-zA-Z0-9\-_]/g, '-')
-            // Remove multiple consecutive hyphens/underscores
-            .replace(/[-_]{2,}/g, '-')
-            // Remove leading/trailing hyphens/underscores
-            .replace(/^[-_]+|[-_]+$/g, '');
-            
-        customShortId = sanitized;
-    }
-    let qrUrl = $derived(`https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`);
-    let inputText = $state(null);
-    let isError = $state(false);
+	let reset = $state();
+	let preGeneratedUrlId = $state();
+
+	// Make shortIdDisplay reactive to show either custom slug or generated URL
+	let shortIdDisplay = $derived(
+		customShortId && customShortId.length > 0 ? customShortId : preGeneratedUrlId || '****'
+	);
+
+	// Reactive slug sanitization - automatically sanitizes customShortId when it changes
+	let sanitizedCustomShortId = $derived(
+		!customShortId
+			? ''
+			: customShortId
+					.toLowerCase()
+					.replace(/[^a-zA-Z0-9\-_]/g, '-')
+					// Remove multiple consecutive hyphens/underscores
+					.replace(/[-_]{2,}/g, '-')
+					// Remove leading/trailing hyphens/underscores
+					.replace(/^[-_]+|[-_]+$/g, '')
+	);
+
+	// Function to update customShortId with sanitized value
+	function updateCustomShortId(value) {
+		if (!value) {
+			customShortId = '';
+			return;
+		}
+
+		const sanitized = value
+			.toLowerCase()
+			.replace(/[^a-zA-Z0-9\-_]/g, '-')
+			// Remove multiple consecutive hyphens/underscores
+			.replace(/[-_]{2,}/g, '-')
+			// Remove leading/trailing hyphens/underscores
+			.replace(/^[-_]+|[-_]+$/g, '');
+
+		customShortId = sanitized;
+	}
+	let qrUrl = $derived(
+		`https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`
+	);
+	let inputText = $state(null);
+	let isError = $state(false);
 	let alertDialogTitle = $state('');
 	let alertDialogDescription = $state('');
 	let errorIconDefault = 'fluent-emoji:crying-cat';
@@ -108,14 +108,14 @@ import { preventDefault } from 'svelte/legacy';
 	let recent = [];
 	let urlInput;
 	let errorMessage = $state();
-    $effect(() => {
-        console.log('errorMessage var: ', errorMessage);
-    });
-    
-    // Debug inputText reactivity
-    $effect(() => {
-        console.log('inputText changed:', inputText, 'isEmpty:', isInputTextEmpty);
-    });
+	$effect(() => {
+		console.log('errorMessage var: ', errorMessage);
+	});
+
+	// Debug inputText reactivity
+	$effect(() => {
+		console.log('inputText changed:', inputText, 'isEmpty:', isInputTextEmpty);
+	});
 	let actions = [
 		{
 			icon: 'lucide:copy',
@@ -126,73 +126,67 @@ import { preventDefault } from 'svelte/legacy';
 			click: () => window.open(`${fullShortURL}`, '_blank')
 		}
 	];
- 
-    let isInputTextEmpty = $derived(inputText === null || inputText === '' || inputText === undefined);
-	
- 
+
+	let isInputTextEmpty = $derived(
+		inputText === null || inputText === '' || inputText === undefined
+	);
+
 	const onload = createLoadObserver(() => {
 		isQrLoaded = true;
 		console.log('loaded!!!');
 	});
- 
+
 	function scrollToBottom() {
 		scrollHere.scrollIntoView();
 	}
- 
+
 	function setAccordionValue(newValue) {
 		accordionValue = newValue;
 	}
 	let totalLinkCreated = $state();
-	let totalClicks = $state()
-	
+	let totalClicks = $state();
+
 	function formatNumber(num) {
-	  if (!num) return 'counting';
-	  if (num >= 1000) {
-	    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-	  }
-	  return num;
+		if (!num) return 'counting';
+		if (num >= 1000) {
+			return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+		}
+		return num;
 	}
 	async function fetchData() {
 		recentLoading = true;
 		try {
 			const response = await getRecentRecords();
 			records = response.items;
-			totalLinkCreated = response.totalItems
-			
+			totalLinkCreated = response.totalItems;
 		} catch (error) {
 			console.error(error);
 			errorMessage = 'An error occurred while fetching data.'; // Added error message handling
 		} finally {
 			recentLoading = false;
 		}
- 
+
 		try {
 			const cresponse = await getTotalClicks();
 			totalClicks = cresponse.totalItems;
- 
+
 			console.log('Analytics Records: ', cresponse);
- 
- 
- 
 		} catch (error) {
 			console.error(error);
 			errorMessage = 'An error occurred while fetching data.'; // Added error message handling
- 
 		}
- 
- 
 	}
 	onMount(async () => {
 		// Generate random URL on page load
 		preGeneratedUrlId = await generateRandomURL();
-		console.log(preGeneratedUrlId)
-		
+		console.log(preGeneratedUrlId);
+
 		recordsPromise = await fetchData();
 		rrecords = records;
 	});
 	function getBrowserName() {
 		const userAgent = navigator.userAgent;
- 
+
 		switch (true) {
 			case userAgent.includes('Chrome') && !userAgent.includes('Edg'):
 				return 'Chrome';
@@ -210,7 +204,7 @@ import { preventDefault } from 'svelte/legacy';
 				return 'Unknown Browser';
 		}
 	}
-    onMount(() => {
+	onMount(() => {
 		visible = true;
 		const ua = navigator.userAgent.toLowerCase();
 		isIOS = ua.includes('iphone os') || (ua.includes('mac os') && navigator.maxTouchPoints > 0);
@@ -222,25 +216,24 @@ import { preventDefault } from 'svelte/legacy';
 		// console log the ua user is using
 		console.log(getBrowserName());
 	});
-    
- 
+
 	// const allowedLinkTypes = new Set(["text/plain", "text/uri-list"]);
 	async function handlePaste(event) {
 		try {
 			// Request permission to access the clipboard
 			const permission = await navigator.permissions.query({ name: 'clipboard-read' });
- 
+
 			if (permission.state === 'granted' || permission.state === 'prompt') {
 				// Read from the clipboard
 				const text = await navigator.clipboard.readText();
 				let clipboardContent = text;
- 
+
 				// console.log(clipboardContent);
 				// console.log(findUrl(clipboardContent));
 				setTimeout(() => {
 					inputText = findUrl(clipboardContent);
 					setAccordionValue('item-1');
- 
+
 					if (inputText === null) {
 						setTimeout(() => {
 							focus1 = false;
@@ -263,54 +256,50 @@ import { preventDefault } from 'svelte/legacy';
 			}
 		} catch (e) {
 			let error = String(e).toLowerCase();
- 
+
 			if (error.includes('denied')) isError = true;
 			console.error('Failed to read clipboard: ', error);
 			if (error.includes('function') && isFirefox)
 				alert('Firefox does not support clipboard access');
 			if (error.includes('dismissed') || isIOS)
-				alert('Sorry! iOS Safari does not support clipboard access, so you have to paste manually 😔');
+				alert(
+					'Sorry! iOS Safari does not support clipboard access, so you have to paste manually 😔'
+				);
 		}
 	}
- 
- 
+
 	// onMount(() => {
 	//     console.log(strings)
 	// });
- 
- 
- 
- 	async function handleInputOnPaste(event) {
+
+	async function handleInputOnPaste(event) {
 		// handle paste event only for the input field not the paste button itself
 		// and can work with ctrl + v or right click paste, on ios or android or pc
-		
+
 		try {
 			const text = await navigator.clipboard.readText();
-			console.log( text );
+			console.log(text);
 			inputText = findUrl(text);
 			setTimeout(() => {
-	
-					setAccordionValue('item-1');
-				
-					if (inputText === null) {
-						setTimeout(() => {
-							focus1 = false;
-							// alert('No Spotify URL found in clipboard');
-							isError = true;
-							alertDialogTitle = strings.ErrorClipboardNoSpotifyURLTitle;
-							alertDialogDescription = strings.ErrorClipboardNoSpotifyURLDesc;
-							errorIcon = strings.ErrorClipboardNoSpotifyURLIcon;
-							console.log(alertDialogTitle, alertDialogDescription);
-						}, 1);
-					}
- 
-				}, 4);
+				setAccordionValue('item-1');
+
+				if (inputText === null) {
+					setTimeout(() => {
+						focus1 = false;
+						// alert('No Spotify URL found in clipboard');
+						isError = true;
+						alertDialogTitle = strings.ErrorClipboardNoSpotifyURLTitle;
+						alertDialogDescription = strings.ErrorClipboardNoSpotifyURLDesc;
+						errorIcon = strings.ErrorClipboardNoSpotifyURLIcon;
+						console.log(alertDialogTitle, alertDialogDescription);
+					}, 1);
+				}
+			}, 4);
 		} catch (error) {
 			console.error(error);
 		}
-		
 	}
- 
+
 	function escapeSelectHandle() {
 		onMount(() => {
 			setTimeout(() => {
@@ -319,30 +308,29 @@ import { preventDefault } from 'svelte/legacy';
 		});
 		console.log('something is selected');
 	}
- 
+
 	// onMount(() => {
 	//   escapeSelectHandle();
 	// })
- 
+
 	let promiseResolve, promiseReject;
- 
+
 	let selected = $state({ value: 'sptfy.in', label: 'default: sptfy.in' });
 	const domainList = [
 		{ value: 'sptfy.in', label: 'sptfy.in' },
 		{ value: 'artist', label: 'artist.sptfy.in', disabled: false },
 		{ value: 'profile', label: 'profile.sptfy.in', disabled: false },
 		{ value: 'playlist', label: 'playlist.sptfy.in', disabled: false },
- 
+
 		{ value: 'track', label: 'track.sptfy.in', disabled: false },
 		{ value: 'COMING SOON', label: '--- COMING SOON ---', disabled: true },
-		
+
 		{ value: 'album', label: 'album.sptfy.in', disabled: true }
-		
 	];
- 
-    $effect(() => {
-        console.log('domain selected: ', selected)
-    });
+
+	$effect(() => {
+		console.log('domain selected: ', selected);
+	});
 	const protectedRoutes = ['recent', 'about', 'terms', 'privacy'];
 	const handleSubmit = async (e) => {
 		const promise = new Promise(function (resolve, reject) {
@@ -350,10 +338,10 @@ import { preventDefault } from 'svelte/legacy';
 			promiseReject = reject;
 		});
 		loading = true;
-		
+
 		// Use sanitized version for validation and submission
 		const finalCustomShortId = sanitizedCustomShortId;
-		
+
 		if (protectedRoutes.includes(finalCustomShortId)) {
 			isError = true;
 			alertDialogTitle = strings.ErrorCustomShortIdRouteTitle;
@@ -362,9 +350,9 @@ import { preventDefault } from 'svelte/legacy';
 			loading = false;
 			return;
 		}
-		
+
 		let url_id = finalCustomShortId;
- 
+
 		if (!finalCustomShortId) {
 			url_id = preGeneratedUrlId;
 			// Generate next random URL for future use
@@ -383,7 +371,7 @@ import { preventDefault } from 'svelte/legacy';
 			console.log('Record created');
 			inputText = '';
 			customShortId = '';
- 
+
 			toast.promise(promise, {
 				class: 'my-toast',
 				description: 'The link has been shortened!',
@@ -408,15 +396,15 @@ import { preventDefault } from 'svelte/legacy';
 			errorCode = err.response?.status;
 			console.log('Error status:', err.response?.status);
 			console.log('Error data:', err.response?.data);
- 
+
 			// default error fallback
 			alertDialogTitle = strings.ErrorCreateRecordTitle;
 			alertDialogDescription = strings.ErrorCreateRecordDesc;
- 
+
 			if (err.response?.status === 400) {
 				const errorData = err.response?.data;
 				console.log('Error data:', errorData);
-				console.log('why')
+				console.log('why');
 				// Handle turnstile verification error
 				if (errorData?.verification) {
 					const verification = errorData.verification;
@@ -442,16 +430,16 @@ import { preventDefault } from 'svelte/legacy';
 				alertDialogTitle = strings.ErrorRateLimitTitle;
 				alertDialogDescription = strings.ErrorRateLimitDesc;
 			}
- 
+
 			isError = true;
 		}
 	};
- 
+
 	async function handleCopy(event) {
 		try {
 			// Request permission to access the clipboard
 			const permission = await navigator.permissions.query({ name: 'clipboard-write' });
- 
+
 			if (permission.state === 'granted' || permission.state === 'prompt') {
 				// Write to the clipboard
 				await navigator.clipboard.writeText(fullShortURL);
@@ -467,25 +455,23 @@ import { preventDefault } from 'svelte/legacy';
 			}
 		} catch (e) {
 			let error = String(e).toLowerCase();
- 
+
 			if (error.includes('denied')) alert('Clipboard access denied');
 			console.error('Failed to write to clipboard: ', error);
 		}
 	}
 	// const handleKeydown = (e) => {
-       
-    //     if (e.metaKey || e.ctrlKey || e.key === "/") {
-    //         urlInput.focus();
-    //     }
- 
- 
-    //     if (e.target === urlInput) {
-    //         return;
-    //     }
- 
- 
-    // };
- 
+
+	//     if (e.metaKey || e.ctrlKey || e.key === "/") {
+	//         urlInput.focus();
+	//     }
+
+	//     if (e.target === urlInput) {
+	//         return;
+	//     }
+
+	// };
+
 	// $: console.log('isDrawer open' + qrDrawerOpen);
 	// console.log(generateRandomURL());
 	// $: console.log(selected.value)
@@ -512,37 +498,55 @@ import { preventDefault } from 'svelte/legacy';
 	<!-- <title>
 		sptfy.in - free spotify link shortener
 	</title>	 -->
-	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:image" content="https://raw.githubusercontent.com/ayamkv/sptfyin/refs/heads/main/src/lib/images/og/og.png">
-	<meta name="twitter:creator" content="@sptfyin">
-	<meta name="twitter:description" content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸">
-	<meta name="twitter:title" content="sptfyin - free spotify link shortener">
-	<meta name="twitter:image:alt" content="sptfyin - free spotify link shortener">
-	
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta
+		name="twitter:image"
+		content="https://raw.githubusercontent.com/ayamkv/sptfyin/refs/heads/main/src/lib/images/og/og.png"
+	/>
+	<meta name="twitter:creator" content="@sptfyin" />
+	<meta
+		name="twitter:description"
+		content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸"
+	/>
+	<meta name="twitter:title" content="sptfyin - free spotify link shortener" />
+	<meta name="twitter:image:alt" content="sptfyin - free spotify link shortener" />
 
-    <!-- svelte-meta-tags is not yet Svelte 5-ready; inline basic SEO instead -->
-    <title>sptfy.in - free spotify link shortener</title>
-    <meta name="description" content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸" />
-    <link rel="canonical" href="https://www.sptfy.in/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.sptfy.in/" />
-    <meta property="og:title" content="free spotify link shortener" />
-    <meta property="og:description" content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸" />
-    <meta property="og:image" content="https://raw.githubusercontent.com/ayamkv/sptfyin/refs/heads/main/src/lib/images/og/og.png" />
+	<!-- svelte-meta-tags is not yet Svelte 5-ready; inline basic SEO instead -->
+	<title>sptfy.in - free spotify link shortener</title>
+	<meta
+		name="description"
+		content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸"
+	/>
+	<link rel="canonical" href="https://www.sptfy.in/" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://www.sptfy.in/" />
+	<meta property="og:title" content="free spotify link shortener" />
+	<meta
+		property="og:description"
+		content="make your Spotify URLs looks clean with sptfy.in, without ads, paywalls or other nonsense. just paste the link and you're done!😸"
+	/>
+	<meta
+		property="og:image"
+		content="https://raw.githubusercontent.com/ayamkv/sptfyin/refs/heads/main/src/lib/images/og/og.png"
+	/>
 </svelte:head>
 
-
 {#if browser}
- <script src="https://uptime.betterstack.com/widgets/announcement.js" data-id="207251" async="async" type="text/javascript"></script>
+	<script
+		src="https://uptime.betterstack.com/widgets/announcement.js"
+		data-id="207251"
+		async="async"
+		type="text/javascript"
+	></script>
 {/if}
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class="mt-0 flex md:min-h-[96vh] flex-col items-center justify-center border md:rounded-xl sm:pb-0 pb-12 bg-background/40 md:backdrop-blur-3xl"
+	class="mt-0 flex flex-col items-center justify-center border bg-background/50 pb-12 sm:pb-0 md:min-h-[96vh] md:rounded-xl"
 	data-vaul-drawer-wrapper
 >
 	<!-- Background decorations applied to the drawer wrapper -->
-	
+
 	<AlertDialog.Root bind:open={isError} class="transition-all">
 		<AlertDialog.Trigger></AlertDialog.Trigger>
 		<AlertDialog.Content>
@@ -554,15 +558,15 @@ import { preventDefault } from 'svelte/legacy';
 					></iconify-icon>
 				</div>
 				<AlertDialog.Title class="text-center">
-					{#if (errorMessage)}
-						{#each Object.entries(errorMessage) as [key, value]}
-						   {typeof value === 'object' ? JSON.stringify(value.message).slice(1, -1) : alertDialogTitle}
-					   
-					  {/each}
+					{#if errorMessage}
+						{#each Object.entries(errorMessage) as [key, value] (key)}
+							{typeof value === 'object'
+								? JSON.stringify(value.message).slice(1, -1)
+								: alertDialogTitle}
+						{/each}
 					{:else}
 						{@html alertDialogTitle}
 					{/if}
-					
 				</AlertDialog.Title>
 
 				<AlertDialog.Description>
@@ -581,23 +585,22 @@ for (var key in object) {
 
 					-->
 					<p class="mt-2 text-xs text-foreground/60">
-						{#if (errorMessage)}
-						 {#each Object.entries(errorMessage) as [key, value]}
-   
-						    <b>error id: </b>{typeof value === 'object' ? JSON.stringify(value.code) : value} <br>
-						       <b>error message: </b>{typeof value === 'object' ? JSON.stringify(value.message) : value}
-						   
-						  {/each}
-						<span><b>error code: </b> {errorCode ? errorCode : ''}</span>
+						{#if errorMessage}
+							{#each Object.entries(errorMessage) as [key, value] (key)}
+								<b>error id: </b>{typeof value === 'object' ? JSON.stringify(value.code) : value}
+								<br />
+								<b>error message: </b>{typeof value === 'object'
+									? JSON.stringify(value.message)
+									: value}
+							{/each}
+							<span><b>error code: </b> {errorCode ? errorCode : ''}</span>
 						{/if}
-						<br>
+						<br />
 					</p>
-					
-					
 				</AlertDialog.Description>
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
-    <AlertDialog.Action class="min-w-full font-semibold" onclick={() => (isError = false)}
+				<AlertDialog.Action class="min-w-full font-semibold" onclick={() => (isError = false)}
 					>okay, got it</AlertDialog.Action
 				>
 			</AlertDialog.Footer>
@@ -630,24 +633,20 @@ for (var key in object) {
 			Sptfy.in
 		</h1>
 		<h3
-			class="text-xs lg:text-lg mt-2 lg:mt-4
-		text-white
+			class="mt-2 text-xs text-white lg:mt-4
+		lg:text-lg
 		"
 		>
-		<div class="text-center">
-
-		
-		<span>
-		₍^. .^₎⟆ {formatNumber(totalLinkCreated)} links created</span>
-		<span class="block">
-		{formatNumber(totalClicks)} links clicked</span>
-		</div>
+			<div class="text-center">
+				<span> ₍^. .^₎⟆ {formatNumber(totalLinkCreated)} links created</span>
+				<span class="block"> {formatNumber(totalClicks)} links clicked</span>
+			</div>
 			<!-- by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a> -->
 		</h3>
 
 		{#if debugMode === 'true'}
 			<h3
-				class="text-lg mt-4 flex justify-center rounded-lg bg-orange-300 px-4 py-2 align-middle text-black"
+				class="mt-4 flex justify-center rounded-lg bg-orange-300 px-4 py-2 align-middle text-lg text-black"
 			>
 				Debug Mode is Active!
 			</h3>
@@ -665,7 +664,7 @@ for (var key in object) {
 					TOAST <Button
 						class="mt-2 pt-1"
 						variant="secondary"
-                        onclick={() => (debugToastVisible = !debugToastVisible)}
+						onclick={() => (debugToastVisible = !debugToastVisible)}
 					>
 						{debugToastVisible ? 'Hide' : 'Show'} Toast
 					</Button>
@@ -678,7 +677,7 @@ for (var key in object) {
 								<h4 class="text-lg">{group.title}</h4>
 								{#each group.buttons as btn}
 									<div class="mx-1 inline-block">
-                                        <Button class={btn.class} onclick={btn.onClick}>
+										<Button class={btn.class} onclick={btn.onClick}>
 											{btn.label}
 										</Button>
 									</div>
@@ -693,15 +692,15 @@ for (var key in object) {
 
 	<div
 		class="flex
-		lg:w-full
 		w-[23rem]
-		flex-col items-center
-		justify-center
+		flex-col
+		items-center justify-center
 		px-6
 		py-6
-
 		lg:ml-0
+
 		lg:mr-4
+		lg:w-full
 		lg:flex-row
 		lg:items-start
 		lg:px-0
@@ -711,137 +710,133 @@ for (var key in object) {
 		"
 	>
 		<!-- <div class="mobile flex flex-col gap-4 lg:gap-0"> -->
-			<Card.Root class="w-[23rem] md:h-[33rem]   lg:w-[25rem]">
-
-				<Card.Content class="grid gap-4 pb-0 pt-6">
-					<div>
-						<form onsubmit={preventDefault(handleSubmit)} class="flex w-[8rem] min-w-full flex-col">
-							<Label for="url" class="my-2">paste your long ass URL here</Label>
-							<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
-								<Input
-									type="url"
-									on:paste={handleInputOnPaste}
-									id="url"
-									placeholder="https://open.spotify.com/xxxx...."
-									bind:value={inputText}
-									class="placeholder:translate-y-[2px]"
-									required
-									autofocus
-								/>
-								<Button
-									type="button"
-									id="paste"
-									class="paste-button hover:bg-primary hover:text-black hover:from-[#afffdc]/20"
-									variant="ghost2"
-                                    onclick={() => handlePaste()}
-								>
-									<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
-									</iconify-icon>
-								</Button>
-							</div>
-
-							<Label for="domainSelect" class="my-2">select domain</Label>
-							<Select.Root
-								portal={null}
-								id="domainSelect"
-								name="domainSelect"
-								bind:selected
-								asChild
+		<Card.Root class="w-[23rem] md:h-[33rem]   lg:w-[25rem]">
+			<Card.Content class="grid gap-4 pb-0 pt-6">
+				<div>
+					<form onsubmit={preventDefault(handleSubmit)} class="flex w-[8rem] min-w-full flex-col">
+						<Label for="url" class="my-2">paste your long ass URL here</Label>
+						<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
+							<Input
+								type="url"
+								on:paste={handleInputOnPaste}
+								id="url"
+								placeholder="https://open.spotify.com/xxxx...."
+								bind:value={inputText}
+								class="placeholder:translate-y-[2px]"
+								required
+								autofocus
+							/>
+							<Button
+								type="button"
+								id="paste"
+								class="paste-button hover:bg-primary hover:from-[#afffdc]/20 hover:text-black"
+								variant="ghost2"
+								onclick={() => handlePaste()}
 							>
+								<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
+								</iconify-icon>
+							</Button>
+						</div>
+
+						<Label for="domainSelect" class="my-2">select domain</Label>
+						<Select.Root portal={null} id="domainSelect" name="domainSelect" bind:selected asChild>
 							<!-- bind:open={focus1} -->
-								<Select.Trigger class="">
-									<Select.Value placeholder="domain: sptfy.in" selected="sptfy.in" />
-								</Select.Trigger>
-								<Select.Content>
-									<Select.Group>
-										<Select.Label>select domain</Select.Label>
-										{#each domainList as domain}
-											<Select.Item
-												value={domain.value}
-												label={domain.label}
-                                                onclick={() => escapeSelectHandle()}
-												disabled={domain.disabled}>{domain.label}</Select.Item
-											>
-										{/each}
-									</Select.Group>
-								</Select.Content>
-								<Select.Input name="sptfy.in" />
-							</Select.Root>
-							<!-- <Separator class="my-2"/> -->
-
-							<Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
-								<Accordion.Item value="item-1" class>
-									<Accordion.Trigger>customize slug / back-half <i class="text-foreground/80">(optional)</i></Accordion.Trigger>
-									<Accordion.Content>
-										
-										<div
-											class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
+							<Select.Trigger class="">
+								<Select.Value placeholder="domain: sptfy.in" selected="sptfy.in" />
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									<Select.Label>select domain</Select.Label>
+									{#each domainList as domain}
+										<Select.Item
+											value={domain.value}
+											label={domain.label}
+											onclick={() => escapeSelectHandle()}
+											disabled={domain.disabled}>{domain.label}</Select.Item
 										>
-											<!-- custom url -->
-											<Input
-												minlength="4"
-												maxlength="80"
-												type="text"
-												id="short_id"
-												placeholder="coolplaylist4"
-												bind:value={() => customShortId, updateCustomShortId}
-											/>
-										</div>
-									</Accordion.Content>
-								</Accordion.Item>
-							</Accordion.Root>
+									{/each}
+								</Select.Group>
+							</Select.Content>
+							<Select.Input name="sptfy.in" />
+						</Select.Root>
+						<!-- <Separator class="my-2"/> -->
 
-							<div class="max-h-[64px] max-w-[300px]">
-								{#if !visible}
-									<Skeleton class="h-[64px] w-[300px]" />
-								{:else}
-									<Turnstile
-										class="relative inline-block h-[64px] w-[300px]"
-										siteKey={turnstileKey}
-										theme="dark"
-										retry="auto"
-										bind:reset
-										on:callback={(event) => {
-											turnstileResponse = event.detail.token;
-											//  validateToken(turnstileResponse)
-										}}
-									/>
-								{/if}
-							</div>
-							<div class="mt-4">
-								<Button
+						<Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
+							<Accordion.Item value="item-1" class>
+								<Accordion.Trigger
+									>customize slug / back-half <i class="text-foreground/80">(optional)</i
+									></Accordion.Trigger
+								>
+								<Accordion.Content>
+									<div
+										class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
+									>
+										<!-- custom url -->
+										<Input
+											minlength="4"
+											maxlength="80"
+											type="text"
+											id="short_id"
+											placeholder="coolplaylist4"
+											bind:value={() => customShortId, updateCustomShortId}
+										/>
+									</div>
+								</Accordion.Content>
+							</Accordion.Item>
+						</Accordion.Root>
+
+						<div class="max-h-[64px] max-w-[300px]">
+							{#if !visible}
+								<Skeleton class="h-[64px] w-[300px]" />
+							{:else}
+								<Turnstile
+									class="relative inline-block h-[64px] w-[300px]"
+									siteKey={turnstileKey}
+									theme="dark"
+									retry="auto"
+									bind:reset
+									on:callback={(event) => {
+										turnstileResponse = event.detail.token;
+										//  validateToken(turnstileResponse)
+									}}
+								/>
+							{/if}
+						</div>
+						<div class="mt-4">
+							<Button
 								class="submit-button align-center m-auto flex w-full flex-row items-center justify-center text-center
-								{loading ? 'bg-secondary text-foreground shadow-lg':''}
+								{loading ? 'bg-secondary text-foreground shadow-lg' : ''}
 								transition-all"
 								type="submit"
 								bind:this={theButton}
 								disabled={loading}
-								>
-								<div class="flex-none flex items-center justify-center pr-2">
-								<iconify-icon
-								icon={loading ? "lucide:loader" : "lucide:scissors"}
-								class="m-auto block h-[18px] w-[18px] text-center {loading ? 'animate-spin [transform-origin:center]' : ''}"
-								width="18"
-								alt="emoji"
-								></iconify-icon>
+							>
+								<div class="flex flex-none items-center justify-center pr-2">
+									<iconify-icon
+										icon={loading ? 'lucide:loader' : 'lucide:scissors'}
+										class="m-auto block h-[18px] w-[18px] text-center {loading
+											? 'animate-spin [transform-origin:center]'
+											: ''}"
+										width="18"
+										alt="emoji"
+									></iconify-icon>
 								</div>
-								<span>{loading ? "loading..." : "short It!"}</span>
-								</Button>
-							</div>
-						</form>
-						<div class="continue mt-4">
-							
-							<p class="text-xs text-foreground/60">
-								by continuing, you agree to 
-								<a href="/about/privacy" >privacy policy</a> and 
-								<a href="/about/terms" >terms of ethical use</a>.
-							</p>
+								<span>{loading ? 'loading...' : 'short It!'}</span>
+							</Button>
 						</div>
+					</form>
+					<div class="continue mt-4">
+						<p class="text-xs text-foreground/60">
+							by continuing, you agree to
+							<a href="/about/privacy">privacy policy</a> and
+							<a href="/about/terms">terms of ethical use</a>.
+						</p>
 					</div>
-				</Card.Content>
-				<Card.Footer class="flex-col"></Card.Footer>
-			</Card.Root>
-			<div class="right-cards flex flex-col w-[23rem] lg:w-[25rem] gap-6 ">
+				</div>
+			</Card.Content>
+			<Card.Footer class="flex-col"></Card.Footer>
+		</Card.Root>
+		<div class="right-cards flex w-[23rem] flex-col gap-6 lg:w-[25rem]">
 			<Card.Root class="w-[23rem]   lg:w-[25rem]">
 				<Card.Header>
 					<Card.Title>url preview</Card.Title>
@@ -851,13 +846,15 @@ for (var key in object) {
 							class="align-center flex w-full min-w-full items-center justify-between py-2 transition-all lg:h-28 lg:py-2"
 						>
 							<p class="break-all text-[1.44rem] font-semibold lg:text-5xl">
-							{selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`}/<span class="text-[#82d1af]">{shortIdDisplay}</span>
+								{selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`}/<span
+									class="text-[#82d1af]">{shortIdDisplay}</span
+								>
 							</p>
 							{#if fullShortURL}
 								<div class="buttons button-copy flex max-h-20 gap-1 lg:flex-col-reverse">
 									{#each actions as action, i}
 										<div
-											in:scaleWithEase|global={{ delay: (i + 1) * 100 }}
+											in:WithEase|global={{ delay: (i + 1) * 100 }}
 											out:fade|global={{ duration: 200 }}
 										>
 											<Button
@@ -921,7 +918,7 @@ for (var key in object) {
 											class="flex w-full flex-col items-center justify-center gap-2 align-middle lg:flex-row"
 										>
 											{#if isQrLoaded}
-												<div in:scaleWithEase>
+												<div in:WithEase>
 													<Button
 														variant="default"
 														on:click={(event) => {
@@ -935,7 +932,10 @@ for (var key in object) {
 																	const objectUrl = URL.createObjectURL(blob);
 																	const anchor = document.createElement('a');
 																	anchor.href = objectUrl;
-																	anchor.setAttribute('download', `sptfyin_qr_${shortIdDisplay}.png`);
+																	anchor.setAttribute(
+																		'download',
+																		`sptfyin_qr_${shortIdDisplay}.png`
+																	);
 																	anchor.click();
 																	anchor.remove();
 																	URL.revokeObjectURL(objectUrl);
@@ -980,7 +980,6 @@ for (var key in object) {
 							</Drawer.Root>
 						{/if}
 						<div class="scrollhere" bind:this={scrollHere}></div>
-						
 					</Card.Content>
 					<div class="disclaim">
 						<h4 class="bold text-md">🫡 disclaimer</h4>
@@ -990,21 +989,22 @@ for (var key in object) {
 							<i>(TL;DR: not officialy from spotify)</i>
 						</p>
 					</div>
-					<div class="footer text-left mt-4">
-						<p class="text-xs text-foreground/60 flex flex-row gap-4">
-							<a href="/about/terms">terms of ethical use</a> | <a href="/about/privacy">privacy policy</a> | <a href="/about/socials">socials / contact</a> | <a href="https://status.sptfy.in" target="_blank">server status</a>
+					<div class="footer mt-4 text-left">
+						<p class="flex flex-row gap-4 text-xs text-foreground/60">
+							<a href="/about/terms">terms of ethical use</a> |
+							<a href="/about/privacy">privacy policy</a>
+							| <a href="/about/socials">socials / contact</a> |
+							<a href="https://status.sptfy.in" target="_blank">server status</a>
 						</p>
 					</div>
 				</Card.Header>
 			</Card.Root>
-			
-					<Card.Root class="w-[23rem] lg:w-[25rem] lg:h-[9.8rem] h-[10rem] mb-4 md:mb-0">
+
+			<Card.Root class="mb-4 h-[10rem] w-[23rem] md:mb-0 lg:h-[9.8rem] lg:w-[25rem]">
 				<Card.Content>
-					<div class="pt-6 flex justify-between items-center">
+					<div class="flex items-center justify-between pt-6">
 						<h3 class="text-lg font-bold">🔗 recent created links</h3>
-						<Button variant="ghost2" on:click={() => goto('/recent')}>
-							view all
-						</Button>
+						<Button variant="ghost2" on:click={() => goto('/recent')}>view all</Button>
 					</div>
 					<div class="mt-2">
 						{#await records}
@@ -1013,9 +1013,12 @@ for (var key in object) {
 							<div class="max-h-fit break-all">
 								{#each records.slice(0, 2) as item}
 									<li class="align-center my-1 flex justify-between pl-1" in:slide|global>
-										<a href='/{item.id_url}' class="font-thin" target="_blank">
-											<span class="text-muted-foreground/70 px-0">
-												{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/</span><span>{item.id_url}</span>
+										<a href="/{item.id_url}" class="font-thin" target="_blank">
+											<span class="px-0 text-muted-foreground/70">
+												{item.subdomain === 'sptfy.in'
+													? 'sptfy.in'
+													: `${item.subdomain}.sptfy.in`}/</span
+											><span>{item.id_url}</span>
 										</a>
 										<span class="ml-2 text-muted-foreground/70">
 											{localizeDate(item.created)}
@@ -1033,12 +1036,11 @@ for (var key in object) {
 	</div>
 </div>
 
-
 <style>
 	:global(.betteruptime-announcement) {
 		border-radius: 0.7em !important;
 		background: rgba(20 17 34 / 0.43) !important;
-		color: #FFFFFF !important;
+		color: #ffffff !important;
 		font-size: 14px !important;
 		line-height: 1.5 !important;
 		padding: 14px 16px !important;
@@ -1064,7 +1066,7 @@ for (var key in object) {
 	}
 
 	:global(.betteruptime-announcement a) {
-		color: rgba(255 255 255 / 0.43) !important;	
+		color: rgba(255 255 255 / 0.43) !important;
 		outline: 1px solid rgba(255, 255, 255, 0.178) !important;
 		backdrop-filter: blur(10px) !important;
 		text-decoration: underline !important;

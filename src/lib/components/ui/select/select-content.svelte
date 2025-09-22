@@ -1,7 +1,7 @@
 <script>
-	import { Select as SelectPrimitive } from "bits-ui";
-	import { scale } from "svelte/transition";
-	import { cn, flyAndScale } from "$lib/utils.js";
+	import { Select as SelectPrimitive } from 'bits-ui';
+	import { scale } from 'svelte/transition';
+	import { cn, flyAndScale } from '$lib/utils.js';
 	/**
 	 * @typedef {Object} Props
 	 * @property {number} [sideOffset]
@@ -20,15 +20,14 @@
 		inTransitionConfig = undefined,
 		outTransition = scale,
 		outTransitionConfig = {
-		start: 0.95,
-		opacity: 0,
-		duration: 50,
-	},
+			start: 0.95,
+			opacity: 0,
+			duration: 50
+		},
 		class: className = undefined,
 		children,
 		...rest
 	} = $props();
-	
 </script>
 
 <SelectPrimitive.Content
@@ -38,7 +37,7 @@
 	{outTransitionConfig}
 	{sideOffset}
 	class={cn(
-		"relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover/90 backdrop-blur-md text-popover-foreground shadow-md outline-none",
+		'relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover/95 text-popover-foreground shadow-md outline-none',
 		className
 	)}
 	{...rest}
