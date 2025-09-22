@@ -1,0 +1,129 @@
+[
+	{
+		"id": "ocypvwxnoapmygg",
+		"listRule": null,
+		"viewRule": null,
+		"createRule": "",
+		"updateRule": "",
+		"deleteRule": null,
+		"name": "random_short",
+		"type": "base",
+		"fields": [
+			{
+				"autogeneratePattern": "[a-z0-9]{15}",
+				"hidden": false,
+				"id": "text3208210256",
+				"max": 15,
+				"min": 15,
+				"name": "id",
+				"pattern": "^[a-z0-9]+$",
+				"presentable": true,
+				"primaryKey": true,
+				"required": true,
+				"system": true,
+				"type": "text"
+			},
+			{
+				"exceptDomains": null,
+				"hidden": false,
+				"id": "uc5eiwqv",
+				"name": "from",
+				"onlyDomains": ["spotify.com", "open.spotify.com"],
+				"presentable": false,
+				"required": true,
+				"system": false,
+				"type": "url"
+			},
+			{
+				"autogeneratePattern": "",
+				"hidden": false,
+				"id": "pn0snlxg",
+				"max": 80,
+				"min": 4,
+				"name": "id_url",
+				"pattern": "",
+				"presentable": true,
+				"primaryKey": false,
+				"required": true,
+				"system": false,
+				"type": "text"
+			},
+			{
+				"hidden": false,
+				"id": "rdod4hzy",
+				"name": "enable",
+				"presentable": false,
+				"required": false,
+				"system": false,
+				"type": "bool"
+			},
+			{
+				"hidden": false,
+				"id": "sb6qndzg",
+				"max": null,
+				"min": 0,
+				"name": "utm_view",
+				"onlyInt": true,
+				"presentable": true,
+				"required": false,
+				"system": false,
+				"type": "number"
+			},
+			{
+				"hidden": true,
+				"id": "bool3938641544",
+				"name": "enable_analytics",
+				"presentable": false,
+				"required": false,
+				"system": false,
+				"type": "bool"
+			},
+			{
+				"hidden": false,
+				"id": "select3252000302",
+				"maxSelect": 1,
+				"name": "subdomain",
+				"presentable": false,
+				"required": false,
+				"system": false,
+				"type": "select",
+				"values": ["artist", "playlist", "play", "podcast", "album", "track", "sptfy.in", "profile"]
+			},
+			{
+				"cascadeDelete": false,
+				"collectionId": "_pb_users_auth_",
+				"hidden": false,
+				"id": "relation3182418120",
+				"maxSelect": 1,
+				"minSelect": 0,
+				"name": "user",
+				"presentable": false,
+				"required": false,
+				"system": false,
+				"type": "relation"
+			},
+			{
+				"hidden": false,
+				"id": "autodate2990389176",
+				"name": "created",
+				"onCreate": true,
+				"onUpdate": false,
+				"presentable": false,
+				"system": false,
+				"type": "autodate"
+			},
+			{
+				"hidden": true,
+				"id": "autodate3332085495",
+				"name": "updated",
+				"onCreate": true,
+				"onUpdate": true,
+				"presentable": false,
+				"system": false,
+				"type": "autodate"
+			}
+		],
+		"indexes": ["CREATE UNIQUE INDEX `idx_IUTYfz6` ON `random_short` (`id_url`)"],
+		"system": false
+	}
+]

@@ -83,7 +83,7 @@
 
 <div
 	class="scrollbar-gutter-stable md:highlightN fixed inset-0 flex
-    rounded-md bg-background/30 bg-gradient-to-br from-[#332c4e]/80 via-card/70 via-30% to-card text-card-foreground md:flex-row md:rounded-none md:bg-gradient-to-t md:via-card"
+    rounded-md bg-background/30 md:flex-row md:rounded-none"
 >
 	<!--- todo: fix the gradient, we need to hide the gradient in large displays like desktop using sm:, and show it in mobile.-->
 	<div
@@ -147,7 +147,7 @@
 		</nav>
 	</div>
 	<main
-		class="h-screen max-w-full flex-1 overflow-y-auto overflow-x-hidden selection:bg-primary selection:text-background sm:overflow-y-hidden md:rounded-lg md:py-4 md:pl-0 md:pr-4"
+		class="h-screen max-w-full flex-1 bg-card/95 overflow-y-auto overflow-x-hidden selection:bg-primary selection:text-background sm:overflow-y-hidden md:rounded-lg md:py-4 md:pl-0 md:pr-4"
 	>
 		{@render children?.()}
 	</main>

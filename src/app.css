@@ -189,9 +189,9 @@
 		--bg1: hsl(246 42% 8%); /* deep indigo */
 		--bg2: hsl(270 35% 12%); /* purple */
 		--bg3: hsl(210 40% 10%); /* blue-ish */
-		--blob-a: hsla(170 85.29% 60% / 0.35);
+		/* --blob-a: hsla(170 85.29% 60% / 0.35);
 		--blob-b: hsla(165 90.2% 60% / 0.73);
-		--blob-c: hsla(150 85.39% 65.1% / 0.66);
+		--blob-c: hsla(150 85.39% 65.1% / 0.66); */
 		--noise-opacity: 0.05; /* 0.03–0.08 usually good */
 	}
 	.dark:root {
@@ -200,9 +200,10 @@
 		--bg2: hsl(270 32% 10%);
 		--bg3: hsl(210 35% 9%);
 	}
+}
 
 	/* Base gradient layer (fixed) */
-	body.bg-decor-enabled {
+	/* body.bg-decor-enabled {
 		position: relative;
 		overflow-x: hidden;
 		background:
@@ -210,20 +211,20 @@
 			radial-gradient(900px 700px at 90% 20%, var(--bg3) 0%, transparent 60%),
 			linear-gradient(180deg, var(--bg1), var(--bg3));
 		background-attachment: fixed, fixed, fixed;
-	}
+	} */
 
 	/* Blurred organic blobs using pseudo-elements */
-	body.bg-decor-enabled::before,
+	/* body.bg-decor-enabled::before,
 	body.bg-decor-enabled::after {
 		content: '';
 		position: fixed;
-		inset: -20vmax; /* bleed out for smooth blur edges */
+		inset: -20vmax;
 		filter: blur(80px) saturate(120%);
 		pointer-events: none;
 		z-index: -2;
 		transform: translateZ(0);
-	}
-	body.bg-decor-enabled::before {
+	} */
+	/* body.bg-decor-enabled::before {
 		background:
 			radial-gradient(40vmax 30vmax at 10% 20%, var(--blob-a) 0%, transparent 70%),
 			radial-gradient(35vmax 28vmax at 80% 10%, var(--blob-b) 0%, transparent 70%),
@@ -236,8 +237,8 @@
 			radial-gradient(35vmax 30vmax at 85% 60%, var(--blob-a) 0%, transparent 70%);
 		opacity: 0.85;
 		animation: float-blobs-2 32s ease-in-out infinite alternate;
-	}
-
+	} */
+/* 
 	@keyframes float-blobs {
 		0% {
 			transform: translate3d(0, 0, 0) scale(1);
@@ -253,24 +254,24 @@
 		100% {
 			transform: translate3d(-2rem, 1.25rem, 0) scale(0.98);
 		}
-	}
+	} */
 
 	/* Subtle SVG noise layer (fixed). Component will render <svg.bg-noise/> */
-	.bg-noise {
+	/* .bg-noise {
 		position: fixed;
 		inset: 0;
 		z-index: -1;
 		pointer-events: none;
-		mix-blend-mode: overlay; /* try soft-light/normal/overlay per theme */
+		mix-blend-mode: overlay; 
 		opacity: var(--noise-opacity);
-	}
+	} */
 
 	/* Utility for solid panels replacing glass effect */
-	.solid-panel {
+	/* .solid-panel {
 		background: hsl(var(--card) / 0.95);
 		border: 1px solid hsl(var(--border) / 0.5);
 	}
-}
+} */
 
 @layer utilities {
 	.ss03 {
@@ -279,7 +280,7 @@
 }
 
 /* Scoped decorated surface styles to apply gradients + blurred blobs to a specific container */
-@layer utilities {
+/* @layer utilities {
 	.decorated-surface {
 		position: relative;
 		overflow: hidden;
@@ -288,7 +289,7 @@
 			radial-gradient(900px 700px at 90% 20%, var(--bg3) 0%, transparent 60%),
 			linear-gradient(180deg, var(--bg1), var(--bg3));
 		background-attachment: local, local, local;
-		isolation: isolate; /* keep pseudo layers contained */
+		isolation: isolate; 
 	}
 	.decorated-surface::before,
 	.decorated-surface::after {
@@ -317,4 +318,4 @@
 }
 
 @layer components {
-}
+} */

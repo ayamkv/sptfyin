@@ -1,5 +1,5 @@
 <script>
-	import * as Button from "$lib/components/ui/button/index.js";
+	import * as Button from '$lib/components/ui/button/index.js';
 	/**
 	 * @typedef {Object} Props
 	 * @property {import('svelte').Snippet} [children]

@@ -8,17 +8,15 @@
 	import { fade, slide } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
 	import { expoOut } from 'svelte/easing';
-	import { scaleWithEase } from '$lib/animations/customSpring';
 	import {
-		getRecords,
 		createRecord,
-		generateRandomURL,
+		getTotalClicks,
 		getRecentRecords,
-		validateToken,
-		getTotalClicks
+		generateRandomURL
 	} from '$lib/pocketbase';
 	// import { generateRandomURL } from "$lib/utils";
 	import { localizeDate, findUrl, createLoadObserver } from '$lib/utils';
+	import { WithEase } from '$lib/animations/customSpring';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
 	import * as Card from '$lib/components/ui/card';
@@ -27,13 +25,13 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Label } from '$lib/components/ui/label';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { Separator } from '$lib/components/ui/separator';
+
 	import * as Accordion from '$lib/components/ui/accordion';
 	import 'iconify-icon';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { strings } from '$lib/localization/languages/en.json';
 	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
+
 	import { toastGroups } from '$lib/debug';
 	import BackgroundNoise from '$lib/components/BackgroundNoise.svelte';
 
@@ -544,7 +542,7 @@
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class="mt-0 flex flex-col items-center justify-center border bg-background/90 pb-12 sm:pb-0 md:min-h-[96vh] md:rounded-xl"
+	class="mt-0 flex flex-col items-center justify-center border bg-background/50 pb-12 sm:pb-0 md:min-h-[96vh] md:rounded-xl"
 	data-vaul-drawer-wrapper
 >
 	<!-- Background decorations applied to the drawer wrapper -->
@@ -561,7 +559,7 @@
 				</div>
 				<AlertDialog.Title class="text-center">
 					{#if errorMessage}
-						{#each Object.entries(errorMessage) as [key, value]}
+						{#each Object.entries(errorMessage) as [key, value] (key)}
 							{typeof value === 'object'
 								? JSON.stringify(value.message).slice(1, -1)
 								: alertDialogTitle}
@@ -588,7 +586,7 @@ for (var key in object) {
 					-->
 					<p class="mt-2 text-xs text-foreground/60">
 						{#if errorMessage}
-							{#each Object.entries(errorMessage) as [key, value]}
+							{#each Object.entries(errorMessage) as [key, value] (key)}
 								<b>error id: </b>{typeof value === 'object' ? JSON.stringify(value.code) : value}
 								<br />
 								<b>error message: </b>{typeof value === 'object'

@@ -1,7 +1,7 @@
 <script>
-	import { Pagination as PaginationPrimitive } from "bits-ui";
-	import { cn } from "$lib/utils.js";
-	import { buttonVariants } from "$lib/components/ui/button/index.js";
+	import { Pagination as PaginationPrimitive } from 'bits-ui';
+	import { cn } from '$lib/utils.js';
+	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	/**
 	 * @typedef {Object} Props
 	 * @property {any} [class]
@@ -15,20 +15,19 @@
 	let {
 		class: className = undefined,
 		page = $bindable(),
-		size = "icon",
+		size = 'icon',
 		isActive = false,
 		children,
 		...rest
 	} = $props();
-	
 </script>
 
 <PaginationPrimitive.Page
 	bind:page
 	class={cn(
 		buttonVariants({
-			variant: isActive ? "outline" : "ghost",
-			size,
+			variant: isActive ? 'outline' : 'ghost',
+			size
 		}),
 		className
 	)}
