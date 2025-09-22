@@ -55,10 +55,28 @@
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
 	let reset = $state();
 	let preGeneratedUrlId = $state();
+	let lastCreatedShortId = $state();
+
+	// Domain selection must be defined before QR derivations
+	let selected = $state({ value: 'sptfy.in', label: 'default: sptfy.in/' });
+	const domainList = [
+		{ value: 'sptfy.in', label: 'sptfy.in' },
+		{ value: 'artist', label: 'artist.sptfy.in', disabled: false },
+		{ value: 'profile', label: 'profile.sptfy.in', disabled: false },
+		{ value: 'playlist', label: 'playlist.sptfy.in', disabled: false },
+		{ value: 'track', label: 'track.sptfy.in', disabled: false },
+		{ value: 'COMING SOON', label: '--- COMING SOON ---', disabled: true },
+		{ value: 'album', label: 'album.sptfy.in', disabled: true }
+	];
+	$effect(() => {
+		console.log('domain selected: ', selected);
+	});
 
 	// Make shortIdDisplay reactive to show either custom slug or generated URL
 	let shortIdDisplay = $derived(
-		customShortId && customShortId.length > 0 ? customShortId : preGeneratedUrlId || '****'
+		customShortId && customShortId.length > 0
+			? customShortId
+			: lastCreatedShortId || preGeneratedUrlId || '****'
 	);
 
 	// Reactive slug sanitization - automatically sanitizes customShortId when it changes
@@ -91,8 +109,11 @@
 
 		customShortId = sanitized;
 	}
+	let qrDomain = $derived(
+		selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`
+	);
 	let qrUrl = $derived(
-		`https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://sptfy.in/${shortIdDisplay}`
+		`https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://${qrDomain}/${shortIdDisplay}`
 	);
 	let inputText = $state(null);
 	let isError = $state(false);
@@ -315,22 +336,6 @@
 
 	let promiseResolve, promiseReject;
 
-	let selected = $state({ value: 'sptfy.in', label: 'default: sptfy.in' });
-	const domainList = [
-		{ value: 'sptfy.in', label: 'sptfy.in' },
-		{ value: 'artist', label: 'artist.sptfy.in', disabled: false },
-		{ value: 'profile', label: 'profile.sptfy.in', disabled: false },
-		{ value: 'playlist', label: 'playlist.sptfy.in', disabled: false },
-
-		{ value: 'track', label: 'track.sptfy.in', disabled: false },
-		{ value: 'COMING SOON', label: '--- COMING SOON ---', disabled: true },
-
-		{ value: 'album', label: 'album.sptfy.in', disabled: true }
-	];
-
-	$effect(() => {
-		console.log('domain selected: ', selected);
-	});
 	const protectedRoutes = ['recent', 'about', 'terms', 'privacy'];
 	const handleSubmit = async (e) => {
 		const promise = new Promise(function (resolve, reject) {
@@ -371,6 +376,7 @@
 			console.log('Record created');
 			inputText = '';
 			customShortId = '';
+			lastCreatedShortId = url_id;
 
 			toast.promise(promise, {
 				class: 'my-toast',
@@ -542,7 +548,7 @@
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class="mt-0 flex flex-col items-center justify-center border bg-background/50 pb-12 sm:pb-0 md:min-h-[96vh] md:rounded-xl"
+	class=" md:mt-0 flex flex-col items-center justify-center border bg-background/50 pb-0 md:pb-0 h-[85vh] lg:min-h-[96vh] overflow-auto  rounded-xl"
 	data-vaul-drawer-wrapper
 >
 	<!-- Background decorations applied to the drawer wrapper -->
@@ -574,15 +580,15 @@
 					<!-- iterate errorMessage
 					using something along the lines of
 					
-for (var key in object) {
-  if (object.hasOwnProperty(key)) {
-    alert(key); // 'a'
-    alert(object[key]); // 'hello'
-  }
-}   
-  in a svelte way 
-
-
+			for (var key in object) {
+			  if (object.hasOwnProperty(key)) {
+			    alert(key); // 'a'
+			    alert(object[key]); // 'hello'
+			  }
+			}   
+			  in a svelte way 
+			
+			
 					-->
 					<p class="mt-2 text-xs text-foreground/60">
 						{#if errorMessage}
@@ -625,7 +631,7 @@ for (var key in object) {
 		</Dialog.Content>
 	</Dialog.Root>
 
-	<div class="logo mt-[2em] flex flex-col items-center justify-center">
+	<div class="logo mt-[20em] md:mt-[2em] flex flex-col items-center justify-center">
 		<h1
 			class="ss03 font-jak-display text-2xl font-bold text-primary lg:block lg:text-8xl
 		"
@@ -738,36 +744,37 @@ for (var key in object) {
 							</Button>
 						</div>
 
-						<Label for="domainSelect" class="my-2">select domain</Label>
-						<Select.Root portal={null} id="domainSelect" name="domainSelect" bind:selected asChild>
-							<!-- bind:open={focus1} -->
-							<Select.Trigger class="">
-								<Select.Value placeholder="domain: sptfy.in" selected="sptfy.in" />
-							</Select.Trigger>
-							<Select.Content>
-								<Select.Group>
-									<Select.Label>select domain</Select.Label>
-									{#each domainList as domain}
-										<Select.Item
-											value={domain.value}
-											label={domain.label}
-											onclick={() => escapeSelectHandle()}
-											disabled={domain.disabled}>{domain.label}</Select.Item
-										>
-									{/each}
-								</Select.Group>
-							</Select.Content>
-							<Select.Input name="sptfy.in" />
-						</Select.Root>
+					
 						<!-- <Separator class="my-2"/> -->
 
 						<Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
 							<Accordion.Item value="item-1" class>
 								<Accordion.Trigger
-									>customize slug / back-half <i class="text-foreground/80">(optional)</i
-									></Accordion.Trigger
+									> <p>customize <i class="text-foreground/80">(optional)</i
+									></p></Accordion.Trigger
 								>
 								<Accordion.Content>
+									<div class="grid grid-cols-2 grid-rows-1 gap-1">
+									<Select.Root portal={null} id="domainSelect" name="domainSelect" bind:selected asChild>
+										<!-- bind:open={focus1} -->
+										<Select.Trigger class="">
+											<Select.Value placeholder="domain: sptfy.in/" selected="sptfy.in" />
+										</Select.Trigger>
+										<Select.Content>
+											<Select.Group>
+												<Select.Label>select domain :</Select.Label>
+												{#each domainList as domain}
+													<Select.Item
+														value={domain.value}
+														label='{domain.label}/'
+														onclick={() => escapeSelectHandle()}
+														disabled={domain.disabled}>{domain.label}</Select.Item
+													>
+												{/each}
+											</Select.Group>
+										</Select.Content>
+										<Select.Input name="sptfy.in" />
+									</Select.Root>
 									<div
 										class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
 									>
@@ -777,10 +784,11 @@ for (var key in object) {
 											maxlength="80"
 											type="text"
 											id="short_id"
-											placeholder="coolplaylist4"
+											placeholder="{shortIdDisplay}"
 											bind:value={() => customShortId, updateCustomShortId}
 										/>
 									</div>
+								</div>
 								</Accordion.Content>
 							</Accordion.Item>
 						</Accordion.Root>
@@ -870,6 +878,9 @@ for (var key in object) {
 							{/if}
 						</div>
 						{#if fullShortURL}
+						<div class="w-full grid grid-cols-2 gap-2">
+
+						
 							<Drawer.Root shouldScaleBackground bind:open={qrDrawerOpen}>
 								<Drawer.Trigger>
 									<div
@@ -896,10 +907,10 @@ for (var key in object) {
 											<div class="align-center flex flex-col items-center text-center">
 												<div class="relative-wrapper relative inline-block">
 													<img
-														class="w-[200px] min-w-[50%] rounded-lg shadow-lg lg:w-[350px] lg:min-w-[20%]"
+														class="w-[200px] min-w-[50%] rounded-b-lg shadow-lg lg:w-[350px] lg:min-w-[20%]"
 														onload={() => (isQrLoaded = true)}
 														transition:fade={{ duration: 1200 }}
-														src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=20&data=https://sptfy.in/{shortIdDisplay}"
+														src={qrUrl}
 														alt="QR Code"
 														height="350"
 														width="350"
@@ -951,7 +962,7 @@ for (var key in object) {
 															// your code here
 														}}
 														class="button-download-qr align-center m-auto mb-1 mt-1 flex
-													w-[200px] flex-row items-center justify-center text-center transition-all lg:w-[360px] "
+												w-[200px] flex-row items-center justify-center text-center transition-all lg:w-[360px] "
 													>
 														<div class="flex-none">
 															<iconify-icon
@@ -978,6 +989,19 @@ for (var key in object) {
 									</Drawer.Footer>
 								</Drawer.Content>
 							</Drawer.Root>
+							<Button variant="secondary" class="button-show-clicks w-full"
+							on:click={() => window.open(`${fullShortURL}/s`, '_blank')}>
+											<div class="flex-none">
+												<iconify-icon
+													icon="lucide:mouse-pointer-click"
+													class="m-auto block h-[18px] w-[18px] pr-6 text-center"
+													width="18"
+													alt="emoji"
+												></iconify-icon>
+											</div>
+											<span>Show Clicks</span>
+										</Button>
+						</div>
 						{/if}
 						<div class="scrollhere" bind:this={scrollHere}></div>
 					</Card.Content>
