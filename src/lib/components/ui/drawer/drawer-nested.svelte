@@ -1,5 +1,5 @@
 <script>
-	import { Drawer as DrawerPrimitive } from "vaul-svelte";
+	import { Drawer as DrawerPrimitive } from 'vaul-svelte';
 	/**
 	 * @typedef {Object} Props
 	 * @property {boolean} [shouldScaleBackground]
