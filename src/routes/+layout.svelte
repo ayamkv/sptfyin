@@ -89,7 +89,7 @@
 	<div
 		data-collapsed={isCollapsed}
 		class="highlightNav2 group fixed bottom-0 left-0 right-0 z-50 flex flex-col
-                   rounded-md border-t bg-card/95 data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto
+                    bg-card/95 data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto
                    md:min-h-screen md:w-24
                    md:bg-none md:shadow-none"
 	>

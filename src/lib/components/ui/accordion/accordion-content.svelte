@@ -19,7 +19,7 @@
 	{transitionConfig}
 	{...rest}
 >
-	<div class="px-2 pb-0 pt-0">
+	<div class="pb-0 pt-0">
 		{@render children?.()}
 	</div>
 </AccordionPrimitive.Content>

@@ -17,7 +17,7 @@
 		{transition}
 		{transitionConfig}
 		class={cn(
-			'highlightCard fixed left-[50%] top-[10%] z-50 grid w-full max-w-xs translate-x-[-50%] gap-4  rounded-lg border bg-card/95 p-6 text-card-foreground md:top-[30%] md:w-full md:max-w-lg',
+						"fixed left-[50%] top-[10%] md:top-[30%] z-50 grid w-full max-w-xs md:max-w-lg translate-x-[-50%]  gap-4 border bg-gradient-to-br from-[#332c4e]/90 via-card/20 via-30% to-card/60 text-card-foreground backdrop-blur-lg p-6 rounded-lg md:w-full highlightCard",
 			className
 		)}
 		{...rest}
