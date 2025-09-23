@@ -337,7 +337,7 @@
 
 	let promiseResolve, promiseReject;
 
-	const protectedRoutes = ['recent', 'about', 'terms', 'privacy'];
+	const protectedRoutes = ['recent', 'about', 'terms', 'privacy','login','prev','dash','debug','api','admin'];
 
 	// Realtime slug availability state and helpers
 	let slugAvailable = $state(null);
