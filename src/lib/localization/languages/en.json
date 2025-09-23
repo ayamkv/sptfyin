@@ -28,6 +28,10 @@
 		"SlugChecking": "checking availability…",
 		"SlugCheckFailed": "could not check availability",
 		"SlugAvailable": "available",
-		"SlugTaken": "already taken"
+		"SlugTaken": "already taken",
+		"ErrorDashboardURLRequiredTitle": "Um.. forgot something?",
+		"ErrorDashboardURLRequiredDesc": "Please enter a Spotify URL to shorten before creating the link.",
+		"ErrorDashboardCreationFailedTitle": "uh oh. can't create link",
+		"ErrorDashboardCreationFailedDesc": "Failed to create the link. Please try again or contact support if the issue persists."
 	}
 }
