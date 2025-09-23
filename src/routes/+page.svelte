@@ -548,7 +548,7 @@
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class=" md:mt-0 flex flex-col items-center justify-center border bg-background/50 pb-0 md:pb-0 h-[85vh] lg:min-h-[96vh] overflow-auto  rounded-xl"
+	class=" md:mt-0 flex flex-col items-center justify-center md:border bg-background/50 pb-0 md:pb-0 h-[85vh] lg:min-h-[96vh] overflow-auto lg:overflow-hidden rounded-2xl md:rounded-xl border-b-4"
 	data-vaul-drawer-wrapper
 >
 	<!-- Background decorations applied to the drawer wrapper -->
@@ -716,7 +716,7 @@
 		"
 	>
 		<!-- <div class="mobile flex flex-col gap-4 lg:gap-0"> -->
-		<Card.Root class="w-[23rem] md:h-[33rem]   lg:w-[25rem]">
+		<Card.Root class="w-[23rem] md:min-h-[22rem]   lg:w-[25rem]">
 			<Card.Content class="grid gap-4 pb-0 pt-6">
 				<div>
 					<form onsubmit={preventDefault(handleSubmit)} class="flex w-[8rem] min-w-full flex-col">
@@ -784,7 +784,7 @@
 											maxlength="80"
 											type="text"
 											id="short_id"
-											placeholder="{shortIdDisplay}"
+											placeholder={shortIdDisplay}
 											bind:value={() => customShortId, updateCustomShortId}
 										/>
 									</div>
