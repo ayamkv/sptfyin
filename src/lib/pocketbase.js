@@ -100,6 +100,20 @@ export async function deleteRecord(collection, id) {
 	}
 }
 
+export async function isSlugAvailable(id) {
+	try {
+		if (!id || !id.trim()) return false;
+		const pb = getPocketBaseInstance();
+		const records = await pb.collection('viewList').getList(1, 1, {
+			filter: `id_url='${id}'`
+		});
+		return records.items.length === 0;
+	} catch (err) {
+		console.error('Slug availability error', err);
+		throw err;
+	}
+}
+
 export async function generateRandomURL() {
 	try {
 		//start with 4 increase if needed
