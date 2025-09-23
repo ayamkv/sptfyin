@@ -12,7 +12,8 @@
 		createRecord,
 		getTotalClicks,
 		getRecentRecords,
-		generateRandomURL
+		generateRandomURL,
+		isSlugAvailable
 	} from '$lib/pocketbase';
 	// import { generateRandomURL } from "$lib/utils";
 	import { localizeDate, findUrl, createLoadObserver } from '$lib/utils';
@@ -337,6 +338,92 @@
 	let promiseResolve, promiseReject;
 
 	const protectedRoutes = ['recent', 'about', 'terms', 'privacy'];
+
+	// Realtime slug availability state and helpers
+	let slugAvailable = $state(null);
+	let slugChecking = $state(false);
+	let slugCheckError = $state('');
+	let lastSlugCheckId = 0;
+	let slugCheckTimeout;
+
+	let isCustomSlugProvided = $derived(
+		!!sanitizedCustomShortId && sanitizedCustomShortId.length > 0
+	);
+	let reservedSlug = $derived(
+		isCustomSlugProvided && protectedRoutes.includes(sanitizedCustomShortId)
+	);
+
+	let slugInputClass = $derived(
+		!isCustomSlugProvided
+			? ''
+			: sanitizedCustomShortId.length < 4 || reservedSlug || slugAvailable === false
+				? 'border-red-500 focus-visible:ring-red-500'
+				: slugChecking
+					? 'border-yellow-400 focus-visible:ring-yellow-400'
+					: slugAvailable === true
+						? 'border-emerald-400 focus-visible:ring-emerald-400'
+						: ''
+	);
+
+	let customSlugInvalidOrChecking = $derived(
+		isCustomSlugProvided &&
+			(sanitizedCustomShortId.length < 4 ||
+				reservedSlug ||
+				slugChecking ||
+				slugAvailable === false ||
+				!!slugCheckError)
+	);
+	let buttonDisabled = $derived(loading || customSlugInvalidOrChecking);
+
+	// Debounced availability check when sanitizedCustomShortId changes
+	$effect(() => {
+		const slug = sanitizedCustomShortId;
+
+		if (slugCheckTimeout) {
+			clearTimeout(slugCheckTimeout);
+			slugCheckTimeout = null;
+		}
+
+		slugCheckError = '';
+
+		if (!slug) {
+			slugAvailable = null;
+			slugChecking = false;
+			return;
+		}
+
+		if (slug.length < 4) {
+			slugAvailable = null;
+			slugChecking = false;
+			return;
+		}
+
+		if (protectedRoutes.includes(slug)) {
+			slugAvailable = false;
+			slugChecking = false;
+			return;
+		}
+
+		const runId = ++lastSlugCheckId;
+		slugChecking = true;
+		slugCheckTimeout = setTimeout(async () => {
+			try {
+				const available = await isSlugAvailable(slug);
+				if (runId !== lastSlugCheckId) return;
+				slugAvailable = available;
+			} catch (err) {
+				if (runId !== lastSlugCheckId) return;
+				console.error('slug check failed', err);
+				slugCheckError = 'check_failed';
+				slugAvailable = null;
+			} finally {
+				if (runId === lastSlugCheckId) {
+					slugChecking = false;
+				}
+			}
+		}, 350);
+	});
+
 	const handleSubmit = async (e) => {
 		const promise = new Promise(function (resolve, reject) {
 			promiseResolve = resolve;
@@ -548,7 +635,7 @@
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class=" md:mt-0 flex flex-col items-center justify-center md:border bg-background/50 pb-0 md:pb-0 h-[85vh] lg:min-h-[96vh] overflow-auto lg:overflow-hidden rounded-2xl md:rounded-xl border-b-4"
+	class=" flex h-[85vh] flex-col items-center justify-center overflow-auto rounded-2xl border-b-4 bg-background/50 pb-0 md:mt-0 md:rounded-xl md:border md:pb-0 lg:min-h-[96vh] lg:overflow-hidden"
 	data-vaul-drawer-wrapper
 >
 	<!-- Background decorations applied to the drawer wrapper -->
@@ -631,7 +718,7 @@
 		</Dialog.Content>
 	</Dialog.Root>
 
-	<div class="logo mt-[20em] md:mt-[2em] flex flex-col items-center justify-center">
+	<div class="logo mt-[20em] flex flex-col items-center justify-center md:mt-[2em]">
 		<h1
 			class="ss03 font-jak-display text-2xl font-bold text-primary lg:block lg:text-8xl
 		"
@@ -744,51 +831,74 @@
 							</Button>
 						</div>
 
-					
 						<!-- <Separator class="my-2"/> -->
 
 						<Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
 							<Accordion.Item value="item-1" class>
-								<Accordion.Trigger
-									> <p>customize <i class="text-foreground/80">(optional)</i
-									></p></Accordion.Trigger
+								<Accordion.Trigger>
+									<p>customize <i class="text-foreground/80">(optional)</i></p></Accordion.Trigger
 								>
 								<Accordion.Content>
 									<div class="grid grid-cols-2 grid-rows-1 gap-1">
-									<Select.Root portal={null} id="domainSelect" name="domainSelect" bind:selected asChild>
-										<!-- bind:open={focus1} -->
-										<Select.Trigger class="">
-											<Select.Value placeholder="domain: sptfy.in/" selected="sptfy.in" />
-										</Select.Trigger>
-										<Select.Content>
-											<Select.Group>
-												<Select.Label>select domain :</Select.Label>
-												{#each domainList as domain}
-													<Select.Item
-														value={domain.value}
-														label='{domain.label}/'
-														onclick={() => escapeSelectHandle()}
-														disabled={domain.disabled}>{domain.label}</Select.Item
-													>
-												{/each}
-											</Select.Group>
-										</Select.Content>
-										<Select.Input name="sptfy.in" />
-									</Select.Root>
-									<div
-										class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
-									>
-										<!-- custom url -->
-										<Input
-											minlength="4"
-											maxlength="80"
-											type="text"
-											id="short_id"
-											placeholder={shortIdDisplay}
-											bind:value={() => customShortId, updateCustomShortId}
-										/>
+										<Select.Root
+											portal={null}
+											id="domainSelect"
+											name="domainSelect"
+											bind:selected
+											asChild
+										>
+											<!-- bind:open={focus1} -->
+											<Select.Trigger class="">
+												<Select.Value placeholder="domain: sptfy.in/" selected="sptfy.in" />
+											</Select.Trigger>
+											<Select.Content>
+												<Select.Group>
+													<Select.Label>select domain :</Select.Label>
+													{#each domainList as domain}
+														<Select.Item
+															value={domain.value}
+															label="{domain.label}/"
+															onclick={() => escapeSelectHandle()}
+															disabled={domain.disabled}>{domain.label}</Select.Item
+														>
+													{/each}
+												</Select.Group>
+											</Select.Content>
+											<Select.Input name="sptfy.in" />
+										</Select.Root>
+										<div
+											class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
+										>
+											<!-- custom url -->
+											<Input
+												minlength="4"
+												maxlength="80"
+												type="text"
+												id="short_id"
+												placeholder={shortIdDisplay}
+												bind:value={customShortId}
+												on:input={(e) => updateCustomShortId(e.currentTarget.value)}
+												class={'placeholder:translate-y-[2px] ' + slugInputClass}
+											/>
+											{#if isCustomSlugProvided}
+												<p class="mt-1 w-full text-left text-xs">
+													{#if sanitizedCustomShortId.length < 4}
+														<span class="text-red-400">{strings.SlugMinChars}</span>
+													{:else if reservedSlug}
+														<span class="text-red-400">{strings.SlugReserved}</span>
+													{:else if slugChecking}
+														<span class="text-yellow-300">{strings.SlugChecking}</span>
+													{:else if slugCheckError}
+														<span class="text-yellow-300">{strings.SlugCheckFailed}</span>
+													{:else if slugAvailable === true}
+														<span class="text-emerald-400">{strings.SlugAvailable}</span>
+													{:else if slugAvailable === false}
+														<span class="text-red-400">{strings.SlugTaken}</span>
+													{/if}
+												</p>
+											{/if}
+										</div>
 									</div>
-								</div>
 								</Accordion.Content>
 							</Accordion.Item>
 						</Accordion.Root>
@@ -817,7 +927,7 @@
 								transition-all"
 								type="submit"
 								bind:this={theButton}
-								disabled={loading}
+								disabled={buttonDisabled}
 							>
 								<div class="flex flex-none items-center justify-center pr-2">
 									<iconify-icon
@@ -878,130 +988,131 @@
 							{/if}
 						</div>
 						{#if fullShortURL}
-						<div class="w-full grid grid-cols-2 gap-2">
-
-						
-							<Drawer.Root shouldScaleBackground bind:open={qrDrawerOpen}>
-								<Drawer.Trigger>
-									<div
-										in:slide|global={{ duration: 800, easing: expoOut }}
-										out:slide|global={{ duration: 800, easing: expoOut }}
-									>
-										<Button variant="secondary" class="button-show-qr w-full">
-											<div class="flex-none">
-												<iconify-icon
-													icon="lucide:qr-code"
-													class="m-auto block h-[18px] w-[18px] pr-6 text-center"
-													width="18"
-													alt="emoji"
-												></iconify-icon>
-											</div>
-											<span>Show QR</span>
-										</Button>
-									</div>
-								</Drawer.Trigger>
-								<Drawer.Content>
-									<Drawer.Header>
-										<Drawer.Title class="my-2 text-center">QR Code</Drawer.Title>
-										<Drawer.Description>
-											<div class="align-center flex flex-col items-center text-center">
-												<div class="relative-wrapper relative inline-block">
-													<img
-														class="w-[200px] min-w-[50%] rounded-b-lg shadow-lg lg:w-[350px] lg:min-w-[20%]"
-														onload={() => (isQrLoaded = true)}
-														transition:fade={{ duration: 1200 }}
-														src={qrUrl}
-														alt="QR Code"
-														height="350"
-														width="350"
-													/>
-													{#if !isQrLoaded}
-														<Skeleton
-															class="absolute left-0 top-0 h-[200px] w-[200px] lg:h-[350px] lg:w-[350px]"
-														/>
-													{/if}
-												</div>
-											</div>
-										</Drawer.Description>
-									</Drawer.Header>
-									<Drawer.Footer>
-										<Drawer.Close
-											class="flex w-full flex-col items-center justify-center gap-2 align-middle lg:flex-row"
+							<div class="grid w-full grid-cols-2 gap-2">
+								<Drawer.Root shouldScaleBackground bind:open={qrDrawerOpen}>
+									<Drawer.Trigger>
+										<div
+											in:slide|global={{ duration: 800, easing: expoOut }}
+											out:slide|global={{ duration: 800, easing: expoOut }}
 										>
-											{#if isQrLoaded}
-												<div in:WithEase>
-													<Button
-														variant="default"
-														on:click={(event) => {
-															qrDrawerOpen = false;
-															event.preventDefault();
-															async function downloadQRCode() {
-																try {
-																	toast.loading('Downloading QR code...');
-																	const response = await fetch(qrUrl);
-																	const blob = await response.blob();
-																	const objectUrl = URL.createObjectURL(blob);
-																	const anchor = document.createElement('a');
-																	anchor.href = objectUrl;
-																	anchor.setAttribute(
-																		'download',
-																		`sptfyin_qr_${shortIdDisplay}.png`
-																	);
-																	anchor.click();
-																	anchor.remove();
-																	URL.revokeObjectURL(objectUrl);
-																	toast.success('Download successful! 🥳', {
-																		description: 'The QR code has been saved to your device.'
-																	});
-																} catch (e) {
-																	console.error('Download failed', e);
-																	toast.error('Download failed.');
+											<Button variant="secondary" class="button-show-qr w-full">
+												<div class="flex-none">
+													<iconify-icon
+														icon="lucide:qr-code"
+														class="m-auto block h-[18px] w-[18px] pr-6 text-center"
+														width="18"
+														alt="emoji"
+													></iconify-icon>
+												</div>
+												<span>Show QR</span>
+											</Button>
+										</div>
+									</Drawer.Trigger>
+									<Drawer.Content>
+										<Drawer.Header>
+											<Drawer.Title class="my-2 text-center">QR Code</Drawer.Title>
+											<Drawer.Description>
+												<div class="align-center flex flex-col items-center text-center">
+													<div class="relative-wrapper relative inline-block">
+														<img
+															class="w-[200px] min-w-[50%] rounded-b-lg shadow-lg lg:w-[350px] lg:min-w-[20%]"
+															onload={() => (isQrLoaded = true)}
+															transition:fade={{ duration: 1200 }}
+															src={qrUrl}
+															alt="QR Code"
+															height="350"
+															width="350"
+														/>
+														{#if !isQrLoaded}
+															<Skeleton
+																class="absolute left-0 top-0 h-[200px] w-[200px] lg:h-[350px] lg:w-[350px]"
+															/>
+														{/if}
+													</div>
+												</div>
+											</Drawer.Description>
+										</Drawer.Header>
+										<Drawer.Footer>
+											<Drawer.Close
+												class="flex w-full flex-col items-center justify-center gap-2 align-middle lg:flex-row"
+											>
+												{#if isQrLoaded}
+													<div in:WithEase>
+														<Button
+															variant="default"
+															on:click={(event) => {
+																qrDrawerOpen = false;
+																event.preventDefault();
+																async function downloadQRCode() {
+																	try {
+																		toast.loading('Downloading QR code...');
+																		const response = await fetch(qrUrl);
+																		const blob = await response.blob();
+																		const objectUrl = URL.createObjectURL(blob);
+																		const anchor = document.createElement('a');
+																		anchor.href = objectUrl;
+																		anchor.setAttribute(
+																			'download',
+																			`sptfyin_qr_${shortIdDisplay}.png`
+																		);
+																		anchor.click();
+																		anchor.remove();
+																		URL.revokeObjectURL(objectUrl);
+																		toast.success('Download successful! 🥳', {
+																			description: 'The QR code has been saved to your device.'
+																		});
+																	} catch (e) {
+																		console.error('Download failed', e);
+																		toast.error('Download failed.');
+																	}
 																}
-															}
-															downloadQRCode();
-															// your code here
-														}}
-														class="button-download-qr align-center m-auto mb-1 mt-1 flex
+																downloadQRCode();
+																// your code here
+															}}
+															class="button-download-qr align-center m-auto mb-1 mt-1 flex
 												w-[200px] flex-row items-center justify-center text-center transition-all lg:w-[360px] "
-													>
-														<div class="flex-none">
-															<iconify-icon
-																icon="lucide:download"
-																class="m-auto block h-[15px] w-[15px] pr-5 text-center"
-																width="15"
-																alt="emoji"
-															></iconify-icon>
-														</div>
+														>
+															<div class="flex-none">
+																<iconify-icon
+																	icon="lucide:download"
+																	class="m-auto block h-[15px] w-[15px] pr-5 text-center"
+																	width="15"
+																	alt="emoji"
+																></iconify-icon>
+															</div>
 
-														<span>Download</span>
+															<span>Download</span>
+														</Button>
+													</div>
+												{/if}
+												<div in:slide={{ duration: 800 }} class="transition-all">
+													<Button
+														variant="secondary"
+														class="my-1 w-[200px] transition-all lg:w-[360px]"
+													>
+														Close
 													</Button>
 												</div>
-											{/if}
-											<div in:slide={{ duration: 800 }} class="transition-all">
-												<Button
-													variant="secondary"
-													class="my-1 w-[200px] transition-all lg:w-[360px]"
-												>
-													Close
-												</Button>
-											</div>
-										</Drawer.Close>
-									</Drawer.Footer>
-								</Drawer.Content>
-							</Drawer.Root>
-							<Button variant="secondary" class="button-show-clicks w-full"
-							on:click={() => window.open(`${fullShortURL}/s`, '_blank')}>
-											<div class="flex-none">
-												<iconify-icon
-													icon="lucide:mouse-pointer-click"
-													class="m-auto block h-[18px] w-[18px] pr-6 text-center"
-													width="18"
-													alt="emoji"
-												></iconify-icon>
-											</div>
-											<span>Show Clicks</span>
-										</Button>
-						</div>
+											</Drawer.Close>
+										</Drawer.Footer>
+									</Drawer.Content>
+								</Drawer.Root>
+								<Button
+									variant="secondary"
+									class="button-show-clicks w-full"
+									on:click={() => window.open(`${fullShortURL}/s`, '_blank')}
+								>
+									<div class="flex-none">
+										<iconify-icon
+											icon="lucide:mouse-pointer-click"
+											class="m-auto block h-[18px] w-[18px] pr-6 text-center"
+											width="18"
+											alt="emoji"
+										></iconify-icon>
+									</div>
+									<span>Show Clicks</span>
+								</Button>
+							</div>
 						{/if}
 						<div class="scrollhere" bind:this={scrollHere}></div>
 					</Card.Content>
