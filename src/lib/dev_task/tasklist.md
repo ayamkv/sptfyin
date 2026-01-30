@@ -35,7 +35,7 @@ With payment system(but thats for later)
 | Issue | Title | Status | Priority |
 |-------|-------|--------|----------|
 | #3 | Account and Link MGMT | In Progress | HIGH |
-| #11 | Allow spotify.link | Pending | MEDIUM |
+| #11 | Allow spotify.link | DONE | MEDIUM |
 | #16 | Move to Cloudflare D1/KV | Backlog | LOW |
 | #18 | Link preview | DONE (Microlink integrated) | - |
 | #21 | Advanced Analytics | Backlog | LOW |
@@ -208,28 +208,32 @@ With payment system(but thats for later)
 
 ---
 
-### **7. spotify.link URL Support (Issue #11)**
+### **7. spotify.link URL Support (Issue #11) - COMPLETED**
 
 **Problem:** Mobile Spotify share links now use shortened format (`spotify.link/xyz`) which redirects through `spotify.app.link` to `open.spotify.com`.
 
 **Backend**
 
-- [ ] Create URL expansion API endpoint (`/api/expand-url`)
-- [ ] Follow redirect chain: `spotify.link` → `spotify.app.link` → `open.spotify.com`
-- [ ] Validate final URL is legitimate Spotify URL before saving
+- [x] Create URL expansion API endpoint (`/api/expand-url`)
+- [x] Follow redirect chain: `spotify.link` → `spotify.app.link` → `open.spotify.com`
+- [x] Validate final URL is legitimate Spotify URL before saving
 
 **Frontend**
 
-- [ ] Update `findUrl()` in `src/lib/utils.js` to detect spotify.link domains
-- [ ] Auto-expand spotify.link URLs before saving to database
-- [ ] Show expanded URL in preview after expansion
+- [x] Update `findUrl()` in `src/lib/utils.js` to detect spotify.link domains
+- [x] Auto-expand spotify.link URLs before saving to database
+- [x] Show expanded URL in preview after expansion
+- [x] Add `isSpotifyShortLink()` helper function
+- [x] Add loading state ("Expanding link...") while resolving
+- [x] Disable input fields during expansion
+- [x] Toast notifications for success/failure
 
-**Technical Notes:**
+**Technical Implementation:**
 
-- Microlink API doesn't properly resolve spotify.link (stuck in 307 redirect loops)
-- Need server-side fetch to follow redirects
-- Security: Validate final URL matches `open.spotify.com` whitelist
-- PocketBase schema currently only allows `spotify.com` and `open.spotify.com` domains
+- Server-side redirect following with HEAD/GET fallback
+- Security: Whitelist validation (`open.spotify.com`, `spotify.com`)
+- Timeout protection (10s) and max redirects (10)
+- Works in both main page and dashboard (create + edit modes)
 
 ---
 
@@ -300,6 +304,7 @@ With payment system(but thats for later)
 - [x] Local PocketBase dev environment setup
 - [x] Security fix: CREATE endpoint now uses server-side user ID only
 - [x] Security fix: Allow owners to update subdomain field in pb_hooks
+- [x] **spotify.link support (Issue #11)** - Auto-expand mobile share links
 
 **Files Created:**
 
@@ -308,5 +313,12 @@ With payment system(but thats for later)
 - `pocketbase/pb_hooks/` - Copied from VPS backup
 - `pocketbase/pb_migrations/README.md` - Instructions for schema import
 - `src/routes/api/links/bulk/+server.js` - Bulk delete endpoint
+- `src/routes/api/expand-url/+server.js` - URL expansion for spotify.link
+
+**Files Modified for spotify.link:**
+
+- `src/lib/utils.js` - Added `isSpotifyShortLink()`, updated `findUrl()`
+- `src/routes/+page.svelte` - Main page expansion support
+- `src/routes/dash/links/+page.svelte` - Dashboard expansion support
 
 ---

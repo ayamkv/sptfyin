@@ -13,7 +13,7 @@
 	import { Plus, ExternalLink, Copy, Edit, Settings, Trash2 } from 'lucide-svelte';
 	import 'iconify-icon';
 	import { strings } from '$lib/localization/languages/en.json';
-	import { findUrl } from '$lib/utils';
+	import { findUrl, isSpotifyShortLink } from '$lib/utils';
 	import { generateRandomURL } from '$lib/pocketbase';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Switch } from '$lib/components/ui/switch';
@@ -79,6 +79,10 @@
 	let previewLoading = $state(false);
 	let editUrlPreview = $state(null);
 	let editPreviewLoading = $state(false);
+
+	// URL expansion state (for spotify.link URLs)
+	let isExpandingUrl = $state(false);
+	let isExpandingEditUrl = $state(false);
 
 	// Link list previews state
 	let linkPreviews = $state(new Map());
@@ -348,6 +352,67 @@
 		return 'unknown';
 	}
 
+	/**
+	 * Expand a shortened Spotify URL (spotify.link) to the full open.spotify.com URL
+	 * @param {string} url - The URL to expand
+	 * @param {boolean} isEdit - Whether this is for the edit form
+	 * @returns {Promise<string|null>} - The expanded URL or null if expansion failed
+	 */
+	async function expandSpotifyUrl(url, isEdit = false) {
+		if (!isSpotifyShortLink(url)) {
+			return url; // Not a short link, return as-is
+		}
+
+		console.log('[Dashboard] Expanding spotify.link URL:', url);
+
+		// Set loading state
+		if (isEdit) {
+			isExpandingEditUrl = true;
+		} else {
+			isExpandingUrl = true;
+		}
+
+		try {
+			const response = await fetch('/api/expand-url', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ url })
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				console.error('[Dashboard] URL expansion failed:', error);
+				toast.error('Failed to expand link', {
+					description: error.message || 'Could not resolve the Spotify link'
+				});
+				return null;
+			}
+
+			const data = await response.json();
+			console.log('[Dashboard] URL expanded:', data);
+
+			if (data.wasExpanded) {
+				toast.success('Link expanded!', {
+					description: 'Spotify short link resolved successfully'
+				});
+			}
+
+			return data.expanded;
+		} catch (error) {
+			console.error('[Dashboard] URL expansion error:', error);
+			toast.error('Failed to expand link', {
+				description: 'Network error while resolving the link'
+			});
+			return null;
+		} finally {
+			if (isEdit) {
+				isExpandingEditUrl = false;
+			} else {
+				isExpandingUrl = false;
+			}
+		}
+	}
+
 	// Handle paste functionality
 	async function handlePaste() {
 		try {
@@ -355,9 +420,21 @@
 
 			if (permission.state === 'granted' || permission.state === 'prompt') {
 				const text = await navigator.clipboard.readText();
-				const extractedUrl = findUrl(text);
+				let extractedUrl = findUrl(text);
 
 				if (extractedUrl) {
+					// Check if it's a spotify.link that needs expansion
+					if (isSpotifyShortLink(extractedUrl)) {
+						from = extractedUrl; // Show the short link while expanding
+						const expandedUrl = await expandSpotifyUrl(extractedUrl, false);
+						if (expandedUrl) {
+							extractedUrl = expandedUrl;
+						} else {
+							// Expansion failed, keep the original short link
+							return;
+						}
+					}
+
 					from = extractedUrl;
 					await fetchUrlPreview(extractedUrl, false);
 					toast.success('URL pasted!', {
@@ -393,8 +470,19 @@
 	async function handleInputPaste(event) {
 		try {
 			const text = await navigator.clipboard.readText();
-			const extractedUrl = findUrl(text);
+			let extractedUrl = findUrl(text);
 			if (extractedUrl) {
+				// Check if it's a spotify.link that needs expansion
+				if (isSpotifyShortLink(extractedUrl)) {
+					from = extractedUrl; // Show the short link while expanding
+					const expandedUrl = await expandSpotifyUrl(extractedUrl, false);
+					if (expandedUrl) {
+						extractedUrl = expandedUrl;
+					} else {
+						return; // Expansion failed
+					}
+				}
+
 				from = extractedUrl;
 				await fetchUrlPreview(extractedUrl, false);
 			}
@@ -410,9 +498,20 @@
 
 			if (permission.state === 'granted' || permission.state === 'prompt') {
 				const text = await navigator.clipboard.readText();
-				const extractedUrl = findUrl(text);
+				let extractedUrl = findUrl(text);
 
 				if (extractedUrl) {
+					// Check if it's a spotify.link that needs expansion
+					if (isSpotifyShortLink(extractedUrl)) {
+						editForm.from = extractedUrl; // Show the short link while expanding
+						const expandedUrl = await expandSpotifyUrl(extractedUrl, true);
+						if (expandedUrl) {
+							extractedUrl = expandedUrl;
+						} else {
+							return; // Expansion failed
+						}
+					}
+
 					editForm.from = extractedUrl;
 					await fetchUrlPreview(extractedUrl, true);
 					toast.success('URL pasted!', {
@@ -530,16 +629,30 @@
 	const protectedRoutes = ['recent', 'about', 'terms', 'privacy'];
 
 	// Handle URL input formatting
-	function handleUrlInput() {
+	async function handleUrlInput() {
 		if (from) {
-			const extractedUrl = findUrl(from);
+			let extractedUrl = findUrl(from);
 			if (extractedUrl) {
-				from = extractedUrl;
-				// Debounce URL preview to avoid too many API calls
-				clearTimeout(window.urlPreviewTimeout);
-				window.urlPreviewTimeout = setTimeout(() => {
-					fetchUrlPreview(extractedUrl, false);
-				}, 500);
+				// Check if it's a spotify.link that needs expansion
+				if (isSpotifyShortLink(extractedUrl)) {
+					from = extractedUrl; // Show the short link while expanding
+					// Debounce expansion to avoid too many API calls
+					clearTimeout(window.urlExpandTimeout);
+					window.urlExpandTimeout = setTimeout(async () => {
+						const expandedUrl = await expandSpotifyUrl(extractedUrl, false);
+						if (expandedUrl) {
+							from = expandedUrl;
+							fetchUrlPreview(expandedUrl, false);
+						}
+					}, 500);
+				} else {
+					from = extractedUrl;
+					// Debounce URL preview to avoid too many API calls
+					clearTimeout(window.urlPreviewTimeout);
+					window.urlPreviewTimeout = setTimeout(() => {
+						fetchUrlPreview(extractedUrl, false);
+					}, 500);
+				}
 			}
 		} else {
 			// Clear preview if URL is empty
@@ -549,16 +662,30 @@
 	}
 
 	// Handle edit URL input formatting
-	function handleEditUrlInput() {
+	async function handleEditUrlInput() {
 		if (editForm.from) {
-			const extractedUrl = findUrl(editForm.from);
+			let extractedUrl = findUrl(editForm.from);
 			if (extractedUrl) {
-				editForm.from = extractedUrl;
-				// Debounce URL preview to avoid too many API calls
-				clearTimeout(window.editUrlPreviewTimeout);
-				window.editUrlPreviewTimeout = setTimeout(() => {
-					fetchUrlPreview(extractedUrl, true);
-				}, 500);
+				// Check if it's a spotify.link that needs expansion
+				if (isSpotifyShortLink(extractedUrl)) {
+					editForm.from = extractedUrl; // Show the short link while expanding
+					// Debounce expansion to avoid too many API calls
+					clearTimeout(window.editUrlExpandTimeout);
+					window.editUrlExpandTimeout = setTimeout(async () => {
+						const expandedUrl = await expandSpotifyUrl(extractedUrl, true);
+						if (expandedUrl) {
+							editForm.from = expandedUrl;
+							fetchUrlPreview(expandedUrl, true);
+						}
+					}, 500);
+				} else {
+					editForm.from = extractedUrl;
+					// Debounce URL preview to avoid too many API calls
+					clearTimeout(window.editUrlPreviewTimeout);
+					window.editUrlPreviewTimeout = setTimeout(() => {
+						fetchUrlPreview(extractedUrl, true);
+					}, 500);
+				}
 			}
 		} else {
 			// Clear preview if URL is empty
@@ -1167,12 +1294,13 @@
 					<Input
 						id="url"
 						type="url"
-						placeholder="https://open.spotify.com/..."
+						placeholder={isExpandingUrl ? 'Expanding link...' : 'https://open.spotify.com/...'}
 						bind:value={from}
 						on:paste={handleInputPaste}
 						on:input={handleUrlInput}
 						required
 						class="flex-1"
+						disabled={isExpandingUrl}
 					/>
 					<Button
 						type="button"
@@ -1180,6 +1308,7 @@
 						onclick={handlePaste}
 						class="px-3"
 						title="Paste from clipboard"
+						disabled={isExpandingUrl}
 					>
 						<iconify-icon icon="lucide:clipboard" width="16"></iconify-icon>
 					</Button>
@@ -1598,9 +1727,12 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 								type="url"
 								bind:value={editForm.from}
 								on:input={handleEditUrlInput}
-								placeholder="https://open.spotify.com/..."
+								placeholder={isExpandingEditUrl
+									? 'Expanding link...'
+									: 'https://open.spotify.com/...'}
 								required
 								class="flex-1"
+								disabled={isExpandingEditUrl}
 							/>
 							<Button
 								type="button"
@@ -1608,6 +1740,7 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 								onclick={handleEditPaste}
 								class="px-3"
 								title="Paste from clipboard"
+								disabled={isExpandingEditUrl}
 							>
 								<iconify-icon icon="lucide:clipboard" width="16"></iconify-icon>
 							</Button>
@@ -1724,9 +1857,12 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 								type="url"
 								bind:value={editForm.from}
 								on:input={handleEditUrlInput}
-								placeholder="https://open.spotify.com/..."
+								placeholder={isExpandingEditUrl
+									? 'Expanding link...'
+									: 'https://open.spotify.com/...'}
 								required
 								class="flex-1"
+								disabled={isExpandingEditUrl}
 							/>
 							<Button
 								type="button"
@@ -1734,6 +1870,7 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 								onclick={handleEditPaste}
 								class="px-3"
 								title="Paste from clipboard"
+								disabled={isExpandingEditUrl}
 							>
 								<iconify-icon icon="lucide:clipboard" width="16"></iconify-icon>
 							</Button>

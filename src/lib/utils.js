@@ -159,6 +159,16 @@ export function findUrl(str) {
 	// handle concatenated URLs (urlurl case)
 	str = str.replace(/(https:\/\/[a-z]+\.spotify\.com\/[^?]+)\1/g, '$1');
 
+	// First, check for spotify.link or spotify.app.link URLs (mobile share links)
+	const shortLinkRegex = /(https?:\/\/(?:spotify\.link|spotify\.app\.link)\/[^\s]+)/i;
+	const shortMatch = str.match(shortLinkRegex);
+
+	if (shortMatch) {
+		let cleanedStr = shortMatch[1].trim();
+		console.log('Found spotify.link URL (needs expansion):', cleanedStr);
+		return cleanedStr;
+	}
+
 	// extract the first complete Spotify URL
 	const spotifyUrlRegex =
 		/(https:\/\/[a-z]+\.spotify\.com\/(?:playlist|artist|album|track|episode|show|user|listeningstats)\/[^\s]+?)(?:\s+https:\/\/|$)/;
@@ -172,6 +182,41 @@ export function findUrl(str) {
 
 	console.log('No URL match found');
 	return null;
+}
+
+/**
+ * Check if a URL is a shortened Spotify link that needs expansion
+ */
+export function isSpotifyShortLink(url) {
+	if (!url) return false;
+	try {
+		const parsed = new URL(url);
+		return (
+			parsed.hostname === 'spotify.link' ||
+			parsed.hostname === 'spotify.app.link' ||
+			parsed.hostname.endsWith('.spotify.link') ||
+			parsed.hostname.endsWith('.spotify.app.link')
+		);
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Check if a URL is a valid Spotify URL (expanded or direct)
+ */
+export function isValidSpotifyUrl(url) {
+	if (!url) return false;
+	try {
+		const parsed = new URL(url);
+		return (
+			parsed.hostname === 'open.spotify.com' ||
+			parsed.hostname === 'spotify.com' ||
+			parsed.hostname.endsWith('.spotify.com')
+		);
+	} catch {
+		return false;
+	}
 }
 
 export const createLoadObserver = (handler) => {
