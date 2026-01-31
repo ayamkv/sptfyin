@@ -202,8 +202,8 @@
 	}
 }
 
-	/* Base gradient layer (fixed) */
-	/* body.bg-decor-enabled {
+/* Base gradient layer (fixed) */
+/* body.bg-decor-enabled {
 		position: relative;
 		overflow-x: hidden;
 		background:
@@ -213,8 +213,8 @@
 		background-attachment: fixed, fixed, fixed;
 	} */
 
-	/* Blurred organic blobs using pseudo-elements */
-	/* body.bg-decor-enabled::before,
+/* Blurred organic blobs using pseudo-elements */
+/* body.bg-decor-enabled::before,
 	body.bg-decor-enabled::after {
 		content: '';
 		position: fixed;
@@ -224,7 +224,7 @@
 		z-index: -2;
 		transform: translateZ(0);
 	} */
-	/* body.bg-decor-enabled::before {
+/* body.bg-decor-enabled::before {
 		background:
 			radial-gradient(40vmax 30vmax at 10% 20%, var(--blob-a) 0%, transparent 70%),
 			radial-gradient(35vmax 28vmax at 80% 10%, var(--blob-b) 0%, transparent 70%),
@@ -256,8 +256,8 @@
 		}
 	} */
 
-	/* Subtle SVG noise layer (fixed). Component will render <svg.bg-noise/> */
-	/* .bg-noise {
+/* Subtle SVG noise layer (fixed). Component will render <svg.bg-noise/> */
+/* .bg-noise {
 		position: fixed;
 		inset: 0;
 		z-index: -1;
@@ -266,8 +266,8 @@
 		opacity: var(--noise-opacity);
 	} */
 
-	/* Utility for solid panels replacing glass effect */
-	/* .solid-panel {
+/* Utility for solid panels replacing glass effect */
+/* .solid-panel {
 		background: hsl(var(--card) / 0.95);
 		border: 1px solid hsl(var(--border) / 0.5);
 	}

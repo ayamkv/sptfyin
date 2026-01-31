@@ -206,7 +206,7 @@
 
 	// Fetch URL preview from Microlink API
 	async function fetchUrlPreview(url, isEdit = false, linkId = null) {
-		if (!url || !url.includes('open.spotify.com')) {
+		if (!url || !url.includes('open.spotify.com') || !url.includes('spotify.link')) {
 			return null;
 		}
 

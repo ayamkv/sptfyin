@@ -2,10 +2,11 @@ import { json, error } from '@sveltejs/kit';
 
 /**
  * Expands shortened Spotify URLs (spotify.link, spotify.app.link)
- * by following redirects to get the final open.spotify.com URL.
+ * using Microlink API to follow redirects and get the final open.spotify.com URL.
  *
- * This is needed because mobile Spotify share links use shortened URLs
- * that redirect through multiple hops before reaching the final destination.
+ * Two-step process:
+ * 1. Call Microlink with spotify.link URL -> get spotify.app.link from redirects
+ * 2. Call Microlink with spotify.app.link URL -> get final open.spotify.com URL
  */
 
 // Allowed source domains that we'll expand
@@ -14,11 +15,105 @@ const EXPANDABLE_DOMAINS = ['spotify.link', 'spotify.app.link'];
 // Allowed destination domains (whitelist for security)
 const ALLOWED_DESTINATIONS = ['open.spotify.com', 'spotify.com'];
 
-// Maximum redirects to follow (prevent infinite loops)
-const MAX_REDIRECTS = 10;
-
 // Request timeout in milliseconds
 const TIMEOUT_MS = 10000;
+
+// Microlink API base URL
+const MICROLINK_API = 'https://api.microlink.io';
+
+/**
+ * Check if a hostname matches any domain in the list
+ */
+function matchesDomain(hostname, domains) {
+	return domains.some((domain) => hostname === domain || hostname.endsWith('.' + domain));
+}
+
+/**
+ * Check if URL is a Spotify short link that needs expansion
+ */
+function isShortLink(url) {
+	try {
+		const parsed = new URL(url);
+		return matchesDomain(parsed.hostname, EXPANDABLE_DOMAINS);
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Check if URL is a valid Spotify destination URL
+ */
+function isSpotifyDestination(url) {
+	try {
+		const parsed = new URL(url);
+		return matchesDomain(parsed.hostname, ALLOWED_DESTINATIONS);
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Call Microlink API with timeout
+ */
+async function callMicrolink(url) {
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+	try {
+		const microlinkUrl = `${MICROLINK_API}/?url=${encodeURIComponent(url)}`;
+		console.log('[expand-url] Calling Microlink:', microlinkUrl);
+
+		const response = await fetch(microlinkUrl, {
+			signal: controller.signal
+		});
+
+		clearTimeout(timeout);
+
+		if (!response.ok) {
+			throw new Error(`Microlink API error: ${response.status}`);
+		}
+
+		const data = await response.json();
+
+		if (data.status !== 'success') {
+			throw new Error(`Microlink returned status: ${data.status}`);
+		}
+
+		return data;
+	} catch (e) {
+		clearTimeout(timeout);
+
+		if (e.name === 'AbortError') {
+			throw new Error('Microlink request timed out');
+		}
+
+		throw e;
+	}
+}
+
+/**
+ * Extract the best URL from Microlink response
+ * Priority: last redirect URL > data.url > original URL
+ */
+function extractUrlFromResponse(microlinkResponse, originalUrl) {
+	// Check redirects array for the last redirect
+	if (microlinkResponse.redirects && microlinkResponse.redirects.length > 0) {
+		const lastRedirect = microlinkResponse.redirects[microlinkResponse.redirects.length - 1];
+		if (lastRedirect.url) {
+			console.log('[expand-url] Found last redirect:', lastRedirect.url);
+			return lastRedirect.url;
+		}
+	}
+
+	// Fall back to data.url
+	if (microlinkResponse.data?.url) {
+		console.log('[expand-url] Using data.url:', microlinkResponse.data.url);
+		return microlinkResponse.data.url;
+	}
+
+	// Return original as last resort
+	return originalUrl;
+}
 
 export async function POST({ request }) {
 	const body = await request.json();
@@ -28,7 +123,7 @@ export async function POST({ request }) {
 		throw error(400, 'url is required');
 	}
 
-	// Validate the URL is from an expandable domain
+	// Validate URL format
 	let parsedUrl;
 	try {
 		parsedUrl = new URL(url);
@@ -36,43 +131,60 @@ export async function POST({ request }) {
 		throw error(400, 'Invalid URL format');
 	}
 
-	const isExpandable = EXPANDABLE_DOMAINS.some(
-		(domain) => parsedUrl.hostname === domain || parsedUrl.hostname.endsWith('.' + domain)
-	);
+	// If it's already a spotify.com URL, just return it
+	if (isSpotifyDestination(url)) {
+		return json({
+			expanded: url,
+			original: url,
+			wasExpanded: false
+		});
+	}
 
-	if (!isExpandable) {
-		// If it's already a spotify.com URL, just return it
-		const isAlreadySpotify = ALLOWED_DESTINATIONS.some(
-			(domain) => parsedUrl.hostname === domain || parsedUrl.hostname.endsWith('.' + domain)
-		);
-
-		if (isAlreadySpotify) {
-			return json({
-				expanded: url,
-				original: url,
-				wasExpanded: false
-			});
-		}
-
+	// Check if it's an expandable short link
+	if (!isShortLink(url)) {
 		throw error(400, 'URL is not from a supported Spotify domain');
 	}
 
 	try {
-		const expandedUrl = await followRedirects(url);
+		console.log('[expand-url] Starting expansion for:', url);
 
-		// Validate the final URL is a legitimate Spotify URL
-		const finalParsed = new URL(expandedUrl);
-		const isValidDestination = ALLOWED_DESTINATIONS.some(
-			(domain) => finalParsed.hostname === domain || finalParsed.hostname.endsWith('.' + domain)
-		);
+		// Step 1: First Microlink call to get redirect chain
+		const firstResponse = await callMicrolink(url);
+		let currentUrl = extractUrlFromResponse(firstResponse, url);
 
-		if (!isValidDestination) {
-			console.error('[expand-url] Unexpected destination:', expandedUrl);
-			throw error(400, 'Redirect did not lead to a valid Spotify URL');
+		// Check if we already got a Spotify destination URL
+		if (isSpotifyDestination(currentUrl)) {
+			console.log('[expand-url] Got destination URL on first call:', currentUrl);
+			return json({
+				expanded: currentUrl,
+				original: url,
+				wasExpanded: true
+			});
 		}
 
+		// Step 2: If still a short link, call Microlink again
+		if (isShortLink(currentUrl)) {
+			console.log('[expand-url] Still a short link, making second call:', currentUrl);
+
+			const secondResponse = await callMicrolink(currentUrl);
+			currentUrl = extractUrlFromResponse(secondResponse, currentUrl);
+
+			// Check data.url specifically for the final destination
+			if (secondResponse.data?.url && isSpotifyDestination(secondResponse.data.url)) {
+				currentUrl = secondResponse.data.url;
+			}
+		}
+
+		// Validate the final URL
+		if (!isSpotifyDestination(currentUrl)) {
+			console.error('[expand-url] Failed to resolve to Spotify URL. Final URL:', currentUrl);
+			throw error(400, 'Could not resolve to a valid Spotify URL');
+		}
+
+		console.log('[expand-url] Successfully expanded to:', currentUrl);
+
 		return json({
-			expanded: expandedUrl,
+			expanded: currentUrl,
 			original: url,
 			wasExpanded: true
 		});
@@ -84,123 +196,5 @@ export async function POST({ request }) {
 		}
 
 		throw error(500, `Failed to expand URL: ${e.message}`);
-	}
-}
-
-/**
- * Follow redirects manually to get the final URL
- * We can't use fetch's automatic redirect following because we need the final URL
- */
-async function followRedirects(url, redirectCount = 0) {
-	if (redirectCount >= MAX_REDIRECTS) {
-		throw new Error('Too many redirects');
-	}
-
-	const controller = new AbortController();
-	const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-	try {
-		const response = await fetch(url, {
-			method: 'HEAD', // Use HEAD to avoid downloading body
-			redirect: 'manual', // Don't auto-follow redirects
-			signal: controller.signal,
-			headers: {
-				// Mimic a browser to avoid being blocked
-				'User-Agent':
-					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-			}
-		});
-
-		clearTimeout(timeout);
-
-		// Check if this is a redirect
-		if (response.status >= 300 && response.status < 400) {
-			const location = response.headers.get('location');
-
-			if (!location) {
-				throw new Error('Redirect without Location header');
-			}
-
-			// Handle relative redirects
-			const nextUrl = new URL(location, url).href;
-
-			console.log(`[expand-url] Redirect ${redirectCount + 1}: ${url} -> ${nextUrl}`);
-
-			return followRedirects(nextUrl, redirectCount + 1);
-		}
-
-		// Check if we got a successful response
-		if (response.status >= 200 && response.status < 300) {
-			// Some servers return 200 with the final URL
-			return url;
-		}
-
-		// If HEAD fails, try GET (some servers don't support HEAD)
-		if (response.status === 405 || response.status === 404) {
-			return followRedirectsWithGet(url, redirectCount);
-		}
-
-		throw new Error(`Unexpected status: ${response.status}`);
-	} catch (e) {
-		clearTimeout(timeout);
-
-		if (e.name === 'AbortError') {
-			throw new Error('Request timed out');
-		}
-
-		throw e;
-	}
-}
-
-/**
- * Fallback: Follow redirects using GET request
- */
-async function followRedirectsWithGet(url, redirectCount = 0) {
-	if (redirectCount >= MAX_REDIRECTS) {
-		throw new Error('Too many redirects');
-	}
-
-	const controller = new AbortController();
-	const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-	try {
-		const response = await fetch(url, {
-			method: 'GET',
-			redirect: 'manual',
-			signal: controller.signal,
-			headers: {
-				'User-Agent':
-					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-			}
-		});
-
-		clearTimeout(timeout);
-
-		if (response.status >= 300 && response.status < 400) {
-			const location = response.headers.get('location');
-
-			if (!location) {
-				throw new Error('Redirect without Location header');
-			}
-
-			const nextUrl = new URL(location, url).href;
-			console.log(`[expand-url] GET Redirect ${redirectCount + 1}: ${url} -> ${nextUrl}`);
-
-			return followRedirectsWithGet(nextUrl, redirectCount + 1);
-		}
-
-		if (response.status >= 200 && response.status < 300) {
-			return url;
-		}
-
-		throw new Error(`Unexpected status: ${response.status}`);
-	} catch (e) {
-		clearTimeout(timeout);
-
-		if (e.name === 'AbortError') {
-			throw new Error('Request timed out');
-		}
-
-		throw e;
 	}
 }
