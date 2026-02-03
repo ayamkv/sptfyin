@@ -88,6 +88,10 @@
 	let linkPreviews = $state(new Map());
 	let previewsLoading = $state(new Set());
 
+	// View mode state (card or list)
+	let viewMode = $state('card'); // 'card' | 'list'
+	const VIEW_MODE_KEY = 'sptfyin_view_mode';
+
 	// Preview cache helpers (localStorage)
 	const PREVIEW_CACHE_KEY = 'sptfyin_preview_cache';
 	const PREVIEW_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in ms
@@ -179,6 +183,12 @@
 			screenWidth = window.innerWidth;
 		};
 		window.addEventListener('resize', handleResize);
+
+		// Load saved view mode preference
+		const savedViewMode = localStorage.getItem(VIEW_MODE_KEY);
+		if (savedViewMode === 'list' || savedViewMode === 'card') {
+			viewMode = savedViewMode;
+		}
 
 		// Pre-generate URL ID for faster creation
 		preGeneratedUrlId = await generateRandomURL();
@@ -1032,6 +1042,13 @@
 		}
 	}
 
+	// View mode toggle function
+	function toggleViewMode() {
+		viewMode = viewMode === 'card' ? 'list' : 'card';
+		localStorage.setItem(VIEW_MODE_KEY, viewMode);
+		console.log('[Dashboard] View mode:', viewMode);
+	}
+
 	function startEditing(item) {
 		editingItem = item;
 		editForm = {
@@ -1579,6 +1596,14 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 					</Label>
 				</div>
 				<div class="flex gap-2">
+					<Button
+						variant="outline"
+						onclick={toggleViewMode}
+						title={viewMode === 'card' ? 'Switch to list view' : 'Switch to card view'}
+					>
+						<iconify-icon icon={viewMode === 'card' ? 'lucide:list' : 'lucide:grid-2x2'} width="16"
+						></iconify-icon>
+					</Button>
 					<Button variant="outline" onclick={refreshLinks} class="gap-2">
 						<iconify-icon icon="lucide:refresh-cw" width="16"></iconify-icon>
 					</Button>
@@ -1641,17 +1666,169 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 						</Button>
 					</div>
 				{:else}
-					<div class="space-y-4 lg:grid lg:grid-cols-3 lg:gap-4 lg:space-y-0">
-						{#each items as item}
-							<div
-								class="highlightCard relative overflow-hidden rounded-lg border bg-background/60 p-4 {editMode &&
-								selectedItems.has(item.id)
-									? 'ring-2 ring-primary'
-									: ''}"
-							>
-								<!-- Bulk selection checkbox (visible in edit mode) -->
-								{#if editMode}
-									<div class="absolute left-2 top-2 z-20">
+					{#if viewMode === 'card'}
+						<!-- Card View -->
+						<div class="space-y-4 lg:grid lg:grid-cols-3 lg:gap-4 lg:space-y-0">
+							{#each items as item}
+								<div
+									class="highlightCard relative overflow-hidden rounded-lg border bg-background/60 p-4 {editMode &&
+									selectedItems.has(item.id)
+										? 'ring-2 ring-primary'
+										: ''}"
+								>
+									<!-- Bulk selection checkbox (visible in edit mode) -->
+									{#if editMode}
+										<div class="absolute left-2 top-2 z-20">
+											<label class="flex cursor-pointer items-center">
+												<input
+													type="checkbox"
+													checked={selectedItems.has(item.id)}
+													onchange={() => toggleSelectItem(item.id)}
+													class="h-4 w-4 cursor-pointer rounded border-2 border-muted-foreground bg-background accent-primary transition-colors hover:border-primary"
+												/>
+											</label>
+										</div>
+									{/if}
+
+									<!-- Accent color sidebar (behind content) -->
+									{#if linkPreviews.has(item.id) && linkPreviews.get(item.id)?.accentColor}
+										<div
+											class="-z-9 absolute bottom-0 right-0 top-0 w-1 blur-lg"
+											style="background-color: {linkPreviews.get(item.id).accentColor}; 
+                    box-shadow: -4px -2px 20px 5px {linkPreviews.get(item.id).accentColor};"
+										></div>
+									{/if}
+
+									<!-- Main content with preview (above accent bar) -->
+									{#if linkPreviews.has(item.id)}
+										{@const preview = linkPreviews.get(item.id)}
+										<div class="mb-3 flex gap-3">
+											<div class="z-10 h-12 w-12 flex-shrink-0 overflow-hidden rounded bg-muted">
+												{#if preview.image}
+													<!-- Image with loading skeleton -->
+													<div class="relative h-full w-full">
+														<!-- Skeleton background (always visible) -->
+														<div class="absolute inset-0 animate-pulse rounded bg-muted"></div>
+														<!-- Actual image (fades in when loaded) -->
+														<img
+															src={preview.image}
+															alt={preview.title}
+															class="relative h-full w-full object-cover opacity-0 outline outline-2 outline-muted transition-opacity duration-300"
+															onload={(e) => (e.target.style.opacity = '1')}
+															onerror={(e) => (e.target.style.opacity = '0')}
+														/>
+													</div>
+												{:else}
+													<div class="flex h-full w-full items-center justify-center bg-muted">
+														<iconify-icon icon="mdi:music" width="20" class="text-muted-foreground"
+														></iconify-icon>
+													</div>
+												{/if}
+											</div>
+											<div class="min-w-0 max-w-[calc(100%-6rem)] flex-1">
+												<div class="truncate text-sm font-medium">{preview.title}</div>
+												<div class="truncate text-xs text-muted-foreground">{preview.subtitle}</div>
+												<div class="text-xs capitalize text-muted-foreground">{preview.type}</div>
+											</div>
+										</div>
+									{:else}
+										<!-- Loading state -->
+										<div class="mb-2 flex gap-3">
+											<div class="h-12 w-12 animate-pulse rounded bg-muted">
+												<div class="relative h-full w-full">
+													<!-- Skeleton background (always visible) -->
+													<div class="absolute inset-0 animate-pulse rounded bg-muted"></div>
+												</div>
+											</div>
+											<div class="flex-1 space-y-2">
+												<div class="h-4 w-3/4 animate-pulse rounded bg-muted"></div>
+												<div class="h-3 w-1/2 animate-pulse rounded bg-muted"></div>
+												<div class="h-3 w-1/4 animate-pulse rounded bg-muted"></div>
+											</div>
+										</div>
+									{/if}
+
+									<div class="mb-2 flex items-center justify-between">
+										<div class="flex flex-1 items-center gap-2">
+											<div class="flex-1">
+												<span class="md:text-md z-10 font-mono text-sm text-foreground">
+													{item.subdomain === 'sptfy.in'
+														? 'sptfy.in'
+														: `${item.subdomain}.sptfy.in`}/{item.id_url}
+												</span>
+											</div>
+											<div class="flex gap-1">
+												{#if editMode}
+													<Button
+														variant="ghost"
+														size="md"
+														onclick={() => startEditing(item)}
+														class="h-6 w-6 p-0"
+														title="Edit link"
+													>
+														<Edit class="h-4 w-4" />
+													</Button>
+												{/if}
+												<Button
+													variant="ghost"
+													size="md"
+													onclick={() => copyLink(item)}
+													class="h-6 w-6 p-0"
+													title="Copy link"
+												>
+													<Copy class="h-4 w-4" />
+												</Button>
+												<Button
+													variant="ghost"
+													size="md"
+													onclick={() => openLink(item)}
+													class="h-6 w-6 p-0"
+													title="Open link"
+												>
+													<ExternalLink class="h-4 w-4" />
+												</Button>
+											</div>
+										</div>
+									</div>
+
+									<div
+										class="flex h-4 w-full items-center gap-2 truncate text-sm text-muted-foreground"
+									>
+										<span
+											class="inline-flex items-center whitespace-nowrap text-xs text-muted-foreground"
+										>
+											<iconify-icon icon="lucide:calendar" width="12"></iconify-icon>
+											<span class="pl-1">{new Date(item.created).toLocaleDateString()}</span>
+										</span>
+										<span class="text-xs text-muted-foreground"> • </span>
+										<span
+											class="inline-flex items-center whitespace-nowrap text-xs text-muted-foreground"
+											title="Total views"
+										>
+											<iconify-icon icon="lucide:eye" width="12"></iconify-icon>
+											<span class="pl-1">{item.utm_view || 0}</span>
+										</span>
+										<span class="text-xs text-muted-foreground"> • </span>
+										<span class="truncate text-xs text-muted-foreground">
+											{item.from}
+										</span>
+									</div>
+								</div>
+							{/each}
+						</div>
+					{:else}
+						<!-- List View -->
+						<div class="space-y-2">
+							{#each items as item}
+								{@const preview = linkPreviews.get(item.id)}
+								<div
+									class="flex items-center gap-3 rounded-lg border bg-background/60 p-3 transition-colors hover:bg-muted/30 {editMode &&
+									selectedItems.has(item.id)
+										? 'ring-2 ring-primary'
+										: ''}"
+								>
+									<!-- Checkbox (edit mode) -->
+									{#if editMode}
 										<label class="flex cursor-pointer items-center">
 											<input
 												type="checkbox"
@@ -1660,135 +1837,101 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 												class="h-4 w-4 cursor-pointer rounded border-2 border-muted-foreground bg-background accent-primary transition-colors hover:border-primary"
 											/>
 										</label>
-									</div>
-								{/if}
+									{/if}
 
-								<!-- Accent color sidebar (behind content) -->
-								{#if linkPreviews.has(item.id) && linkPreviews.get(item.id)?.accentColor}
-									<div
-										class="-z-9 absolute bottom-0 right-0 top-0 w-1 blur-lg"
-										style="background-color: {linkPreviews.get(item.id).accentColor}; 
-                    box-shadow: -4px -2px 20px 5px {linkPreviews.get(item.id).accentColor};"
-									></div>
-								{/if}
-
-								<!-- Main content with preview (above accent bar) -->
-								{#if linkPreviews.has(item.id)}
-									{@const preview = linkPreviews.get(item.id)}
-									<div class="mb-3 flex gap-3">
-										<div class="z-10 h-12 w-12 flex-shrink-0 overflow-hidden rounded bg-muted">
-											{#if preview.image}
-												<!-- Image with loading skeleton -->
-												<div class="relative h-full w-full">
-													<!-- Skeleton background (always visible) -->
-													<div class="absolute inset-0 animate-pulse rounded bg-muted"></div>
-													<!-- Actual image (fades in when loaded) -->
-													<img
-														src={preview.image}
-														alt={preview.title}
-														class="relative h-full w-full object-cover opacity-0 outline outline-2 outline-muted transition-opacity duration-300"
-														onload={(e) => (e.target.style.opacity = '1')}
-														onerror={(e) => (e.target.style.opacity = '0')}
-													/>
-												</div>
-											{:else}
-												<div class="flex h-full w-full items-center justify-center bg-muted">
-													<iconify-icon icon="mdi:music" width="20" class="text-muted-foreground"
-													></iconify-icon>
-												</div>
-											{/if}
-										</div>
-										<div class="min-w-0 max-w-[calc(100%-6rem)] flex-1">
-											<div class="truncate text-sm font-medium">{preview.title}</div>
-											<div class="truncate text-xs text-muted-foreground">{preview.subtitle}</div>
-											<div class="text-xs capitalize text-muted-foreground">{preview.type}</div>
-										</div>
-									</div>
-								{:else}
-									<!-- Loading state -->
-									<div class="mb-2 flex gap-3">
-										<div class="h-12 w-12 animate-pulse rounded bg-muted">
+									<!-- Thumbnail -->
+									<div class="h-10 w-10 flex-shrink-0 overflow-hidden rounded bg-muted">
+										{#if preview?.image}
 											<div class="relative h-full w-full">
-												<!-- Skeleton background (always visible) -->
 												<div class="absolute inset-0 animate-pulse rounded bg-muted"></div>
+												<img
+													src={preview.image}
+													alt={preview.title || 'Preview'}
+													class="relative h-full w-full object-cover opacity-0 transition-opacity duration-300"
+													onload={(e) => (e.target.style.opacity = '1')}
+													onerror={(e) => (e.target.style.opacity = '0')}
+												/>
 											</div>
-										</div>
-										<div class="flex-1 space-y-2">
-											<div class="h-4 w-3/4 animate-pulse rounded bg-muted"></div>
-											<div class="h-3 w-1/2 animate-pulse rounded bg-muted"></div>
-											<div class="h-3 w-1/4 animate-pulse rounded bg-muted"></div>
-										</div>
+										{:else if previewsLoading.has(item.id)}
+											<div class="h-full w-full animate-pulse bg-muted"></div>
+										{:else}
+											<div class="flex h-full w-full items-center justify-center bg-muted">
+												<iconify-icon icon="mdi:music" width="16" class="text-muted-foreground"
+												></iconify-icon>
+											</div>
+										{/if}
 									</div>
-								{/if}
 
-								<div class="mb-2 flex items-center justify-between">
-									<div class="flex flex-1 items-center gap-2">
-										<div class="flex-1">
-											<span class="md:text-md z-10 font-mono text-sm text-foreground">
-												{item.subdomain === 'sptfy.in'
-													? 'sptfy.in'
-													: `${item.subdomain}.sptfy.in`}/{item.id_url}
+									<!-- Short URL -->
+									<div class="min-w-[120px] max-w-[180px] flex-shrink-0">
+										<span class="font-mono text-sm text-foreground">
+											{item.subdomain === 'sptfy.in'
+												? ''
+												: `${item.subdomain}.`}sptfy.in/{item.id_url}
+										</span>
+									</div>
+
+									<!-- Title/Original URL (truncated) -->
+									<div class="hidden min-w-0 flex-1 md:block">
+										{#if preview?.title}
+											<span class="truncate text-sm text-muted-foreground" title={preview.title}>
+												{preview.title}
 											</span>
-										</div>
-										<div class="flex gap-1">
-											{#if editMode}
-												<Button
-													variant="ghost"
-													size="md"
-													onclick={() => startEditing(item)}
-													class="h-6 w-6 p-0"
-													title="Edit link"
-												>
-													<Edit class="h-4 w-4" />
-												</Button>
-											{/if}
+										{:else}
+											<span class="truncate text-xs text-muted-foreground" title={item.from}>
+												{item.from}
+											</span>
+										{/if}
+									</div>
+
+									<!-- Stats -->
+									<div class="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
+										<span class="flex items-center gap-1" title="Views">
+											<iconify-icon icon="lucide:eye" width="12"></iconify-icon>
+											{item.utm_view || 0}
+										</span>
+										<span class="flex items-center gap-1" title="Created">
+											<iconify-icon icon="lucide:calendar" width="12"></iconify-icon>
+											{new Date(item.created).toLocaleDateString()}
+										</span>
+									</div>
+
+									<!-- Actions -->
+									<div class="flex flex-shrink-0 gap-1">
+										{#if editMode}
 											<Button
 												variant="ghost"
-												size="md"
-												onclick={() => copyLink(item)}
-												class="h-6 w-6 p-0"
-												title="Copy link"
+												size="sm"
+												onclick={() => startEditing(item)}
+												class="h-8 w-8 p-0"
+												title="Edit link"
 											>
-												<Copy class="h-4 w-4" />
+												<Edit class="h-4 w-4" />
 											</Button>
-											<Button
-												variant="ghost"
-												size="md"
-												onclick={() => openLink(item)}
-												class="h-6 w-6 p-0"
-												title="Open link"
-											>
-												<ExternalLink class="h-4 w-4" />
-											</Button>
-										</div>
+										{/if}
+										<Button
+											variant="ghost"
+											size="sm"
+											onclick={() => copyLink(item)}
+											class="h-8 w-8 p-0"
+											title="Copy link"
+										>
+											<Copy class="h-4 w-4" />
+										</Button>
+										<Button
+											variant="ghost"
+											size="sm"
+											onclick={() => openLink(item)}
+											class="h-8 w-8 p-0"
+											title="Open link"
+										>
+											<ExternalLink class="h-4 w-4" />
+										</Button>
 									</div>
 								</div>
-
-								<div
-									class="flex h-4 w-full items-center gap-2 truncate text-sm text-muted-foreground"
-								>
-									<span
-										class="inline-flex items-center whitespace-nowrap text-xs text-muted-foreground"
-									>
-										<iconify-icon icon="lucide:calendar" width="12"></iconify-icon>
-										<span class="pl-1">{new Date(item.created).toLocaleDateString()}</span>
-									</span>
-									<span class="text-xs text-muted-foreground"> • </span>
-									<span
-										class="inline-flex items-center whitespace-nowrap text-xs text-muted-foreground"
-										title="Total views"
-									>
-										<iconify-icon icon="lucide:eye" width="12"></iconify-icon>
-										<span class="pl-1">{item.utm_view || 0}</span>
-									</span>
-									<span class="text-xs text-muted-foreground"> • </span>
-									<span class="truncate text-xs text-muted-foreground">
-										{item.from}
-									</span>
-								</div>
-							</div>
-						{/each}
-					</div>
+							{/each}
+						</div>
+					{/if}
 
 					<!-- Load More Button -->
 					{#if hasMore}
