@@ -88,6 +88,78 @@
 	let linkPreviews = $state(new Map());
 	let previewsLoading = $state(new Set());
 
+	// Preview cache helpers (localStorage)
+	const PREVIEW_CACHE_KEY = 'sptfyin_preview_cache';
+	const PREVIEW_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in ms
+
+	function getPreviewCache() {
+		try {
+			const cached = localStorage.getItem(PREVIEW_CACHE_KEY);
+			return cached ? JSON.parse(cached) : {};
+		} catch (e) {
+			console.warn('[Cache] Failed to read cache:', e);
+			return {};
+		}
+	}
+
+	function getCachedPreview(linkId, currentUrl) {
+		try {
+			const cache = getPreviewCache();
+			const entry = cache[linkId];
+			if (!entry) return null;
+
+			// Check if URL changed (invalidate)
+			if (entry.url !== currentUrl) return null;
+
+			// Check if TTL expired
+			if (Date.now() - entry.timestamp > PREVIEW_CACHE_TTL) return null;
+
+			return entry.preview;
+		} catch (e) {
+			console.warn('[Cache] Failed to get cached preview:', e);
+			return null;
+		}
+	}
+
+	function setCachedPreview(linkId, preview, url) {
+		try {
+			const cache = getPreviewCache();
+			cache[linkId] = {
+				preview,
+				url,
+				timestamp: Date.now()
+			};
+			localStorage.setItem(PREVIEW_CACHE_KEY, JSON.stringify(cache));
+		} catch (e) {
+			// Handle quota exceeded or other errors gracefully
+			if (e.name === 'QuotaExceededError') {
+				console.warn('[Cache] localStorage quota exceeded, clearing old cache');
+				clearAllPreviewCache();
+			} else {
+				console.warn('[Cache] Failed to cache preview:', e);
+			}
+		}
+	}
+
+	function clearCachedPreview(linkId) {
+		try {
+			const cache = getPreviewCache();
+			delete cache[linkId];
+			localStorage.setItem(PREVIEW_CACHE_KEY, JSON.stringify(cache));
+		} catch (e) {
+			console.warn('[Cache] Failed to clear cached preview:', e);
+		}
+	}
+
+	function clearAllPreviewCache() {
+		try {
+			localStorage.removeItem(PREVIEW_CACHE_KEY);
+			console.log('[Cache] Cleared all preview cache');
+		} catch (e) {
+			console.warn('[Cache] Failed to clear all cache:', e);
+		}
+	}
+
 	// Debug logging
 	console.log('[Dashboard] Initial data loaded:', {
 		user: user?.id || 'not logged in',
@@ -128,23 +200,47 @@
 	async function fetchLinkPreviews() {
 		console.log('[Dashboard] Fetching previews for', items.length, 'links');
 
-		// Batch process to avoid overwhelming the API
+		// First pass: load from cache, collect uncached items
+		const uncachedItems = [];
+		for (const item of items) {
+			if (!item.from) continue;
+
+			const isSpotifyUrl =
+				item.from.includes('open.spotify.com') || item.from.includes('spotify.link');
+			if (!isSpotifyUrl) continue;
+
+			const cached = getCachedPreview(item.id, item.from);
+			if (cached) {
+				// Use cached preview immediately
+				linkPreviews.set(item.id, cached);
+			} else {
+				uncachedItems.push(item);
+			}
+		}
+
+		// Trigger reactivity for cached previews
+		if (linkPreviews.size > 0) {
+			linkPreviews = new Map(linkPreviews);
+			console.log('[Dashboard] Loaded', linkPreviews.size, 'previews from cache');
+		}
+
+		// Second pass: fetch uncached items from API in batches
+		if (uncachedItems.length === 0) {
+			console.log('[Dashboard] All previews loaded from cache');
+			return;
+		}
+
+		console.log('[Dashboard] Fetching', uncachedItems.length, 'uncached previews from API');
+
 		const batchSize = 3;
-		for (let i = 0; i < items.length; i += batchSize) {
-			const batch = items.slice(i, i + batchSize);
+		for (let i = 0; i < uncachedItems.length; i += batchSize) {
+			const batch = uncachedItems.slice(i, i + batchSize);
 
 			// Process batch in parallel
-			await Promise.allSettled(
-				batch.map((item) => {
-					if (item.from && item.from.includes('open.spotify.com')) {
-						return fetchUrlPreview(item.from, false, item.id);
-					}
-					return Promise.resolve();
-				})
-			);
+			await Promise.allSettled(batch.map((item) => fetchUrlPreview(item.from, false, item.id)));
 
 			// Small delay between batches to be respectful to the API
-			if (i + batchSize < items.length) {
+			if (i + batchSize < uncachedItems.length) {
 				await new Promise((resolve) => setTimeout(resolve, 200));
 			}
 		}
@@ -258,6 +354,10 @@
 
 			if (data.status === 'success' && data.data) {
 				const preview = formatSpotifyPreview(data.data, url);
+				// Cache the preview for link list items
+				if (linkId) {
+					setCachedPreview(linkId, preview, url);
+				}
 				setState(false, preview);
 				return preview;
 			} else {
@@ -817,9 +917,6 @@
 			toast.success('Link Created!', {
 				description: `Successfully created ${rec.subdomain === 'sptfy.in' ? 'sptfy.in' : `${rec.subdomain}.sptfy.in`}/${rec.id_url}`
 			});
-
-			// Optionally refresh the list to ensure consistency
-			setTimeout(() => refreshLinks(), 1000);
 		} catch (err) {
 			console.error('Create link error:', err);
 			createDialogOpen = false; // Close dialog before showing error
@@ -867,6 +964,7 @@
 				totalItems = data.totalItems || 0;
 
 				// Clear existing previews and fetch new ones
+				clearAllPreviewCache(); // Clear localStorage cache
 				linkPreviews.clear();
 				linkPreviews = new Map();
 				previewsLoading.clear();
@@ -1000,9 +1098,10 @@
 			// Remove from local list
 			items = items.filter((item) => item.id !== itemToDelete.id);
 
-			// Clear preview cache for deleted item
+			// Clear preview cache for deleted item (in-memory and localStorage)
 			linkPreviews.delete(itemToDelete.id);
 			linkPreviews = new Map(linkPreviews);
+			clearCachedPreview(itemToDelete.id);
 
 			toast.success('Link deleted', {
 				description: `Removed ${itemToDelete.id_url}`
@@ -1164,6 +1263,15 @@
 			if (itemIndex !== -1) {
 				items[itemIndex] = updatedRecord;
 				items = [...items]; // Trigger reactivity
+			}
+
+			// Invalidate cache if URL changed and re-fetch preview
+			if (editForm.from !== editingItem.from) {
+				clearCachedPreview(editingItem.id);
+				linkPreviews.delete(editingItem.id);
+				linkPreviews = new Map(linkPreviews);
+				// Fetch new preview for updated URL
+				fetchUrlPreview(editForm.from, false, editingItem.id);
 			}
 
 			toast.success('Link updated!', {
