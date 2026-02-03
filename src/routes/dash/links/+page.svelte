@@ -1865,12 +1865,12 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 									</div>
 
 									<!-- Two-line content -->
-									<div class="flex min-w-0 flex-1 flex-col gap-0.5">
+									<div class="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
 										<!-- Line 1: Title + Type + Actions -->
 										<div class="flex items-center gap-2">
 											<!-- Title -->
 											<span
-												class="min-w-0 flex-1 truncate text-sm font-medium"
+												class="min-w-0 flex-1 truncate text-sm font-medium leading-tight"
 												title={preview?.title || item.from}
 											>
 												{#if preview?.title}
@@ -1920,11 +1920,11 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 											<iconify-icon
 												icon="lucide:corner-down-right"
 												width="12"
-												class="flex-shrink-0 opacity-50"
+												class="flex-shrink-0 self-center opacity-50"
 											></iconify-icon>
 
 											<!-- Short URL -->
-											<span class="truncate font-mono text-xs sm:text-sm">
+											<span class="truncate font-mono text-xs leading-none sm:text-sm">
 												{item.subdomain === 'sptfy.in'
 													? ''
 													: `${item.subdomain}.`}sptfy.in/{item.id_url}
@@ -1935,26 +1935,30 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 												variant="ghost"
 												size="sm"
 												onclick={() => copyLink(item)}
-												class="h-6 w-6 flex-shrink-0 p-0"
+												class="h-5 w-5 flex-shrink-0 p-0"
 												title="Copy link"
 											>
 												<Copy class="h-3 w-3" />
 											</Button>
 
-											<!-- Separator -->
-											<span class="hidden text-xs opacity-50 sm:inline">•</span>
+											<!-- Spacer to push stats to right -->
+											<div class="flex-1"></div>
 
-											<!-- Views -->
-											<span class="hidden items-center gap-1 text-xs sm:flex" title="Views">
-												<iconify-icon icon="lucide:eye" width="11"></iconify-icon>
-												{item.utm_view || 0}
-											</span>
-
-											<!-- Date (hide on xs) -->
-											<span class="hidden items-center gap-1 text-xs md:flex" title="Created">
-												<iconify-icon icon="lucide:calendar" width="11"></iconify-icon>
-												{new Date(item.created).toLocaleDateString()}
-											</span>
+											<!-- Stats (right aligned) -->
+											<div class="hidden items-center gap-3 text-xs sm:flex">
+												<span class="inline-flex items-center gap-1" title="Views">
+													<iconify-icon icon="lucide:eye" width="11" class="align-middle"
+													></iconify-icon>
+													<span class="leading-none">{item.utm_view || 0}</span>
+												</span>
+												<span class="hidden items-center gap-1 md:inline-flex" title="Created">
+													<iconify-icon icon="lucide:calendar" width="11" class="align-middle"
+													></iconify-icon>
+													<span class="leading-none"
+														>{new Date(item.created).toLocaleDateString()}</span
+													>
+												</span>
+											</div>
 										</div>
 									</div>
 								</div>
