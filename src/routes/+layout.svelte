@@ -147,7 +147,7 @@
 		</nav>
 	</div>
 	<main
-		class="h-screen max-w-full flex-1 bg-card/95 overflow-y-auto overflow-x-hidden selection:bg-primary selection:text-background sm:overflow-y-hidden md:rounded-lg md:py-4 md:pl-0 md:pr-4"
+		class="h-screen max-w-full flex-1 overflow-y-auto overflow-x-hidden bg-card/95 selection:bg-primary selection:text-background sm:overflow-y-hidden md:rounded-lg md:py-4 md:pl-0 md:pr-4"
 	>
 		{@render children?.()}
 	</main>

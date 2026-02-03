@@ -27,3 +27,9 @@ src/routes/debug/
 
 src/lib/dev_task/
 .roo/mcp.json
+
+# Local PocketBase
+pocketbase/pb_data/
+pocketbase/pocketbase
+pocketbase/pocketbase.exe
+bd.exe

@@ -16,7 +16,7 @@
 		isSlugAvailable
 	} from '$lib/pocketbase';
 	// import { generateRandomURL } from "$lib/utils";
-	import { localizeDate, findUrl, createLoadObserver } from '$lib/utils';
+	import { localizeDate, findUrl, createLoadObserver, isSpotifyShortLink } from '$lib/utils';
 	import { WithEase } from '$lib/animations/customSpring';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
@@ -130,6 +130,7 @@
 	let recent = [];
 	let urlInput;
 	let errorMessage = $state();
+	let isExpandingUrl = $state(false);
 	$effect(() => {
 		console.log('errorMessage var: ', errorMessage);
 	});
@@ -239,6 +240,56 @@
 		console.log(getBrowserName());
 	});
 
+	/**
+	 * Expand a shortened Spotify URL (spotify.link) to the full open.spotify.com URL
+	 * @param {string} url - The URL to expand
+	 * @returns {Promise<string|null>} - The expanded URL or null if expansion failed
+	 */
+	async function expandSpotifyUrl(url) {
+		if (!isSpotifyShortLink(url)) {
+			return url; // Not a short link, return as-is
+		}
+
+		console.log('[Main] Expanding spotify.link URL:', url);
+		isExpandingUrl = true;
+
+		try {
+			const response = await fetch('/api/expand-url', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ url })
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				console.error('[Main] URL expansion failed:', error);
+				toast.error('Failed to expand link', {
+					description: error.message || 'Could not resolve the Spotify link'
+				});
+				return null;
+			}
+
+			const data = await response.json();
+			console.log('[Main] URL expanded:', data);
+
+			if (data.wasExpanded) {
+				toast.success('Link expanded!', {
+					description: 'Spotify short link resolved successfully'
+				});
+			}
+
+			return data.expanded;
+		} catch (error) {
+			console.error('[Main] URL expansion error:', error);
+			toast.error('Failed to expand link', {
+				description: 'Network error while resolving the link'
+			});
+			return null;
+		} finally {
+			isExpandingUrl = false;
+		}
+	}
+
 	// const allowedLinkTypes = new Set(["text/plain", "text/uri-list"]);
 	async function handlePaste(event) {
 		try {
@@ -250,10 +301,26 @@
 				const text = await navigator.clipboard.readText();
 				let clipboardContent = text;
 
-				// console.log(clipboardContent);
-				// console.log(findUrl(clipboardContent));
+				let extractedUrl = findUrl(clipboardContent);
+
+				// Check if it's a spotify.link that needs expansion
+				if (extractedUrl && isSpotifyShortLink(extractedUrl)) {
+					inputText = extractedUrl; // Show the short link while expanding
+					setAccordionValue('item-1');
+					focus1 = true;
+
+					const expandedUrl = await expandSpotifyUrl(extractedUrl);
+					if (expandedUrl) {
+						inputText = expandedUrl;
+					} else {
+						// Expansion failed, clear the input
+						inputText = null;
+					}
+					return;
+				}
+
 				setTimeout(() => {
-					inputText = findUrl(clipboardContent);
+					inputText = extractedUrl;
 					setAccordionValue('item-1');
 
 					if (inputText === null) {
@@ -301,7 +368,28 @@
 		try {
 			const text = await navigator.clipboard.readText();
 			console.log(text);
-			inputText = findUrl(text);
+			let extractedUrl = findUrl(text);
+
+			// Check if it's a spotify.link that needs expansion
+			if (extractedUrl && isSpotifyShortLink(extractedUrl)) {
+				inputText = extractedUrl; // Show the short link while expanding
+				setAccordionValue('item-1');
+
+				const expandedUrl = await expandSpotifyUrl(extractedUrl);
+				if (expandedUrl) {
+					inputText = expandedUrl;
+				} else {
+					// Expansion failed, show error
+					inputText = null;
+					isError = true;
+					alertDialogTitle = strings.ErrorClipboardNoSpotifyURLTitle;
+					alertDialogDescription = 'Could not resolve the Spotify short link';
+					errorIcon = strings.ErrorClipboardNoSpotifyURLIcon;
+				}
+				return;
+			}
+
+			inputText = extractedUrl;
 			setTimeout(() => {
 				setAccordionValue('item-1');
 
@@ -337,7 +425,18 @@
 
 	let promiseResolve, promiseReject;
 
-	const protectedRoutes = ['recent', 'about', 'terms', 'privacy','login','prev','dash','debug','api','admin'];
+	const protectedRoutes = [
+		'recent',
+		'about',
+		'terms',
+		'privacy',
+		'login',
+		'prev',
+		'dash',
+		'debug',
+		'api',
+		'admin'
+	];
 
 	// Realtime slug availability state and helpers
 	let slugAvailable = $state(null);
@@ -813,11 +912,14 @@
 								type="url"
 								on:paste={handleInputOnPaste}
 								id="url"
-								placeholder="https://open.spotify.com/xxxx...."
+								placeholder={isExpandingUrl
+									? 'Expanding link...'
+									: 'https://open.spotify.com/xxxx....'}
 								bind:value={inputText}
 								class="placeholder:translate-y-[2px]"
 								required
 								autofocus
+								disabled={isExpandingUrl}
 							/>
 							<Button
 								type="button"
@@ -825,6 +927,7 @@
 								class="paste-button hover:bg-primary hover:from-[#afffdc]/20 hover:text-black"
 								variant="ghost2"
 								onclick={() => handlePaste()}
+								disabled={isExpandingUrl}
 							>
 								<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
 								</iconify-icon>

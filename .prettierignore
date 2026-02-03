@@ -2,3 +2,11 @@
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+
+# PocketBase auto-generated files
+pocketbase/pb_migrations/
+pocketbase/pb_data/
+
+# Beads issue tracker
+.beads/
+

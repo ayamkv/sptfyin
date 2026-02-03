@@ -28,6 +28,20 @@ MAIN FOCUS would be to implement Feature 1 & 2
 Our future plan will be to later have different tier of account,
 With payment system(but thats for later)
 
+---
+
+### **GitHub Issues Reference**
+
+| Issue | Title | Status | Priority |
+|-------|-------|--------|----------|
+| #3 | Account and Link MGMT | In Progress | HIGH |
+| #11 | Allow spotify.link | DONE | MEDIUM |
+| #16 | Move to Cloudflare D1/KV | Backlog | LOW |
+| #18 | Link preview | DONE (Microlink integrated) | - |
+| #21 | Advanced Analytics | Backlog | LOW |
+
+---
+
 ### **1. Account Features**
 
 **Backend**
@@ -53,12 +67,15 @@ With payment system(but thats for later)
   - [x] **TEST** Fetching all links for the logged-in user. (by filtering)
   - [x] Allow Logged In users to update link destination.
   - [x] Changing slug (check uniqueness).
+  - [x] **DELETE** link endpoint with ownership verification
 
 **Frontend**
 
 - [x] Dashboard page with list of user's created links.
 - [x] Edit button (inline edit or modal for destination + slug).
-- [ ] Pagination or infinite scroll if needed.
+- [x] Delete link functionality (in edit dialog, edit mode only)
+- [x] Pagination with "Load More" button (50 items per page)
+- [x] Quick stats display (view count badge on each card using `utm_view` field)
 
 **Additional implemented:**
 
@@ -126,7 +143,7 @@ With payment system(but thats for later)
 
 **Frontend**
 
-- [ ] “Import from Spotify” modal in dashboard.
+- [ ] "Import from Spotify" modal in dashboard.
 - [ ] List playlists with checkbox/select.
 - [ ] Button to generate short links for selected playlists.
 
@@ -137,7 +154,7 @@ With payment system(but thats for later)
 **Backend**
 
 - [ ] Public profile endpoint `/u/{username}`:
-  - [ ] Fetch/show user’s links.
+  - [ ] Fetch/show user's links.
   - [ ] Apply watermark flag for free tier.
 
 **Frontend**
@@ -155,15 +172,15 @@ With payment system(but thats for later)
   - [ ] Accept up to **3 links per request** for free plan users.
   - [ ] Reject if more than limit.
 
-- [ ] Create bulk delete API:
-  - [ ] Accept up to **5 link IDs per request**.
-  - [ ] Reject if more than limit.
+- [x] Create bulk delete API:
+  - [x] Accept up to **5 link IDs per request**.
+  - [x] Reject if more than limit.
 
 **Frontend**
 
 - [ ] Bulk add UI (form or CSV disabled for free tier).
-- [ ] Bulk delete UI with multi-select checkboxes.
-- [ ] Show error toast if user exceeds free-tier limit.
+- [x] Bulk delete UI with multi-select checkboxes (visible in edit mode).
+- [x] Show error toast if user exceeds free-tier limit.
 
 ---
 
@@ -173,14 +190,14 @@ With payment system(but thats for later)
 
 - [ ] Adjust date icon alignment to center with text
 - [ ] Add QR code button next to copy button for each link
-- [ ] Add delete button/icon in edit popup dialog
+- [x] ~~Add delete button/icon in edit popup dialog~~ **COMPLETED**
 - [ ] Add sorting system (Newest to Oldest, Slug A-Z, and vice versa)
 - [x] ~~Add thumbnail preview for each link using color stripe from thumbnail palette~~ **COMPLETED**
-- [ ] Implement infinite scroll for large link collections
+- [ ] Implement infinite scroll for large link collections (currently using Load More)
 
 **Navigation & Interaction**
 
-- [ ] Redirect to `/s/[slug]` route when clicking each link in dashboard
+- [ ] Redirect to `/[slug]/s` route when clicking stats icon on each link in dashboard
 - [x] ~~Integrate microlink.hq API for thumbnail generation~~ **COMPLETED**
 
 **Technical Notes**
@@ -188,5 +205,120 @@ With payment system(but thats for later)
 - [x] ~~Microlink.hq API integration for thumbnail previews~~ **COMPLETED**
 - [x] ~~Color palette extraction from thumbnails for visual indicators~~ **COMPLETED**
 - [ ] Infinite scroll implementation to replace current pagination
+
+---
+
+### **7. spotify.link URL Support (Issue #11) - COMPLETED**
+
+**Problem:** Mobile Spotify share links now use shortened format (`spotify.link/xyz`) which redirects through `spotify.app.link` to `open.spotify.com`.
+
+**Backend**
+
+- [x] Create URL expansion API endpoint (`/api/expand-url`)
+- [x] Follow redirect chain: `spotify.link` → `spotify.app.link` → `open.spotify.com`
+- [x] Validate final URL is legitimate Spotify URL before saving
+
+**Frontend**
+
+- [x] Update `findUrl()` in `src/lib/utils.js` to detect spotify.link domains
+- [x] Auto-expand spotify.link URLs before saving to database
+- [x] Show expanded URL in preview after expansion
+- [x] Add `isSpotifyShortLink()` helper function
+- [x] Add loading state ("Expanding link...") while resolving
+- [x] Disable input fields during expansion
+- [x] Toast notifications for success/failure
+
+**Technical Implementation:**
+
+- Server-side redirect following with HEAD/GET fallback
+- Security: Whitelist validation (`open.spotify.com`, `spotify.com`)
+- Timeout protection (10s) and max redirects (10)
+- Works in both main page and dashboard (create + edit modes)
+
+---
+
+### **8. Advanced Analytics (Issue #21) - Backlog**
+
+**Features Requested:**
+
+- [ ] Referrer tracking (where traffic is coming from)
+- [ ] Geo heatmaps (not just countries, but aggregated region/city)
+- [ ] UTM parameter support (to measure campaign success)
+- [ ] Click timeline graph (to see when spikes happen)
+- [ ] Export data to CSV
+
+---
+
+### **9. Cloudflare D1/KV Migration (Issue #16) - Backlog**
+
+**Goal:** Move from PocketBase to Cloudflare D1 for zero VM cost.
+
+**Phase 1 - Data Migration:**
+
+- [ ] Export `data.db` from `pb_data`
+- [ ] Use sqlite3 CLI to dump database
+- [ ] Clean up dump file (remove transactions if needed)
+- [ ] Import to D1 via wrangler CLI
+
+**Phase 2 - Code Rewrite:**
+
+- [ ] Rewrite all CRUD logic (consider Drizzle ORM)
+- [ ] Rethink Turnstile verification (currently via PB Hooks)
+- [ ] Update analytics tracking
+
+---
+
+### **10. Changelog / Version System - Backlog**
+
+**Goal:** Let visitors know what's new on the site.
+
+**Ideas:**
+
+- [ ] Public changelog page (`/changelog` or `/updates`)
+- [ ] Version number display in footer or about page
+- [ ] "What's New" modal/banner for returning users
+- [ ] Markdown-based changelog file for easy updates
+- [ ] Consider using GitHub releases as source of truth
+
+---
+
+### **11. Local Development Setup - COMPLETED**
+
+**Goal:** Proper local dev environment with isolated PocketBase instance.
+
+- [x] Create `pocketbase/` directory with hooks and migrations
+- [x] Create `start-dev.bat` for Windows with env vars
+- [x] Create `DEVELOPMENT.md` setup guide
+- [x] Configure Turnstile test keys for local dev
+- [x] Update `.gitignore` for pb_data and binaries
+- [x] Pin to PocketBase v0.23.12 to match production
+
+---
+
+### **Session Log - January 31, 2026**
+
+**Features Implemented:**
+
+- [x] Bulk delete UI (checkboxes on cards, Select All, max 5 limit)
+- [x] Bulk delete API endpoint (`/api/links/bulk`)
+- [x] Local PocketBase dev environment setup
+- [x] Security fix: CREATE endpoint now uses server-side user ID only
+- [x] Security fix: Allow owners to update subdomain field in pb_hooks
+- [x] **spotify.link support (Issue #11)** - Auto-expand mobile share links
+
+**Files Created:**
+
+- `DEVELOPMENT.md` - Local dev setup guide
+- `pocketbase/start-dev.bat` - Windows startup script with env vars
+- `pocketbase/pb_hooks/` - Copied from VPS backup
+- `pocketbase/pb_migrations/README.md` - Instructions for schema import
+- `src/routes/api/links/bulk/+server.js` - Bulk delete endpoint
+- `src/routes/api/expand-url/+server.js` - URL expansion for spotify.link
+
+**Files Modified for spotify.link:**
+
+- `src/lib/utils.js` - Added `isSpotifyShortLink()`, updated `findUrl()`
+- `src/routes/+page.svelte` - Main page expansion support
+- `src/routes/dash/links/+page.svelte` - Dashboard expansion support
 
 ---
