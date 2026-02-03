@@ -1817,19 +1817,19 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 							{/each}
 						</div>
 					{:else}
-						<!-- List View -->
+						<!-- List View (Two-line layout) -->
 						<div class="space-y-2">
 							{#each items as item}
 								{@const preview = linkPreviews.get(item.id)}
 								<div
-									class="flex items-center gap-3 rounded-lg border bg-background/60 p-3 transition-colors hover:bg-muted/30 {editMode &&
+									class="flex gap-2 rounded-lg border bg-background/60 p-2 transition-colors hover:bg-muted/30 sm:gap-3 sm:p-3 {editMode &&
 									selectedItems.has(item.id)
 										? 'ring-2 ring-primary'
 										: ''}"
 								>
 									<!-- Checkbox (edit mode) -->
 									{#if editMode}
-										<label class="flex cursor-pointer items-center">
+										<label class="flex flex-shrink-0 cursor-pointer items-center self-center">
 											<input
 												type="checkbox"
 												checked={selectedItems.has(item.id)}
@@ -1840,7 +1840,9 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 									{/if}
 
 									<!-- Thumbnail -->
-									<div class="h-10 w-10 flex-shrink-0 overflow-hidden rounded bg-muted">
+									<div
+										class="h-10 w-10 flex-shrink-0 self-center overflow-hidden rounded bg-muted sm:h-12 sm:w-12"
+									>
 										{#if preview?.image}
 											<div class="relative h-full w-full">
 												<div class="absolute inset-0 animate-pulse rounded bg-muted"></div>
@@ -1862,71 +1864,98 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 										{/if}
 									</div>
 
-									<!-- Short URL -->
-									<div class="min-w-[120px] max-w-[180px] flex-shrink-0">
-										<span class="font-mono text-sm text-foreground">
-											{item.subdomain === 'sptfy.in'
-												? ''
-												: `${item.subdomain}.`}sptfy.in/{item.id_url}
-										</span>
-									</div>
-
-									<!-- Title/Original URL (truncated) -->
-									<div class="hidden min-w-0 flex-1 md:block">
-										{#if preview?.title}
-											<span class="truncate text-sm text-muted-foreground" title={preview.title}>
-												{preview.title}
+									<!-- Two-line content -->
+									<div class="flex min-w-0 flex-1 flex-col gap-0.5">
+										<!-- Line 1: Title + Type + Actions -->
+										<div class="flex items-center gap-2">
+											<!-- Title -->
+											<span
+												class="min-w-0 flex-1 truncate text-sm font-medium"
+												title={preview?.title || item.from}
+											>
+												{#if preview?.title}
+													{preview.title}
+												{:else}
+													<span class="text-muted-foreground">{item.from}</span>
+												{/if}
 											</span>
-										{:else}
-											<span class="truncate text-xs text-muted-foreground" title={item.from}>
-												{item.from}
+
+											<!-- Type badge (hidden on mobile) -->
+											{#if preview?.type && preview.type !== 'unknown'}
+												<span
+													class="hidden flex-shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs capitalize text-muted-foreground sm:inline"
+												>
+													{preview.type}
+												</span>
+											{/if}
+
+											<!-- Actions: Edit + Open -->
+											<div class="flex flex-shrink-0 gap-0.5">
+												{#if editMode}
+													<Button
+														variant="ghost"
+														size="sm"
+														onclick={() => startEditing(item)}
+														class="h-7 w-7 p-0"
+														title="Edit link"
+													>
+														<Edit class="h-3.5 w-3.5" />
+													</Button>
+												{/if}
+												<Button
+													variant="ghost"
+													size="sm"
+													onclick={() => openLink(item)}
+													class="h-7 w-7 p-0"
+													title="Open link"
+												>
+													<ExternalLink class="h-3.5 w-3.5" />
+												</Button>
+											</div>
+										</div>
+
+										<!-- Line 2: Arrow + Link + Copy + Stats -->
+										<div class="flex items-center gap-1 text-muted-foreground sm:gap-2">
+											<!-- Arrow icon -->
+											<iconify-icon
+												icon="lucide:corner-down-right"
+												width="12"
+												class="flex-shrink-0 opacity-50"
+											></iconify-icon>
+
+											<!-- Short URL -->
+											<span class="truncate font-mono text-xs sm:text-sm">
+												{item.subdomain === 'sptfy.in'
+													? ''
+													: `${item.subdomain}.`}sptfy.in/{item.id_url}
 											</span>
-										{/if}
-									</div>
 
-									<!-- Stats -->
-									<div class="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
-										<span class="flex items-center gap-1" title="Views">
-											<iconify-icon icon="lucide:eye" width="12"></iconify-icon>
-											{item.utm_view || 0}
-										</span>
-										<span class="flex items-center gap-1" title="Created">
-											<iconify-icon icon="lucide:calendar" width="12"></iconify-icon>
-											{new Date(item.created).toLocaleDateString()}
-										</span>
-									</div>
-
-									<!-- Actions -->
-									<div class="flex flex-shrink-0 gap-1">
-										{#if editMode}
+											<!-- Copy button -->
 											<Button
 												variant="ghost"
 												size="sm"
-												onclick={() => startEditing(item)}
-												class="h-8 w-8 p-0"
-												title="Edit link"
+												onclick={() => copyLink(item)}
+												class="h-6 w-6 flex-shrink-0 p-0"
+												title="Copy link"
 											>
-												<Edit class="h-4 w-4" />
+												<Copy class="h-3 w-3" />
 											</Button>
-										{/if}
-										<Button
-											variant="ghost"
-											size="sm"
-											onclick={() => copyLink(item)}
-											class="h-8 w-8 p-0"
-											title="Copy link"
-										>
-											<Copy class="h-4 w-4" />
-										</Button>
-										<Button
-											variant="ghost"
-											size="sm"
-											onclick={() => openLink(item)}
-											class="h-8 w-8 p-0"
-											title="Open link"
-										>
-											<ExternalLink class="h-4 w-4" />
-										</Button>
+
+											<!-- Separator -->
+											<span class="hidden text-xs opacity-50 sm:inline">•</span>
+
+											<!-- Views -->
+											<span class="hidden items-center gap-1 text-xs sm:flex" title="Views">
+												<iconify-icon icon="lucide:eye" width="11"></iconify-icon>
+												{item.utm_view || 0}
+											</span>
+
+											<!-- Date (hide on xs) -->
+											<span class="hidden items-center gap-1 text-xs md:flex" title="Created">
+												<iconify-icon icon="lucide:calendar" width="11"></iconify-icon>
+												{new Date(item.created).toLocaleDateString()}
+											</span>
+										</div>
 									</div>
 								</div>
 							{/each}
