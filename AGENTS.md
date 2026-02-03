@@ -37,6 +37,70 @@ SvelteKit + Svelte 5 (runes), PocketBase, Tailwind CSS, Shadcn-Svelte components
 
 Note: dont forget to use Context7 if not sure.
 
+## Checkpoint Commits
+
+**Commit early, commit often.** Long coding sessions and context switching lead to forgotten commits. Use checkpoint commits to prevent lost work.
+
+**When to Commit:**
+
+- After completing any logical unit of work (even partial)
+- Before switching to a different issue/task
+- After 30+ minutes of active coding
+- When 5+ files have been modified
+- Before ending any session (mandatory)
+
+**Commit Message Prefixes:**
+
+- `wip: <description>` - Work in progress, can be squashed later
+- `checkpoint: <description>` - Savepoint, stable but incomplete
+- `feat: <description>` - New feature (complete)
+- `fix: <description>` - Bug fix
+- `chore: <description>` - Maintenance, config, dependencies
+- `refactor: <description>` - Code restructuring
+- `docs: <description>` - Documentation only
+
+**Example Checkpoint Flow:**
+
+```bash
+# After 30 mins of work on a feature
+git add -A && git commit -m "wip: add user profile component structure"
+
+# Before switching to fix a bug
+git add -A && git commit -m "checkpoint: profile page layout complete, styles pending"
+
+# When feature is done
+git add -A && git commit -m "feat: add user profile page with avatar upload"
+```
+
+## Merge and Release Strategy
+
+**Current Strategy (Large Feature Branch):**
+
+- Work on feature branches (e.g., `feature/link-management`)
+- Use release-based merges - merge when ready to ship
+- Main branch = production
+
+**Future Strategy (Smaller Features):**
+
+1. Create focused feature branch from main
+2. Make checkpoint commits as you go
+3. When complete → Create PR to main
+4. PR description = changelog entry
+5. Squash merge to main (clean history)
+6. Delete feature branch
+
+**What Triggers a Release:**
+
+- Merge/push to `main` branch triggers:
+  - GitHub Action deploys PocketBase to VPS
+  - Cloudflare Pages auto-deploys frontend
+- Both deploy together for consistency
+
+**PR Quality Gates (Automatic):**
+
+- `pnpm lint` must pass
+- `pnpm build` must pass
+
 ## Issue Tracking with Beads
 
 This project uses **beads** (bd) for issue tracking. Beads is a git-native, graph-based issue tracker designed for AI coding agents.
@@ -105,3 +169,29 @@ This project uses **beads** (bd) for issue tracking. Beads is a git-native, grap
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 - Always run `./bd.exe sync` before pushing to sync issue tracking with git
+
+## Deployment
+
+**Architecture:**
+
+- Frontend: SvelteKit on Cloudflare Pages (auto-deploys on push to main)
+- Backend: PocketBase in Docker on VPS (GitHub Action deploys on push to main)
+
+**Deployment is triggered by:**
+
+- Push to `main` branch
+- Changes to `pocketbase/pb_hooks/**`, `pocketbase/pb_migrations/**`, or `docker-compose.yml`
+
+**Manual Deployment (if needed):**
+
+1. Go to GitHub → Actions → "Deploy PocketBase" → Run workflow
+2. Or SSH to VPS and run:
+   ```bash
+   cd ~/pb-docker
+   git pull origin main
+   docker compose up -d
+   ```
+
+**VPS PocketBase Location:** `~/pb-docker/`
+
+**Health Check:** `curl http://localhost:8091/api/health`

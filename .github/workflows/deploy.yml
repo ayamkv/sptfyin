@@ -1,0 +1,51 @@
+# Deploy PocketBase to VPS
+#
+# Triggers on push to main when pocketbase files change.
+# Can also be triggered manually via workflow_dispatch.
+#
+# Required secrets:
+#   VPS_HOST     - VPS IP address or hostname
+#   VPS_USER     - SSH username
+#   VPS_SSH_KEY  - SSH private key for authentication
+
+name: Deploy PocketBase
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pocketbase/pb_hooks/**'
+      - 'pocketbase/pb_migrations/**'
+      - 'docker-compose.yml'
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+
+            echo "📦 Pulling latest changes..."
+            cd ~/pb-docker
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "🔄 Restarting PocketBase..."
+            docker compose up -d
+
+            echo "⏳ Waiting for container to be healthy..."
+            sleep 10
+
+            echo "✅ Health check..."
+            curl -sf http://localhost:8091/api/health || exit 1
+
+            echo "🎉 Deployment complete!"

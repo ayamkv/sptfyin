@@ -80,9 +80,9 @@
 		--radius: 0.5rem;
 	}
 	.dark {
-		--background: 249 30% 5%;
+		--background: 180 3% 6.5%;
 		--foreground: 0 0% 90%;
-		--card: 248 32% 10%;
+		--card: 255 8% 9.8%;
 		--card-foreground: 0 0% 90%;
 		--popover: 249 30% 5%;
 		--popover-foreground: 0 0% 90%;
@@ -138,24 +138,24 @@
 	}
 	.highlightCard {
 		box-shadow:
-			inset 0.1px 1px 0 0 #555068,
-			0 1px 20px 2px #090711b6,
+			inset 0.1px 1px 0 0 #5d5b65,
+			0 1px 20px 2px #0e0e10b6,
 			0 0 0 1px #ffffff2f,
-			0 2px 6px 3px #040e119c,
-			0 0 0px 7px #0e0d1a,
+			0 2px 6px 3px #0607079c,
+			0 0 0px 7px #121113,
 			0 0 2px 7.5px #ffffff12,
-			4px 4px 8.5px 5px #6554a825;
+			4px 4px 8.5px 5px #837c9e25;
 
 		.highlightNav2 {
 			box-shadow:
-				inset 0.1px 1px 0 0 #555068,
+				inset 0.1px 1px 0 0 #5d5c62,
 				0 1px 20px 2px #090711b6,
 				0 0 0 2px #ffffff2f;
 		}
 	}
 	.highlightNav {
 		box-shadow:
-			inset -0.5px 0 0 0 #555068,
+			inset -0.5px 0 0 0 #5b5a5e,
 			0 1px 20px 2px #090711b6;
 	}
 	.inverseShadow {
