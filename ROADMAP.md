@@ -3,7 +3,7 @@
 **Last Updated:** February 2025  
 **Status:** Approved - Ready for Implementation
 
-> **Payment Provider Decision:** Paddle (confirmed for Indonesia availability, merchant of record, subscription management)
+> **Payment Provider Decision:** Polar.sh (developer-friendly, Indonesia available via testimonials, flexible payouts without minimum thresholds, subscription management)
 
 ---
 
@@ -135,8 +135,8 @@ sptfy.in will transition from a completely free service to a **freemium model** 
   "subscription_status": "enum(active, cancelled, past_due, unpaid)",
   "subscription_start": "datetime",
   "subscription_end": "datetime",
-  "paddle_subscription_id": "string",
-  "paddle_customer_id": "string",
+  "polar_subscription_id": "string",
+  "polar_customer_id": "string",
   "custom_domains": "number",  // count of custom domains used
   "api_key": "string",  // encrypted, for Pro users
   "rate_limit_tier": "enum(guest, free, pro)"  // separate from plan for flexibility
@@ -153,32 +153,32 @@ sptfy.in will transition from a completely free service to a **freemium model** 
 }
 ```
 
-### Phase 2: Payment Integration (Paddle)
+### Phase 2: Payment Integration (Polar.sh)
 
-**Why Paddle?**
+**Why Polar.sh?**
 
-- ✅ Available in Indonesia
-- ✅ Handles tax/VAT compliance globally
-- ✅ Merchant of record (they handle chargebacks, disputes)
+- ✅ Developer-friendly with modern APIs
+- ✅ Indonesia availability (community-proven via testimonials)
+- ✅ Flexible payouts without minimum thresholds
 - ✅ Simple checkout experience
 - ✅ Webhook support for subscription events
 
 **Implementation:**
 
-1. Set up Paddle account and products (Monthly/Annual plans)
-2. Implement Paddle Checkout overlay/checkout.js
+1. Set up Polar.sh account and products (Monthly/Annual plans)
+2. Implement Polar.sh Checkout overlay/embed
 3. Webhook handlers for:
-   - `subscription.created`
+   - `checkout.created`
+   - `subscription.active`
    - `subscription.updated` (upgrades/downgrades)
-   - `subscription.cancelled`
-   - `payment.succeeded`
-   - `payment.failed`
+   - `subscription.canceled`
+   - `subscription.revoked`
 
 **Subscription Flow:**
 
 ```
 User clicks "Upgrade to Pro"
-→ Paddle Checkout (overlay or redirect)
+→ Polar.sh Checkout (overlay or redirect)
 → Payment success
 → Webhook updates user.plan_tier = "pro"
 → User redirected to success page
@@ -214,7 +214,7 @@ function checkPlanAccess(user, requiredTier) {
 **3. Rate Limiting by Tier:**
 
 - Implement tier-based rate limits in `pb_hooks/random.pb.js`
-- Use Paddle customer ID or user ID for tracking
+- Use Polar.sh customer ID or user ID for tracking
 
 ### Phase 4: Analytics Implementation
 
@@ -298,7 +298,7 @@ GET    /api/v1/analytics/:id  # Get analytics for link
 ### Phase 1: Foundation (Month 1-2)
 
 - [ ] Implement Guest plan restrictions (no dashboard, limited analytics)
-- [ ] Add Paddle integration for Pro subscriptions
+- [ ] Add Polar.sh integration for Pro subscriptions
 - [ ] Update user schema with plan fields
 - [ ] Implement tier-based rate limiting
 - [ ] Feature gate bulk operations (3 vs 50)
@@ -345,7 +345,7 @@ GET    /api/v1/analytics/:id  # Get analytics for link
 **Risks & Solutions:**
 
 1. **Stripe not available in Indonesia**
-   - ✅ Mitigated: Using Paddle (available in Indonesia)
+   - ✅ Mitigated: Using Polar.sh (Indonesia-proven via community)
 
 2. **Users angry about free tier restrictions**
    - Solution: Grandfather existing links, only apply to new
@@ -353,7 +353,7 @@ GET    /api/v1/analytics/:id  # Get analytics for link
    - Offer "early adopter" discount for first 100 Pro users
 
 3. **Payment processing issues**
-   - Solution: Paddle handles disputes/compliance
+   - Solution: Polar.sh has responsive support and modern infrastructure
    - Backup: Consider LemonSqueezy as fallback
 
 4. **Technical complexity of feature gating**
@@ -377,7 +377,7 @@ GET    /api/v1/analytics/:id  # Get analytics for link
 
 1. **Review & approve this roadmap**
 2. **Create beads issues for implementation phases**
-3. **Set up Paddle account and product configuration**
+3. **Set up Polar.sh account and product configuration**
 4. **Design UI for plan selection and upgrade prompts**
 5. **Begin Phase 1 development** (Guest plan restrictions)
 
