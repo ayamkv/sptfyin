@@ -105,6 +105,62 @@ Only allowed for:
 - `pnpm lint` must pass
 - `pnpm build` must pass
 
+## Pull Request Workflow
+
+**When to Create a PR:**
+
+- Feature is complete and tested locally
+- All quality gates pass (`pnpm lint`, `pnpm build`)
+- Ready for review or merge
+- NOT for work-in-progress (use feature branches with checkpoint commits instead)
+
+**PR Title Format:**
+
+Use the same prefixes as commit messages:
+
+- `feat: add user profile page`
+- `fix: resolve login redirect issue`
+- `chore: update dependencies`
+
+**PR Description Template:**
+
+```markdown
+## Summary
+
+Brief description of what this PR does and why.
+
+## Changes
+
+- Change 1
+- Change 2
+- Change 3
+
+## Testing
+
+- [ ] Tested locally with `pnpm dev`
+- [ ] Build passes (`pnpm build`)
+- [ ] Lint passes (`pnpm lint`)
+
+## Screenshots (if UI changes)
+
+<!-- Add screenshots here -->
+```
+
+**Squash Merge Policy:**
+
+We use **squash merges** for all PRs to main:
+
+- Keeps main branch history clean (one commit per feature/fix)
+- PR title becomes the commit message
+- Individual commits preserved in PR for context
+- Use "Squash and merge" button in GitHub
+
+**After Merge:**
+
+1. Delete the feature branch (GitHub offers this automatically)
+2. Pull latest main locally: `git pull origin main`
+3. Close related beads issues: `./bd.exe close <issue-id>`
+
 ## Issue Tracking with Beads
 
 This project uses **beads** (bd) for issue tracking. Beads is a git-native, graph-based issue tracker designed for AI coding agents.
