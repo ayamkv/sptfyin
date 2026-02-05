@@ -74,13 +74,7 @@ git add -A && git commit -m "feat: add user profile page with avatar upload"
 
 ## Merge and Release Strategy
 
-**Current Strategy (Large Feature Branch):**
-
-- Work on feature branches (e.g., `feature/link-management`)
-- Use release-based merges - merge when ready to ship
-- Main branch = production
-
-**Future Strategy (Smaller Features):**
+**Current Strategy (PR-based Workflow):**
 
 1. Create focused feature branch from main
 2. Make checkpoint commits as you go
@@ -88,6 +82,16 @@ git add -A && git commit -m "feat: add user profile page with avatar upload"
 4. PR description = changelog entry
 5. Squash merge to main (clean history)
 6. Delete feature branch
+
+> **Note:** We transitioned to this strategy after merging `feature/link-management` early (Feb 2026). The large feature branch approach proved difficult to manage with multiple parallel workstreams.
+
+**Direct Commits to Main:**
+
+Only allowed for:
+
+- Hotfixes (critical bugs in production)
+- Documentation updates
+- Config/dependency updates
 
 **What Triggers a Release:**
 
