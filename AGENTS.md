@@ -161,6 +161,45 @@ We use **squash merges** for all PRs to main:
 2. Pull latest main locally: `git pull origin main`
 3. Close related beads issues: `./bd.exe close <issue-id>`
 
+## Emergency Rollback Procedures
+
+**Contact:** @ayamkv (primary)
+
+**Monitoring:** BetterStack status page auto-alerts on DB issues
+
+### Frontend Rollback (Cloudflare Pages)
+
+1. Go to Cloudflare Dashboard → Pages → sptfyin
+2. Select previous deployment from history
+3. Click "Rollback to this deployment"
+4. Instant - no downtime
+
+### Backend Rollback (PocketBase VPS)
+
+**Policy:** Forward-fix preferred over rollback due to migration constraints
+
+**If forward-fix possible:**
+
+1. Create hotfix branch from main
+2. Fix the issue
+3. Test locally
+4. PR → squash merge → auto-deploy
+
+**If rollback required:**
+
+1. SSH to VPS: `ssh user@your-vps`
+2. Stop container: `docker compose down`
+3. Restore database from backup (automated via PocketBase → Cloudflare R2)
+4. Rollback git: `git checkout <previous-commit>`
+5. Restart: `docker compose up -d`
+6. Verify: `curl http://localhost:8091/api/health`
+
+**Database Backups:**
+
+- Automated via PocketBase built-in backup feature
+- Destination: Cloudflare R2 (S3-compatible storage)
+- Recovery: Download from R2 and restore to VPS
+
 ## Issue Tracking with Beads
 
 This project uses **beads** (bd) for issue tracking. Beads is a git-native, graph-based issue tracker designed for AI coding agents.
