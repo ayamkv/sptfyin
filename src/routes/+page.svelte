@@ -854,7 +854,7 @@
 			<!-- Cat sticker - top left -->
 			<Badge
 				variant="outline"
-				class="absolute -left-6 -top-10 rotate-[-8deg] border-primary/50 bg-background/80 px-1.5 py-0 text-sm transition-transform hover:rotate-[-4deg] hover:skew-x-6 hover:scale-110 md:-left-12 md:top-5 md:px-2.5 md:py-0.5 md:text-base md:text-lg md:backdrop-blur-sm"
+				class="absolute -left-6 -top-3 rotate-[-8deg] border-primary/50 bg-background/80 px-1.5 py-0 text-sm transition-transform hover:rotate-[-4deg] hover:skew-x-6 hover:scale-110 md:-left-12 md:top-5 md:px-2.5 md:py-0.5 md:text-base md:text-lg md:backdrop-blur-sm"
 			>
 				₍^. .^₎⟆
 			</Badge>
@@ -862,7 +862,7 @@
 			<!-- Links created sticker - top right -->
 			<Badge
 				variant="outline"
-				class="absolute -right-2 -top-1 rotate-[6deg] border-primary/50 bg-background/80 px-1.5 py-0 transition-transform hover:rotate-[2deg] hover:-skew-x-6 hover:scale-110 md:-right-12 md:top-4 md:px-2.5 md:py-0.5 md:backdrop-blur-sm"
+				class="absolute -right-4 -top-1 rotate-[6deg] border-primary/50 bg-background/80 px-1.5 py-0 transition-transform hover:rotate-[2deg] hover:-skew-x-6 hover:scale-110 md:-right-12 md:top-4 md:px-2.5 md:py-0.5 md:backdrop-blur-sm"
 			>
 				<iconify-icon icon="lucide:link" class="mr-0.5 size-2.5 md:mr-1 md:size-4"></iconify-icon>
 				<span class="text-[10px] md:text-xs">{formatNumber(totalLinkCreated)}</span>
@@ -876,7 +876,7 @@
 			<!-- Links clicked sticker - bottom left -->
 			<Badge
 				variant="outline"
-				class="hover:skew-12 absolute -bottom-3 -left-2 rotate-[-4deg] border-primary/50 bg-background/80 px-1.5 py-0 transition-transform hover:rotate-3 hover:scale-110 md:-bottom-4 md:left-20 md:px-2.5 md:py-0.5 md:backdrop-blur-sm"
+				class="hover:skew-12 absolute -bottom-5 left-7 rotate-[-4deg] border-primary/50 bg-background/80 px-1.5 py-0 transition-transform hover:rotate-3 hover:scale-110 md:-bottom-4 md:left-20 md:px-2.5 md:py-0.5 md:backdrop-blur-sm"
 			>
 				<iconify-icon icon="lucide:pointer" class="mr-0.5 size-2.5 md:mr-1 md:size-4"
 				></iconify-icon>
@@ -936,7 +936,7 @@
 		flex-col
 		items-center justify-center
 		px-6
-		py-6
+		py-10
 		lg:ml-0
 
 		lg:mr-4
