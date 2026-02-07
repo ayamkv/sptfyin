@@ -12,7 +12,6 @@
 		getTotalClicks,
 		getRecentRecords,
 		getTopLinks,
-		getPocketBase,
 		generateRandomURL,
 		isSlugAvailable
 	} from '$lib/pocketbase';
@@ -39,7 +38,7 @@
 	import 'iconify-icon';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { strings } from '$lib/localization/languages/en.json';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 
 	import { toastGroups } from '$lib/debug';
 	import BackgroundNoise from '$lib/components/BackgroundNoise.svelte';
@@ -68,8 +67,6 @@
 	let reset = $state();
 	let preGeneratedUrlId = $state();
 	let lastCreatedShortId = $state();
-	let pb; // PocketBase instance for realtime
-	let unsubscribe; // Realtime subscription cleanup
 
 	// Domain selection must be defined before QR derivations
 	let selected = $state({ value: 'sptfy.in', label: 'default: sptfy.in/' });
@@ -227,22 +224,6 @@
 
 		// Fetch top links for the leaderboard tab
 		await fetchTopLinks();
-
-		// Set up realtime subscription for new links
-		pb = getPocketBase();
-		try {
-			unsubscribe = await pb.collection('viewList').subscribe('*', async (e) => {
-				console.log('[Realtime] Event received:', e.action, e.record);
-				if (e.action === 'create') {
-					// Prepend new record to the list and keep only 2
-					records = [e.record, ...records].slice(0, 2);
-					totalLinkCreated = (totalLinkCreated || 0) + 1;
-				}
-			});
-			console.log('[Realtime] Subscribed to viewList collection');
-		} catch (error) {
-			console.error('[Realtime] Subscription error:', error);
-		}
 	});
 	function getBrowserName() {
 		const userAgent = navigator.userAgent;
@@ -275,14 +256,6 @@
 		isOldFirefox = ua.includes('firefox/') && ua.split('firefox/')[1].split('.')[0] < 103;
 		// console log the ua user is using
 		console.log(getBrowserName());
-	});
-
-	// Cleanup realtime subscription on component destroy
-	onDestroy(() => {
-		if (unsubscribe) {
-			pb?.collection('viewList').unsubscribe('*');
-			console.log('[Realtime] Unsubscribed from viewList collection');
-		}
 	});
 
 	/**
@@ -604,11 +577,22 @@
 		};
 		try {
 			console.log(url_id);
+			const originalInputText = inputText; // Store before clearing
 			const response = await createRecord('random_short', dataForm, turnstileResponse);
 			console.log('Record created');
 			inputText = '';
 			customShortId = '';
 			lastCreatedShortId = url_id;
+
+			// Add newly created link to recent records (prepend and keep only 2)
+			const newRecord = {
+				id_url: url_id,
+				from: originalInputText,
+				created: new Date().toISOString(),
+				subdomain: selected.value
+			};
+			records = [newRecord, ...records].slice(0, 2);
+			totalLinkCreated = (totalLinkCreated || 0) + 1;
 
 			toast.promise(promise, {
 				class: 'my-toast',
@@ -1277,13 +1261,15 @@
 				</Card.Header>
 			</Card.Root>
 
-			<Card.Root class="mb-4 h-auto min-h-[10rem] w-[23rem] md:mb-0 lg:min-h-[9.8rem] lg:w-[25rem]">
+			<Card.Root
+				class="mb-4 h-auto min-h-[10rem] w-[23rem] font-thin md:mb-0 lg:min-h-[9.8rem] lg:w-[25rem]"
+			>
 				<Card.Content>
 					<div class="flex items-center justify-between pt-6">
 						<ToggleGroup.Root type="single" bind:value={activeTab} variant="ghost2" class="gap-0">
 							<ToggleGroup.Item
 								value="recent"
-								class="rounded-r-none border border-r-0 px-3 py-1 text-sm"
+								class="rounded-r-none border border-r-0 px-3 py-1 text-sm "
 							>
 								recent
 							</ToggleGroup.Item>
@@ -1293,7 +1279,7 @@
 						</ToggleGroup.Root>
 						<a
 							href={activeTab === 'recent' ? '/recent' : '/top'}
-							class="highlightSecondary highlightGhost hover:inverseShadow inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md border-t bg-gradient-to-br from-[#38334f] via-30% px-4 py-2 text-sm font-medium text-secondary-foreground transition-all hover:bg-secondary/80 hover:text-accent-foreground active:scale-95 active:from-[#afffdc] active:via-primary active:to-primary active:text-secondary"
+							class="highlightSecondary hover:inverseShadow inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md border-t bg-gradient-to-br from-[#38334f] via-30% px-4 py-2 text-sm font-thin text-secondary-foreground no-underline transition-all hover:bg-secondary/80 hover:text-accent-foreground active:scale-95 active:from-[#afffdc] active:via-primary active:to-primary active:text-secondary"
 						>
 							view all
 						</a>

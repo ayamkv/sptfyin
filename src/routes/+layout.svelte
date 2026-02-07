@@ -3,7 +3,7 @@
 	import { Toaster } from '$lib/components/ui/sonner';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { Button } from '$lib/components/ui/button';
-	import { Home, CircleUserRound, HandHeart, Info, History } from 'lucide-svelte';
+	import { Home, CircleUserRound, HandHeart, Info, History, Trophy } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import logo from '$lib/images/logo.png';
 
@@ -38,6 +38,14 @@
 			icon: History,
 			variant: 'ghost',
 			label: '/recent',
+			visible: true,
+			section: 'actions'
+		},
+		{
+			title: 'top',
+			icon: Trophy,
+			variant: 'ghost',
+			label: '/top',
 			visible: true,
 			section: 'actions'
 		},
