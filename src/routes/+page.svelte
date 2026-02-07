@@ -854,7 +854,7 @@
 			<!-- Cat sticker - top left -->
 			<Badge
 				variant="outline"
-				class="absolute -left-8 -top-6 rotate-[-8deg] border-primary/50 bg-background/80 text-base backdrop-blur-sm transition-transform hover:rotate-[-4deg] hover:scale-110 md:-left-16 md:-top-8 md:text-lg"
+				class="absolute -left-8 -top-3 rotate-[-8deg] border-primary/50 bg-background/80 text-base backdrop-blur-sm transition-transform hover:rotate-[-4deg] hover:scale-110 md:-left-16 md:-top-4 md:text-lg"
 			>
 				₍^. .^₎⟆
 			</Badge>
@@ -862,7 +862,7 @@
 			<!-- Links created sticker - top right -->
 			<Badge
 				variant="outline"
-				class="absolute -right-4 -top-4 rotate-[6deg] border-primary/50 bg-background/80 backdrop-blur-sm transition-transform hover:rotate-[2deg] hover:scale-110 md:-right-12 md:-top-6"
+				class="absolute -right-4 -top-1 rotate-[6deg] border-primary/50 bg-background/80 backdrop-blur-sm transition-transform hover:rotate-[2deg] hover:scale-110 md:-right-12 md:-top-2"
 			>
 				<iconify-icon icon="lucide:link" class="mr-1 size-3 md:size-4"></iconify-icon>
 				<span class="text-xs md:text-sm">{formatNumber(totalLinkCreated)}</span>
