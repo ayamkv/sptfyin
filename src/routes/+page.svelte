@@ -35,6 +35,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 
 	import * as Accordion from '$lib/components/ui/accordion';
+	import { Badge } from '$lib/components/ui/badge';
 	import 'iconify-icon';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { strings } from '$lib/localization/languages/en.json';
@@ -848,23 +849,39 @@
 	</Dialog.Root>
 
 	<div class="logo mt-[20em] flex flex-col items-center justify-center md:mt-[2em]">
-		<h1
-			class="ss03 font-jak-display text-2xl font-bold text-primary lg:block lg:text-8xl
-		"
-		>
-			Sptfy.in
-		</h1>
-		<h3
-			class="mt-2 text-xs text-white lg:mt-4
-		lg:text-lg
-		"
-		>
-			<div class="text-center">
-				<span> ₍^. .^₎⟆ {formatNumber(totalLinkCreated)} links created</span>
-				<span class="block"> {formatNumber(totalClicks)} links clicked</span>
-			</div>
-			<!-- by <a href="https://instagram.com/raaharja" target="_blank">raaharja</a> -->
-		</h3>
+		<!-- Sticker-style stats badges positioned around the title -->
+		<div class="relative">
+			<!-- Cat sticker - top left -->
+			<Badge
+				variant="outline"
+				class="absolute -left-8 -top-6 rotate-[-8deg] border-primary/50 bg-background/80 text-base backdrop-blur-sm transition-transform hover:rotate-[-4deg] hover:scale-110 md:-left-16 md:-top-8 md:text-lg"
+			>
+				₍^. .^₎⟆
+			</Badge>
+
+			<!-- Links created sticker - top right -->
+			<Badge
+				variant="outline"
+				class="absolute -right-4 -top-4 rotate-[6deg] border-primary/50 bg-background/80 backdrop-blur-sm transition-transform hover:rotate-[2deg] hover:scale-110 md:-right-12 md:-top-6"
+			>
+				<iconify-icon icon="lucide:link" class="mr-1 size-3 md:size-4"></iconify-icon>
+				<span class="text-xs md:text-sm">{formatNumber(totalLinkCreated)}</span>
+			</Badge>
+
+			<!-- Main title -->
+			<h1 class="ss03 font-jak-display text-2xl font-bold text-primary lg:block lg:text-8xl">
+				sptfy.in
+			</h1>
+
+			<!-- Links clicked sticker - bottom left -->
+			<Badge
+				variant="outline"
+				class="absolute -bottom-3 -left-2 rotate-[-4deg] border-primary/50 bg-background/80 backdrop-blur-sm transition-transform hover:rotate-0 hover:scale-110 md:-bottom-4 md:-left-8"
+			>
+				<iconify-icon icon="lucide:pointer" class="mr-1 size-3 md:size-4"></iconify-icon>
+				<span class="text-xs md:text-sm">{formatNumber(totalClicks)}</span>
+			</Badge>
+		</div>
 
 		{#if debugMode === 'true'}
 			<h3

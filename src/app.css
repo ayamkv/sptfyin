@@ -82,13 +82,13 @@
 	.dark {
 		--background: 180 3% 6.5%;
 		--foreground: 0 0% 90%;
-		--card: 255 8% 9.8%;
+		--card: 260 10.7% 11%;
 		--card-foreground: 0 0% 90%;
 		--popover: 249 30% 5%;
 		--popover-foreground: 0 0% 90%;
 		--primary-foreground: 105.7 76.1% 13.7%;
 		--primary: 154 73% 59%;
-		--secondary: 247 28% 25%;
+		--secondary: 247.8 17.6% 25.7%;
 		--secondary-foreground: 0 0% 98%;
 		--muted: 0 0% 15.1%;
 		--muted-foreground: 222 20% 77%;
@@ -142,9 +142,8 @@
 			0 1px 20px 2px #0e0e10b6,
 			0 0 0 1px #ffffff2f,
 			0 2px 6px 3px #0607079c,
-			0 0 0px 7px #121113,
-			0 0 2px 7.5px #ffffff12,
-			4px 4px 8.5px 5px #837c9e25;
+
+			4px 4px 8.5px 0px #837c9e25;
 
 		.highlightNav2 {
 			box-shadow:
