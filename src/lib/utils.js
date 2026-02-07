@@ -234,3 +234,19 @@ export const createLoadObserver = (handler) => {
 
 	return onload;
 };
+
+/**
+ * Format a number to a compact form (e.g., 1000 -> 1k, 1500 -> 1.5k)
+ * @param {number} num - The number to format
+ * @returns {string} - Formatted number string
+ */
+export function formatNumber(num) {
+	if (!num) return 'counting';
+	if (num >= 1000000) {
+		return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'm';
+	}
+	if (num >= 1000) {
+		return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+	}
+	return num.toString();
+}

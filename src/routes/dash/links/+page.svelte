@@ -1502,21 +1502,20 @@
 			</div>
 			<div class="grid gap-2">
 				<label for="domain">subdomain</label>
-				<Select.Root portal={null} bind:selected>
+				<Select.Root portal={null} bind:value={selected}>
 					<Select.Trigger>
-						<Select.Value placeholder="Select domain" />
+						{selected?.label || 'Select domain'}
 					</Select.Trigger>
 					<Select.Content>
 						<Select.Group>
 							<Select.Label>Available domains</Select.Label>
 							{#each domainList as domain}
-								<Select.Item value={domain.value} label={domain.label}>
+								<Select.Item value={domain} label={domain.label}>
 									{domain.label}
 								</Select.Item>
 							{/each}
 						</Select.Group>
 					</Select.Content>
-					<Select.Input name="subdomain" />
 				</Select.Root>
 			</div>
 			<div class="max-h-[64px] max-w-[300px]">
@@ -2095,13 +2094,13 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 					</div>
 					<div class="grid gap-2">
 						<label for="edit-subdomain">subdomain</label>
-						<Select.Root bind:selected={editForm.subdomain}>
+						<Select.Root bind:value={editForm.subdomain}>
 							<Select.Trigger>
-								<Select.Value />
+								{editForm.subdomain?.label || 'Select domain'}
 							</Select.Trigger>
 							<Select.Content>
 								{#each domainList as domain}
-									<Select.Item value={domain.value} label={domain.label}>
+									<Select.Item value={domain} label={domain.label}>
 										{domain.label}
 									</Select.Item>
 								{/each}
@@ -2225,13 +2224,13 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 					</div>
 					<div class="grid gap-2">
 						<label for="drawer-edit-subdomain">subdomain</label>
-						<Select.Root bind:selected={editForm.subdomain}>
+						<Select.Root bind:value={editForm.subdomain}>
 							<Select.Trigger>
-								<Select.Value />
+								{editForm.subdomain?.label || 'Select domain'}
 							</Select.Trigger>
 							<Select.Content>
 								{#each domainList as domain}
-									<Select.Item value={domain.value} label={domain.label}>
+									<Select.Item value={domain} label={domain.label}>
 										{domain.label}
 									</Select.Item>
 								{/each}

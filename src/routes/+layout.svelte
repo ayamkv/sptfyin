@@ -81,74 +81,77 @@
 <!-- Global background noise overlay (z-index behind content) -->
 <!-- <BackgroundNoise baseFrequency={0.8} numOctaves={2} scale={1} /> -->
 
-<div
-	class="scrollbar-gutter-stable md:highlightN fixed inset-0 flex
-    rounded-md bg-background/30 md:flex-row md:rounded-none"
->
-	<!--- todo: fix the gradient, we need to hide the gradient in large displays like desktop using sm:, and show it in mobile.-->
+<Tooltip.Provider>
 	<div
-		data-collapsed={isCollapsed}
-		class="highlightNav2 group fixed bottom-0 left-0 right-0 z-50 flex flex-col
+		class="scrollbar-gutter-stable md:highlightN fixed inset-0 flex
+    rounded-md bg-background/30 md:flex-row md:rounded-none"
+	>
+		<!--- todo: fix the gradient, we need to hide the gradient in large displays like desktop using sm:, and show it in mobile.-->
+		<div
+			data-collapsed={isCollapsed}
+			class="highlightNav2 group fixed bottom-0 left-0 right-0 z-50 flex flex-col
                     bg-card/95 data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto
                    md:min-h-screen md:w-24
                    md:bg-none md:shadow-none"
-	>
-		<!-- Logo (desktop only) -->
-		<a
-			class="sptfyin-logo mx-auto my-4 hidden size-16 items-center justify-center md:flex"
-			href="/"
 		>
-			<img src={logo} alt="Sptfyin Logo" class="h-full w-full" />
-		</a>
+			<!-- Logo (desktop only) -->
+			<a
+				class="sptfyin-logo mx-auto my-4 hidden size-16 items-center justify-center md:flex"
+				href="/"
+			>
+				<img src={logo} alt="Sptfyin Logo" class="h-full w-full" />
+			</a>
 
-		<!-- Navigation -->
-		<nav
-			class="flex items-center justify-evenly px-1 py-1 pb-2 md:grid md:justify-start md:gap-2 md:px-2
+			<!-- Navigation -->
+			<nav
+				class="flex items-center justify-evenly px-1 py-1 pb-2 md:grid md:justify-start md:gap-2 md:px-2
                         group-[[data-collapsed=true]]:md:justify-center"
-		>
-			{#each routes.filter((route) => route.visible) as route (route.label)}
-				<Tooltip.Root openDelay={0}>
-					<Tooltip.Trigger asChild>
-						{#snippet children({ builder })}
-							<Button
-								href={route.label}
-								variant={route.variant}
-								size="icon"
-								class="hover:inverseShadow size-14
+			>
+				{#each routes.filter((route) => route.visible) as route (route.label)}
+					<Tooltip.Root openDelay={0}>
+						<Tooltip.Trigger>
+							{#snippet child({ props })}
+								<Button
+									{...props}
+									href={route.label}
+									variant={route.variant}
+									size="icon"
+									class="hover:inverseShadow size-14
                                     hover:bg-secondary/80
                                     hover:outline-primary
                                     md:size-20
                                     {isActive(route.label)
-									? ' md:hover:highlight inverseShadow bg-background/40 md:bg-background/60 md:text-foreground md:hover:bg-primary/90 md:hover:text-background'
-									: route.variant === 'default'
-										? 'highlightCard dark:bg-muted dark:text-muted-foreground  dark:hover:bg-secondary/40'
-										: ''}
+										? ' md:hover:highlight inverseShadow bg-background/40 md:bg-background/60 md:text-foreground md:hover:bg-primary/90 md:hover:text-background'
+										: route.variant === 'default'
+											? 'highlightCard dark:bg-muted dark:text-muted-foreground  dark:hover:bg-secondary/40'
+											: ''}
                                     flex w-full flex-col items-center justify-center gap-0 rounded-md px-2 no-underline md:gap-1 md:rounded-md md:px-0
                                     "
-							>
-								<route.icon class="size-6 md:size-8" aria-hidden="true" />
-								<span class="hidden text-xs no-underline md:inline-block">{route.title}</span>
-							</Button>
-						{/snippet}
-					</Tooltip.Trigger>
-					<Tooltip.Content side="top" class="flex items-center gap-4">
-						{route.title}
-					</Tooltip.Content>
-					<Tooltip.Content side="right" class="flex items-center gap-4">
-						{route.title}
-						{#if route.label}
-							<span class="ml-auto text-muted-foreground">
-								{route.label}
-							</span>
-						{/if}
-					</Tooltip.Content>
-				</Tooltip.Root>
-			{/each}
-		</nav>
+								>
+									<route.icon class="size-6 md:size-8" aria-hidden="true" />
+									<span class="hidden text-xs no-underline md:inline-block">{route.title}</span>
+								</Button>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content side="top" class="flex items-center gap-4">
+							{route.title}
+						</Tooltip.Content>
+						<Tooltip.Content side="right" class="flex items-center gap-4">
+							{route.title}
+							{#if route.label}
+								<span class="ml-auto text-muted-foreground">
+									{route.label}
+								</span>
+							{/if}
+						</Tooltip.Content>
+					</Tooltip.Root>
+				{/each}
+			</nav>
+		</div>
+		<main
+			class="h-screen max-w-full flex-1 overflow-y-auto overflow-x-hidden bg-card/95 selection:bg-primary selection:text-background sm:overflow-y-hidden md:rounded-lg md:py-4 md:pl-0 md:pr-4"
+		>
+			{@render children?.()}
+		</main>
 	</div>
-	<main
-		class="h-screen max-w-full flex-1 overflow-y-auto overflow-x-hidden bg-card/95 selection:bg-primary selection:text-background sm:overflow-y-hidden md:rounded-lg md:py-4 md:pl-0 md:pr-4"
-	>
-		{@render children?.()}
-	</main>
-</div>
+</Tooltip.Provider>

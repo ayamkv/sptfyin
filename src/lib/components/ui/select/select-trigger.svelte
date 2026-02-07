@@ -3,8 +3,6 @@
 	import ChevronDown from 'lucide-svelte/icons/chevron-down';
 	import { cn } from '$lib/utils.js';
 	let { class: className = undefined, children, ...rest } = $props();
-
-	const children_render = $derived(children);
 </script>
 
 <SelectPrimitive.Trigger
@@ -13,13 +11,11 @@
 		className
 	)}
 	{...rest}
-	on:click
-	on:keydown
 >
-	{#snippet children({ builder })}
-		{@render children_render?.({ builder })}
-		<div>
-			<ChevronDown class="h-4 w-4 " />
-		</div>
+	{#snippet child({ props })}
+		<button {...props}>
+			{@render children?.()}
+			<ChevronDown class="h-4 w-4" />
+		</button>
 	{/snippet}
 </SelectPrimitive.Trigger>

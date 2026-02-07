@@ -61,6 +61,19 @@ export async function getTotalClicks(collection, perPage = 10, currentPage = 1) 
 	return res.json();
 }
 
+// Get top links sorted by click count (utm_view)
+export async function getTopLinks(perPage = 10, currentPage = 1) {
+	const res = await fetch(
+		`${pocketBaseURL}/api/collections/viewList/records?sort=-utm_view&fields=id_url,from,created,subdomain,utm_view&perPage=${perPage}&page=${currentPage}&filter=(utm_view>0)`
+	);
+	return res.json();
+}
+
+// Get PocketBase instance for realtime subscriptions
+export function getPocketBase() {
+	return new PocketBase(pocketBaseURL);
+}
+
 export async function getFilteredRecords(collection, filter, sort = '') {
 	try {
 		const filterParam = filter ? `?filter=${filter}` : '';

@@ -3,7 +3,6 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import { browser } from '$app/environment';
-	import { goto } from '$app/navigation';
 	import { Turnstile } from 'svelte-turnstile';
 	import { fade, slide } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
@@ -12,11 +11,20 @@
 		createRecord,
 		getTotalClicks,
 		getRecentRecords,
+		getTopLinks,
+		getPocketBase,
 		generateRandomURL,
 		isSlugAvailable
 	} from '$lib/pocketbase';
+	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	// import { generateRandomURL } from "$lib/utils";
-	import { localizeDate, findUrl, createLoadObserver, isSpotifyShortLink } from '$lib/utils';
+	import {
+		localizeDate,
+		findUrl,
+		createLoadObserver,
+		isSpotifyShortLink,
+		formatNumber
+	} from '$lib/utils';
 	import { WithEase } from '$lib/animations/customSpring';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
@@ -31,7 +39,7 @@
 	import 'iconify-icon';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { strings } from '$lib/localization/languages/en.json';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 
 	import { toastGroups } from '$lib/debug';
 	import BackgroundNoise from '$lib/components/BackgroundNoise.svelte';
@@ -47,16 +55,21 @@
 	let turnstileResponse = $state();
 	let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
 	let records = $state([]);
+	let topRecords = $state([]);
+	let activeTab = $state('recent');
 	let rrecords;
 	let recordsPromise;
 	let error = null;
 	let loading = $state(false);
-	let recentLoading = true;
+	let recentLoading = $state(true);
+	let topLoading = $state(false);
 	let currentItems = 4;
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
 	let reset = $state();
 	let preGeneratedUrlId = $state();
 	let lastCreatedShortId = $state();
+	let pb; // PocketBase instance for realtime
+	let unsubscribe; // Realtime subscription cleanup
 
 	// Domain selection must be defined before QR derivations
 	let selected = $state({ value: 'sptfy.in', label: 'default: sptfy.in/' });
@@ -169,13 +182,6 @@
 	let totalLinkCreated = $state();
 	let totalClicks = $state();
 
-	function formatNumber(num) {
-		if (!num) return 'counting';
-		if (num >= 1000) {
-			return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-		}
-		return num;
-	}
 	async function fetchData() {
 		recentLoading = true;
 		try {
@@ -199,6 +205,18 @@
 			errorMessage = 'An error occurred while fetching data.'; // Added error message handling
 		}
 	}
+
+	async function fetchTopLinks() {
+		topLoading = true;
+		try {
+			const response = await getTopLinks(2, 1);
+			topRecords = response.items;
+		} catch (error) {
+			console.error('Error fetching top links:', error);
+		} finally {
+			topLoading = false;
+		}
+	}
 	onMount(async () => {
 		// Generate random URL on page load
 		preGeneratedUrlId = await generateRandomURL();
@@ -206,6 +224,25 @@
 
 		recordsPromise = await fetchData();
 		rrecords = records;
+
+		// Fetch top links for the leaderboard tab
+		await fetchTopLinks();
+
+		// Set up realtime subscription for new links
+		pb = getPocketBase();
+		try {
+			unsubscribe = await pb.collection('viewList').subscribe('*', async (e) => {
+				console.log('[Realtime] Event received:', e.action, e.record);
+				if (e.action === 'create') {
+					// Prepend new record to the list and keep only 2
+					records = [e.record, ...records].slice(0, 2);
+					totalLinkCreated = (totalLinkCreated || 0) + 1;
+				}
+			});
+			console.log('[Realtime] Subscribed to viewList collection');
+		} catch (error) {
+			console.error('[Realtime] Subscription error:', error);
+		}
 	});
 	function getBrowserName() {
 		const userAgent = navigator.userAgent;
@@ -238,6 +275,14 @@
 		isOldFirefox = ua.includes('firefox/') && ua.split('firefox/')[1].split('.')[0] < 103;
 		// console log the ua user is using
 		console.log(getBrowserName());
+	});
+
+	// Cleanup realtime subscription on component destroy
+	onDestroy(() => {
+		if (unsubscribe) {
+			pb?.collection('viewList').unsubscribe('*');
+			console.log('[Realtime] Unsubscribed from viewList collection');
+		}
 	});
 
 	/**
@@ -427,6 +472,7 @@
 
 	const protectedRoutes = [
 		'recent',
+		'top',
 		'about',
 		'terms',
 		'privacy',
@@ -943,23 +989,17 @@
 								>
 								<Accordion.Content>
 									<div class="grid grid-cols-2 grid-rows-1 gap-1">
-										<Select.Root
-											portal={null}
-											id="domainSelect"
-											name="domainSelect"
-											bind:selected
-											asChild
-										>
+										<Select.Root portal={null} name="domainSelect" bind:value={selected}>
 											<!-- bind:open={focus1} -->
 											<Select.Trigger class="">
-												<Select.Value placeholder="domain: sptfy.in/" selected="sptfy.in" />
+												{selected?.label || 'domain: sptfy.in/'}
 											</Select.Trigger>
 											<Select.Content>
 												<Select.Group>
 													<Select.Label>select domain :</Select.Label>
 													{#each domainList as domain}
 														<Select.Item
-															value={domain.value}
+															value={domain}
 															label="{domain.label}/"
 															onclick={() => escapeSelectHandle()}
 															disabled={domain.disabled}>{domain.label}</Select.Item
@@ -967,7 +1007,6 @@
 													{/each}
 												</Select.Group>
 											</Select.Content>
-											<Select.Input name="sptfy.in" />
 										</Select.Root>
 										<div
 											class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
@@ -1238,18 +1277,58 @@
 				</Card.Header>
 			</Card.Root>
 
-			<Card.Root class="mb-4 h-[10rem] w-[23rem] md:mb-0 lg:h-[9.8rem] lg:w-[25rem]">
+			<Card.Root class="mb-4 h-auto min-h-[10rem] w-[23rem] md:mb-0 lg:min-h-[9.8rem] lg:w-[25rem]">
 				<Card.Content>
 					<div class="flex items-center justify-between pt-6">
-						<h3 class="text-lg font-bold">🔗 recent created links</h3>
-						<Button variant="ghost2" on:click={() => goto('/recent')}>view all</Button>
+						<ToggleGroup.Root type="single" bind:value={activeTab} variant="ghost2" class="gap-0">
+							<ToggleGroup.Item
+								value="recent"
+								class="rounded-r-none border border-r-0 px-3 py-1 text-sm"
+							>
+								recent
+							</ToggleGroup.Item>
+							<ToggleGroup.Item value="top" class="rounded-l-none border px-3 py-1 text-sm">
+								top
+							</ToggleGroup.Item>
+						</ToggleGroup.Root>
+						<a
+							href={activeTab === 'recent' ? '/recent' : '/top'}
+							class="highlightSecondary highlightGhost hover:inverseShadow inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md border-t bg-gradient-to-br from-[#38334f] via-30% px-4 py-2 text-sm font-medium text-secondary-foreground transition-all hover:bg-secondary/80 hover:text-accent-foreground active:scale-95 active:from-[#afffdc] active:via-primary active:to-primary active:text-secondary"
+						>
+							view all
+						</a>
 					</div>
 					<div class="mt-2">
-						{#await records}
-							<p>awaiting...</p>
-						{:then records}
+						{#if activeTab === 'recent'}
+							{#if recentLoading}
+								<p class="text-muted-foreground/70">loading...</p>
+							{:else if records.length === 0}
+								<p class="text-muted-foreground/70">no links yet</p>
+							{:else}
+								<div class="max-h-fit break-all">
+									{#each records.slice(0, 2) as item (item.id_url)}
+										<li class="align-center my-1 flex justify-between pl-1" in:slide|global>
+											<a href="/{item.id_url}" class="font-thin" target="_blank">
+												<span class="px-0 text-muted-foreground/70">
+													{item.subdomain === 'sptfy.in'
+														? 'sptfy.in'
+														: `${item.subdomain}.sptfy.in`}/</span
+												><span>{item.id_url}</span>
+											</a>
+											<span class="ml-2 text-muted-foreground/70">
+												{localizeDate(item.created)}
+											</span>
+										</li>
+									{/each}
+								</div>
+							{/if}
+						{:else if topLoading}
+							<p class="text-muted-foreground/70">loading...</p>
+						{:else if topRecords.length === 0}
+							<p class="text-muted-foreground/70">no top links yet</p>
+						{:else}
 							<div class="max-h-fit break-all">
-								{#each records.slice(0, 2) as item}
+								{#each topRecords.slice(0, 2) as item, i (item.id_url)}
 									<li class="align-center my-1 flex justify-between pl-1" in:slide|global>
 										<a href="/{item.id_url}" class="font-thin" target="_blank">
 											<span class="px-0 text-muted-foreground/70">
@@ -1258,15 +1337,14 @@
 													: `${item.subdomain}.sptfy.in`}/</span
 											><span>{item.id_url}</span>
 										</a>
-										<span class="ml-2 text-muted-foreground/70">
-											{localizeDate(item.created)}
+										<span class="ml-2 flex items-center gap-1 text-primary/80">
+											<iconify-icon icon="lucide:mouse-pointer-click" width="14"></iconify-icon>
+											{formatNumber(item.utm_view)}
 										</span>
 									</li>
 								{/each}
 							</div>
-						{:catch error}
-							<p>error</p>
-						{/await}
+						{/if}
 					</div>
 				</Card.Content>
 			</Card.Root>
