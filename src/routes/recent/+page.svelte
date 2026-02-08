@@ -2,8 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { goto } from '$app/navigation';
-	import { slide } from 'svelte/transition';
+	import { onMount } from 'svelte';
 	import { getRecentRecords } from '$lib/pocketbase';
 	import { localizeDate } from '$lib/utils';
 
@@ -11,30 +10,47 @@
 	let currentPage = $state(1);
 	let itemsPerPage = 10;
 	let totalPages = $state(1);
+	let isLoading = $state(true);
+	let hasError = $state(false);
 
-	async function fetchData() {
+	async function fetchData(page = currentPage) {
+		isLoading = true;
+		hasError = false;
 		try {
-			const response = await getRecentRecords('viewList', itemsPerPage, currentPage);
-			records = response.items;
-			totalPages = Math.ceil(response.totalItems / itemsPerPage);
+			const response = await getRecentRecords('viewList', itemsPerPage, page);
+			records = response.items || [];
+			totalPages = Math.max(
+				1,
+				response.totalPages || Math.ceil((response.totalItems || 0) / itemsPerPage)
+			);
+			currentPage = Math.min(Math.max(1, page), totalPages);
 		} catch (error) {
+			hasError = true;
 			console.error(error);
+		} finally {
+			isLoading = false;
 		}
 	}
 
 	async function nextPage() {
-		if (currentPage < totalPages) {
-			currentPage++;
-			await fetchData();
+		if (isLoading || currentPage >= totalPages) {
+			return;
 		}
+
+		await fetchData(currentPage + 1);
 	}
 
 	async function previousPage() {
-		if (currentPage > 1) {
-			currentPage--;
-			await fetchData();
+		if (isLoading || currentPage <= 1) {
+			return;
 		}
+
+		await fetchData(currentPage - 1);
 	}
+
+	onMount(() => {
+		fetchData();
+	});
 </script>
 
 <svelte:head>
@@ -56,7 +72,7 @@
 				</div>
 			</Card.Header>
 			<Card.Content class="">
-				{#await fetchData()}
+				{#if isLoading}
 					<div class="space-y-4">
 						{#each Array(10) as _}
 							<div class="flex items-center justify-between border-b py-2 last:border-0">
@@ -70,15 +86,17 @@
 							</div>
 						{/each}
 						<div class="flex items-center justify-between pt-4">
-							<Button variant="ghost2" disabled="True">prev</Button>
+							<Button variant="ghost2" disabled>prev</Button>
 							<span class="text-sm text-muted-foreground"> fresh links incoming~ </span>
-							<Button variant="ghost2" disabled="True">next</Button>
+							<Button variant="ghost2" disabled>next</Button>
 						</div>
 					</div>
-				{:then}
+				{:else if hasError}
+					<p class="py-4 text-center text-red-500">Failed to load recent links.</p>
+				{:else}
 					<div class="space-y-4">
 						{#if records.length > 0}
-							{#each records as item, i}
+							{#each records as item}
 								<div class="flex items-center justify-between border-b py-1 last:border-0">
 									<a
 										href="https://{item.subdomain === 'sptfy.in'
@@ -102,13 +120,21 @@
 							{/each}
 
 							<div class="flex items-center justify-between pt-4">
-								<Button variant="ghost2" on:click={previousPage} disabled={currentPage === 1}>
+								<Button
+									variant="ghost2"
+									onclick={previousPage}
+									disabled={isLoading || currentPage === 1}
+								>
 									prev
 								</Button>
 								<span class="text-sm text-muted-foreground">
 									{currentPage} / {totalPages}
 								</span>
-								<Button variant="ghost2" on:click={nextPage} disabled={currentPage === totalPages}>
+								<Button
+									variant="ghost2"
+									onclick={nextPage}
+									disabled={isLoading || currentPage === totalPages}
+								>
 									next
 								</Button>
 							</div>
@@ -116,9 +142,7 @@
 							<p class="py-8 text-center text-muted-foreground">No links have been created yet.</p>
 						{/if}
 					</div>
-				{:catch error}
-					<p class="py-4 text-center text-red-500">Failed to load recent links.</p>
-				{/await}
+				{/if}
 			</Card.Content>
 		</Card.Root>
 	</div>
