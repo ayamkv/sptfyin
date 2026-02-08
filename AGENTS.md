@@ -159,7 +159,7 @@ We use **squash merges** for all PRs to main:
 
 1. Delete the feature branch (GitHub offers this automatically)
 2. Pull latest main locally: `git pull origin main`
-3. Close related beads issues: `./bd.exe close <issue-id>`
+3. Close related beads issues: `bd close <issue-id>`
 
 ## Emergency Rollback Procedures
 
@@ -208,23 +208,23 @@ This project uses **beads** (bd) for issue tracking. Beads is a git-native, grap
 
 ```bash
 # Show ready work (no blockers)
-./bd.exe ready
+bd ready
 
 # List all issues
-./bd.exe list
+bd list
 
 # Create new issue
-./bd.exe create "Issue title" -p 1 -t task
+bd create "Issue title" -p 1 -t task
 
 # Update issue status
-./bd.exe update <id> --status in_progress
-./bd.exe update <id> --status closed
+bd update <id> --status in_progress
+bd update <id> --status closed
 
 # Close completed issue
-./bd.exe close <id>
+bd close <id>
 
 # Sync beads with git (run before push)
-./bd.exe sync
+bd sync
 ```
 
 **Priority Levels:** P1 (critical), P2 (medium), P3 (low)  
@@ -239,7 +239,7 @@ This project uses **beads** (bd) for issue tracking. Beads is a git-native, grap
 
 1. **File issues for remaining work** - Create beads issues for anything unfinished:
    ```bash
-   ./bd.exe create "Description of remaining work" -p 2 -t task
+   bd create "Description of remaining work" -p 2 -t task
    ```
 2. **Run quality gates** (if code changed) - Tests, linters, builds:
    ```bash
@@ -248,12 +248,12 @@ This project uses **beads** (bd) for issue tracking. Beads is a git-native, grap
    ```
 3. **Update issue status** - Close finished work in beads:
    ```bash
-   ./bd.exe close <issue-id>
+   bd close <issue-id>
    ```
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull --rebase
-   ./bd.exe sync
+   bd sync
    git push
    git status  # MUST show "up to date with origin"
    ```
@@ -267,7 +267,7 @@ This project uses **beads** (bd) for issue tracking. Beads is a git-native, grap
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
-- Always run `./bd.exe sync` before pushing to sync issue tracking with git
+- Always run `bd sync` before pushing to sync issue tracking with git
 
 ## Deployment
 

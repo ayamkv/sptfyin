@@ -6,7 +6,7 @@ Beads has been successfully installed and configured in the sptfy.in project!
 
 1. **Installed beads CLI** (v0.49.2)
    - Downloaded Windows binary from GitHub releases
-   - Placed in project root at `D:\code\sptfyin\sptfyin\sptfyin\bd.exe`
+   - Installed to `C:\Users\itk\AppData\Local\Programs\bd\bd.exe` and exposed as `bd` on PATH
 
 2. **Initialized beads database**
    - Created `.beads/` directory
@@ -34,16 +34,16 @@ Beads has been successfully installed and configured in the sptfy.in project!
 
 ```bash
 # See ready work
-./bd.exe ready
+bd ready
 
 # List all issues
-./bd.exe list
+bd list
 
 # Create new issue
-./bd.exe create "Issue title" -p 1 -t task
+bd create "Issue title" -p 1 -t task
 
 # View issue details
-./bd.exe show <issue-id>
+bd show <issue-id>
 ```
 
 ### Notes
