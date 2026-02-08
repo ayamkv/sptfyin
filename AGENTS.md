@@ -7,6 +7,7 @@
 - `pnpm lint` - Run ESLint and Prettier checks
 - `pnpm format` - Format code with Prettier
 - Test command: Use `vitest` for testing (see src/lib/**tests**)
+- For browser verification on data-backed routes (e.g. `/recent`, `/top`, `/dash/links`), start local PocketBase first (`cd pocketbase && start-dev.bat` on Windows, or `CF_SECRET_KEY=1x0000000000000000000000000000000AA ./pocketbase serve` on Linux/macOS)
 
 ## Tech Stack
 
