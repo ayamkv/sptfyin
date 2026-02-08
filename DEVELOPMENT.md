@@ -34,6 +34,12 @@ pnpm dev
 # 4. Open http://127.0.0.1:5173
 ```
 
+### Browser QA Reminder
+
+If you are verifying pagination, filtering, or list behavior in Chrome DevTools on data-backed routes (like `/recent`, `/top`, and `/dash/links`), always boot local PocketBase first.
+
+Without local PocketBase running, these routes can fail to load data and UI behavior checks become unreliable.
+
 ---
 
 ## First-Time Setup
