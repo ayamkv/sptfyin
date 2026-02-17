@@ -53,6 +53,8 @@
 	let customShortId = $state();
 	let turnstileResponse = $state();
 	let turnstileStatus = $state('pending'); // 'pending' | 'verifying' | 'verified' | 'error' | 'expired'
+	let footerHeight = $state(0);
+	let cornerSize = $derived(footerHeight / 2);
 	let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
 	let records = $state([]);
 	let topRecords = $state([]);
@@ -70,7 +72,7 @@
 	let lastCreatedShortId = $state();
 
 	// Domain selection must be defined before QR derivations
-	let selected = $state({ value: 'sptfy.in', label: 'default: sptfy.in/' });
+	let selected = $state('sptfy.in');
 	const domainList = [
 		{ value: 'sptfy.in', label: 'sptfy.in' },
 		{ value: 'artist', label: 'artist.sptfy.in', disabled: false },
@@ -80,6 +82,7 @@
 		{ value: 'COMING SOON', label: '--- COMING SOON ---', disabled: true },
 		{ value: 'album', label: 'album.sptfy.in', disabled: true }
 	];
+	let selectedLabel = $derived(domainList.find((d) => d.value === selected)?.label ?? 'sptfy.in');
 	$effect(() => {
 		console.log('domain selected: ', selected);
 	});
@@ -121,9 +124,7 @@
 
 		customShortId = sanitized;
 	}
-	let qrDomain = $derived(
-		selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`
-	);
+	let qrDomain = $derived(selected === 'sptfy.in' ? 'sptfy.in' : `${selected}.sptfy.in`);
 	let qrUrl = $derived(
 		`https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://${qrDomain}/${shortIdDisplay}`
 	);
@@ -557,6 +558,16 @@
 			return;
 		}
 
+		// Check if Turnstile verification is complete
+		if (!turnstileResponse) {
+			isError = true;
+			alertDialogTitle = strings.ErrorTurnstilePendingTitle;
+			alertDialogDescription = strings.ErrorTurnstilePendingDesc;
+			errorIcon = strings.ErrorTurnstilePendingIcon;
+			loading = false;
+			return;
+		}
+
 		let url_id = finalCustomShortId;
 
 		if (!finalCustomShortId) {
@@ -568,7 +579,7 @@
 		let dataForm = {
 			from: inputText,
 			id_url: url_id,
-			subdomain: selected.value,
+			subdomain: selected,
 			enable: true
 		};
 		try {
@@ -585,7 +596,7 @@
 				id_url: url_id,
 				from: originalInputText,
 				created: new Date().toISOString(),
-				subdomain: selected.value
+				subdomain: selected
 			};
 			records = [newRecord, ...records].slice(0, 2);
 			totalLinkCreated = (totalLinkCreated || 0) + 1;
@@ -605,7 +616,7 @@
 			turnstileStatus = 'pending';
 			promiseResolve();
 			loading = false;
-			fullShortURL = `https://${selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`}/${url_id}`;
+			fullShortURL = `https://${selected === 'sptfy.in' ? 'sptfy.in' : `${selected}.sptfy.in`}/${url_id}`;
 			if (isMobile) {
 				scrollToBottom();
 			}
@@ -627,6 +638,14 @@
 				// Handle turnstile verification error
 				if (errorData?.verification) {
 					const verification = errorData.verification;
+					errorIcon = strings.ErrorTurnstileValidationIcon;
+					alertDialogTitle = strings.ErrorTurnstileValidationTitle;
+					alertDialogDescription = strings.ErrorTurnstileValidationDesc;
+					reset?.(); // Reset the turnstile widget
+					turnstileStatus = 'pending';
+				}
+				// Handle invalid turnstile value (validation_invalid_value)
+				else if (errorData?.code === 'validation_invalid_value') {
 					errorIcon = strings.ErrorTurnstileValidationIcon;
 					alertDialogTitle = strings.ErrorTurnstileValidationTitle;
 					alertDialogDescription = strings.ErrorTurnstileValidationDesc;
@@ -762,7 +781,7 @@
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class=" flex h-[85vh] flex-col items-center justify-center overflow-auto rounded-2xl border-b-4 bg-background/50 pb-0 md:mt-0 md:rounded-xl md:border md:pb-0 lg:min-h-[96vh] lg:overflow-hidden"
+	class="transform-y-2 relative flex h-[85vh] flex-col items-center justify-center overflow-auto rounded-2xl border-b-4 bg-background/50 pb-0 md:mt-0 md:rounded-xl md:border-2 md:border-b-0 md:border-r-0 md:pb-0 lg:min-h-[96vh] lg:overflow-hidden"
 	data-vaul-drawer-wrapper
 >
 	<!-- Background decorations applied to the drawer wrapper -->
@@ -845,7 +864,7 @@
 		</Dialog.Content>
 	</Dialog.Root>
 
-	<div class="logo mt-[20em] flex flex-col items-center justify-center md:mt-[2em]">
+	<div class="logo mt-[20em] md:mb-6 flex flex-col items-center justify-center md:mt-[2em]">
 		<!-- Sticker-style stats badges positioned around the title -->
 		<div class="relative">
 			<!-- Cat sticker - top left -->
@@ -954,7 +973,7 @@
 										? 'Expanding link...'
 										: 'https://open.spotify.com/xxxx....'}
 									bind:value={inputText}
-									class="placeholder:translate-y-[2px]"
+									class="placeholder:translate-y-[2px] rounded-xl"
 									required
 									autofocus
 									disabled={isExpandingUrl}
@@ -962,8 +981,8 @@
 								<Button
 									type="button"
 									id="paste"
-									class="paste-button hover:bg-primary hover:from-[#afffdc]/20 hover:text-black"
-									variant="ghost2"
+									class="paste-button hover:bg-primary rounded-xl hover:from-[#afffdc]/20 hover:text-black"
+									variant="ghost3"
 									onclick={() => handlePaste()}
 									disabled={isExpandingUrl}
 								>
@@ -979,7 +998,7 @@
 								role="button"
 								tabindex="0"
 								onkeydown={(e) => e.key === 'Enter' && (customizeExpanded = !customizeExpanded)}
-								class="group relative flex h-12 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm transition-colors hover:bg-secondary/50"
+								class="group relative flex h-12 w-full items-center justify-between rounded-md border-0 border-input bg-transparent p-0 text-sm transition-all hover:border-b-2 hover:border-b-secondary"
 							>
 								<!-- Clickable overlay for collapsed state (only visible when collapsed) -->
 								{#if !customizeExpanded}
@@ -1008,23 +1027,25 @@
 											? 'translate-x-0 opacity-100'
 											: 'pointer-events-none translate-x-full opacity-0'}"
 									>
-										<Select.Root portal={null} name="domainSelect" bind:value={selected}>
-											<Select.Trigger class="h-8 w-[140px] text-xs">
-												{selected?.label || 'sptfy.in'}
+										<Select.Root type="single" name="domainSelect" bind:value={selected}>
+											<Select.Trigger class="h-8 w-[140px] text-xs rounded-xl">
+												{selectedLabel || 'sptfy.in'}
 											</Select.Trigger>
-											<Select.Content>
-												<Select.Group>
-													<Select.Label>select domain:</Select.Label>
-													{#each domainList as domain}
-														<Select.Item
-															value={domain}
-															label="{domain.label}/"
-															onclick={() => escapeSelectHandle()}
-															disabled={domain.disabled}>{domain.label}</Select.Item
-														>
-													{/each}
-												</Select.Group>
-											</Select.Content>
+											<Select.Portal>
+												<Select.Content>
+													<Select.Group>
+														<Select.Label>select domain:</Select.Label>
+														{#each domainList as domain}
+															<Select.Item
+																value={domain.value}
+																label="{domain.label}/"
+																onclick={() => escapeSelectHandle()}
+																disabled={domain.disabled}>{domain.label}</Select.Item
+															>
+														{/each}
+													</Select.Group>
+												</Select.Content>
+											</Select.Portal>
 										</Select.Root>
 										<Input
 											minlength="4"
@@ -1034,7 +1055,8 @@
 											placeholder={shortIdDisplay}
 											bind:value={customShortId}
 											oninput={(e) => updateCustomShortId(e.currentTarget.value)}
-											class={'h-8 flex-1 text-xs placeholder:translate-y-[2px] ' + slugInputClass}
+											class={'mr-2 h-8 flex-1 text-xs placeholder:translate-y-[2px] rounded-xl ' +
+												slugInputClass}
 										/>
 									</div>
 								</div>
@@ -1102,7 +1124,7 @@
 							{/if}
 							<div class="mt-4">
 								<Button
-									class="submit-button align-center m-auto flex w-full flex-row items-center justify-center gap-2 text-center
+									class="submit-button align-center m-auto rounded-xl flex w-full flex-row items-center justify-center gap-2 text-center
 								{loading ? 'bg-secondary text-foreground shadow-lg' : ''}
 								transition-all"
 									type="submit"
@@ -1117,7 +1139,13 @@
 											: ''}"
 										width="18"
 									></iconify-icon>
-									<span class="flex-1">{loading ? 'loading...' : 'short It!'}</span>
+									<span class="flex-1"
+										>{loading
+											? 'loading...'
+											: turnstileStatus !== 'verified'
+												? 'validating...'
+												: 'short It!'}</span
+									>
 									<!-- Right indicator: Turnstile verification status -->
 									{#if !loading}
 										<div class="flex shrink-0 items-center gap-1 text-xs">
@@ -1128,9 +1156,7 @@
 												<iconify-icon icon="lucide:shield-alert" class="h-4 w-4 text-red-900"
 												></iconify-icon>
 											{:else}
-												<iconify-icon
-													icon="lucide:shield"
-													class="h-4 w-4 animate-pulse text-foreground/40"
+												<iconify-icon icon="lucide:shield" class="h-4 w-4 animate-pulse"
 												></iconify-icon>
 											{/if}
 										</div>
@@ -1142,7 +1168,7 @@
 							<p class="text-xs text-foreground/60">
 								by continuing, you agree to
 								<a href="/about/privacy">privacy policy</a> and
-								<a href="/about/terms">terms of ethical use</a>.
+								<a href="/about/terms">terms</a>.
 							</p>
 						</div>
 					</div>
@@ -1159,7 +1185,7 @@
 							class="align-center flex w-full min-w-full items-center justify-between py-2 transition-all lg:h-28 lg:py-2"
 						>
 							<p class="break-all text-[1.44rem] font-semibold lg:text-5xl">
-								{selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`}/<span
+								{selected === 'sptfy.in' ? 'sptfy.in' : `${selected}.sptfy.in`}/<span
 									class="text-[#82d1af]">{shortIdDisplay}</span
 								>
 							</p>
@@ -1330,7 +1356,7 @@
 		>
 			<Card.Content>
 				<div class="flex items-center justify-between pt-6">
-					<ToggleGroup.Root type="single" bind:value={activeTab} variant="ghost2" class="gap-0">
+					<ToggleGroup.Root type="single" bind:value={activeTab} variant="ghost" class="gap-0">
 						<ToggleGroup.Item
 							value="recent"
 							class="rounded-r-none border border-r-0 px-3 py-1 text-sm "
@@ -1343,7 +1369,7 @@
 					</ToggleGroup.Root>
 					<a
 						href={activeTab === 'recent' ? '/recent' : '/top'}
-						class="highlightSecondary hover:inverseShadow inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md border-t bg-gradient-to-br from-[#38334f] via-30% px-4 py-2 text-sm font-thin text-secondary-foreground no-underline transition-all hover:bg-secondary/80 hover:text-accent-foreground active:scale-95 active:from-[#afffdc] active:via-primary active:to-primary active:text-secondary"
+						class="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-xl border-t px-4 py-2 text-sm font-thin text-secondary-foreground no-underline border border-secondary/20 shadow-md hover:bg-accent hover:text-accent-foreground hover:bg-secondary/80 hover:outline-primary hover:inverseShadow active:scale-95 transition-all data-[state=on]:text-accent-foreground data-[state=on]:bg-background/30 data-[state=on]:inverseShadow"
 					>
 						view all
 					</a>
@@ -1403,11 +1429,34 @@
 
 	<!-- Popped out footer - emerges from the border -->
 	<footer
-		class="pointer-events-none fixed bottom-0 right-0 z-40 hidden w-full justify-end pr-4 md:flex"
+		class="pointer-events-none absolute bottom-0 right-0 z-40 hidden w-full justify-end md:flex"
 	>
 		<div
-			class="pointer-events-auto -mb-1 rounded-t-md bg-card/95 px-5 py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.15)]"
+			bind:clientHeight={footerHeight}
+			class="pointer-events-auto relative -mb-1 rounded-tl-lg bg-card/95 px-5 pb-4 pt-2"
 		>
+			<!-- Bottom-left corner SVG -->
+			<svg
+				class="pointer-events-none absolute bottom-0 left-0"
+				style="fill: hsl(var(--card) / 0.95); transform: translateX(-100%);"
+				width={cornerSize}
+				height={cornerSize}
+				viewBox="0 0 39 39"
+			>
+				<path d="M39 39H0V38.9932C21.5849 38.7288 39 21.3744 39 0V39Z" />
+			</svg>
+
+			<!-- Top-right corner SVG -->
+			<svg
+				class="pointer-events-none absolute right-0 top-0"
+				style="fill: hsl(var(--card) / 0.95); transform: translateY(-100%);"
+				width={cornerSize}
+				height={cornerSize}
+				viewBox="0 0 39 39"
+			>
+				<path d="M39 39H0V38.9932C21.5849 38.7288 39 21.3744 39 0V39Z" />
+			</svg>
+
 			<p class="flex flex-row items-center gap-3 text-xs text-foreground/50">
 				<a href="/about/terms" class="transition-colors hover:text-foreground">terms</a>
 				<span class="text-foreground/20">|</span>

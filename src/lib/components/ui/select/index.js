@@ -6,6 +6,7 @@ import Trigger from './select-trigger.svelte';
 import Separator from './select-separator.svelte';
 const Root = SelectPrimitive.Root;
 const Group = SelectPrimitive.Group;
+const Portal = SelectPrimitive.Portal;
 export {
 	Root,
 	Group,
@@ -14,6 +15,7 @@ export {
 	Content,
 	Trigger,
 	Separator,
+	Portal,
 	//
 	Root as Select,
 	Group as SelectGroup,
@@ -21,5 +23,6 @@ export {
 	Item as SelectItem,
 	Content as SelectContent,
 	Trigger as SelectTrigger,
-	Separator as SelectSeparator
+	Separator as SelectSeparator,
+	Portal as SelectPortal
 };
