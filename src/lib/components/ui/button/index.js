@@ -15,6 +15,8 @@ const buttonVariants = tv({
 				'hover:bg-accent hover:text-accent-foreground hover:bg-secondary/80 hover:outline-primary hover:inverseShadow',
 			ghost2:
 				'bg-gradient-to-br from-[#373442] via-10% text-secondary-foreground  hover:text-accent-foreground hover:bg-secondary/80 hover:outline-primary hover:inverseShadow highlightSecondary active:scale-95 active:to-primary active:from-[#afffdc] active:text-secondary active:via-primary border-t disabled:text-secondary-foreground/40 disabled:bg-background/80 disabled:to-background/80 disabled:via-background/80 disabled:from-background/60 disabled:inverseShadow highlightGhost',
+			ghost3:
+				'border border-secondary/20 shadow-md hover:bg-accent hover:text-accent-foreground hover:bg-secondary/80 hover:outline-primary hover:inverseShadow',
 			link: 'text-primary underline-offset-4 hover:underline'
 		},
 		size: {

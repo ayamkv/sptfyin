@@ -34,7 +34,6 @@
 	import { Label } from '$lib/components/ui/label';
 	import * as Dialog from '$lib/components/ui/dialog';
 
-	import * as Accordion from '$lib/components/ui/accordion';
 	import { Badge } from '$lib/components/ui/badge';
 	import 'iconify-icon';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
@@ -50,9 +49,12 @@
 	let isQrLoaded = $state(false);
 	let visible = $state(false);
 	let scrollHere = $state();
-	let accordionValue = $state('one');
+	let customizeExpanded = $state(false);
 	let customShortId = $state();
 	let turnstileResponse = $state();
+	let turnstileStatus = $state('pending'); // 'pending' | 'verifying' | 'verified' | 'error' | 'expired'
+	let footerHeight = $state(0);
+	let cornerSize = $derived(footerHeight / 2);
 	let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
 	let records = $state([]);
 	let topRecords = $state([]);
@@ -70,7 +72,7 @@
 	let lastCreatedShortId = $state();
 
 	// Domain selection must be defined before QR derivations
-	let selected = $state({ value: 'sptfy.in', label: 'default: sptfy.in/' });
+	let selected = $state('sptfy.in');
 	const domainList = [
 		{ value: 'sptfy.in', label: 'sptfy.in' },
 		{ value: 'artist', label: 'artist.sptfy.in', disabled: false },
@@ -80,6 +82,7 @@
 		{ value: 'COMING SOON', label: '--- COMING SOON ---', disabled: true },
 		{ value: 'album', label: 'album.sptfy.in', disabled: true }
 	];
+	let selectedLabel = $derived(domainList.find((d) => d.value === selected)?.label ?? 'sptfy.in');
 	$effect(() => {
 		console.log('domain selected: ', selected);
 	});
@@ -121,9 +124,7 @@
 
 		customShortId = sanitized;
 	}
-	let qrDomain = $derived(
-		selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`
-	);
+	let qrDomain = $derived(selected === 'sptfy.in' ? 'sptfy.in' : `${selected}.sptfy.in`);
 	let qrUrl = $derived(
 		`https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://${qrDomain}/${shortIdDisplay}`
 	);
@@ -174,8 +175,8 @@
 		scrollHere.scrollIntoView();
 	}
 
-	function setAccordionValue(newValue) {
-		accordionValue = newValue;
+	function toggleCustomize() {
+		customizeExpanded = !customizeExpanded;
 	}
 	let totalLinkCreated = $state();
 	let totalClicks = $state();
@@ -325,7 +326,6 @@
 				// Check if it's a spotify.link that needs expansion
 				if (extractedUrl && isSpotifyShortLink(extractedUrl)) {
 					inputText = extractedUrl; // Show the short link while expanding
-					setAccordionValue('item-1');
 					focus1 = true;
 
 					const expandedUrl = await expandSpotifyUrl(extractedUrl);
@@ -340,7 +340,6 @@
 
 				setTimeout(() => {
 					inputText = extractedUrl;
-					setAccordionValue('item-1');
 
 					if (inputText === null) {
 						setTimeout(() => {
@@ -392,7 +391,6 @@
 			// Check if it's a spotify.link that needs expansion
 			if (extractedUrl && isSpotifyShortLink(extractedUrl)) {
 				inputText = extractedUrl; // Show the short link while expanding
-				setAccordionValue('item-1');
 
 				const expandedUrl = await expandSpotifyUrl(extractedUrl);
 				if (expandedUrl) {
@@ -410,8 +408,6 @@
 
 			inputText = extractedUrl;
 			setTimeout(() => {
-				setAccordionValue('item-1');
-
 				if (inputText === null) {
 					setTimeout(() => {
 						focus1 = false;
@@ -562,6 +558,16 @@
 			return;
 		}
 
+		// Check if Turnstile verification is complete
+		if (!turnstileResponse) {
+			isError = true;
+			alertDialogTitle = strings.ErrorTurnstilePendingTitle;
+			alertDialogDescription = strings.ErrorTurnstilePendingDesc;
+			errorIcon = strings.ErrorTurnstilePendingIcon;
+			loading = false;
+			return;
+		}
+
 		let url_id = finalCustomShortId;
 
 		if (!finalCustomShortId) {
@@ -573,7 +579,7 @@
 		let dataForm = {
 			from: inputText,
 			id_url: url_id,
-			subdomain: selected.value,
+			subdomain: selected,
 			enable: true
 		};
 		try {
@@ -590,7 +596,7 @@
 				id_url: url_id,
 				from: originalInputText,
 				created: new Date().toISOString(),
-				subdomain: selected.value
+				subdomain: selected
 			};
 			records = [newRecord, ...records].slice(0, 2);
 			totalLinkCreated = (totalLinkCreated || 0) + 1;
@@ -607,9 +613,10 @@
 				}
 			});
 			reset?.();
+			turnstileStatus = 'pending';
 			promiseResolve();
 			loading = false;
-			fullShortURL = `https://${selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`}/${url_id}`;
+			fullShortURL = `https://${selected === 'sptfy.in' ? 'sptfy.in' : `${selected}.sptfy.in`}/${url_id}`;
 			if (isMobile) {
 				scrollToBottom();
 			}
@@ -635,6 +642,15 @@
 					alertDialogTitle = strings.ErrorTurnstileValidationTitle;
 					alertDialogDescription = strings.ErrorTurnstileValidationDesc;
 					reset?.(); // Reset the turnstile widget
+					turnstileStatus = 'pending';
+				}
+				// Handle invalid turnstile value (validation_invalid_value)
+				else if (errorData?.code === 'validation_invalid_value') {
+					errorIcon = strings.ErrorTurnstileValidationIcon;
+					alertDialogTitle = strings.ErrorTurnstileValidationTitle;
+					alertDialogDescription = strings.ErrorTurnstileValidationDesc;
+					reset?.(); // Reset the turnstile widget
+					turnstileStatus = 'pending';
 				}
 				// Handle duplicate short URL error
 				else if (errorData.id_url?.code === 'validation_not_unique') {
@@ -765,7 +781,7 @@
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
 <div
-	class=" flex h-[85vh] flex-col items-center justify-center overflow-auto rounded-2xl border-b-4 bg-background/50 pb-0 md:mt-0 md:rounded-xl md:border md:pb-0 lg:min-h-[96vh] lg:overflow-hidden"
+	class="transform-y-2 relative flex h-[85vh] flex-col items-center justify-center overflow-auto rounded-2xl border-b-4 bg-background/50 pb-0 md:mt-0 md:rounded-xl md:border-2 md:border-b-0 md:border-r-0 md:pb-0 lg:min-h-[96vh] lg:overflow-hidden"
 	data-vaul-drawer-wrapper
 >
 	<!-- Background decorations applied to the drawer wrapper -->
@@ -848,7 +864,7 @@
 		</Dialog.Content>
 	</Dialog.Root>
 
-	<div class="logo mt-[20em] flex flex-col items-center justify-center md:mt-[2em]">
+	<div class="logo mt-[20em] md:mb-6 flex flex-col items-center justify-center md:mt-[2em]">
 		<!-- Sticker-style stats badges positioned around the title -->
 		<div class="relative">
 			<!-- Cat sticker - top left -->
@@ -930,176 +946,237 @@
 		{/if}
 	</div>
 
-	<div
-		class="flex
-		w-[23rem]
-		flex-col
-		items-center justify-center
-		px-6
-		py-10
-		lg:ml-0
-
-		lg:mr-4
-		lg:w-full
-		lg:flex-row
-		lg:items-start
-		lg:px-0
-		lg:py-10
-		[&:not(:first-child)]:gap-6
-		
-		"
-	>
-		<!-- <div class="mobile flex flex-col gap-4 lg:gap-0"> -->
-		<Card.Root class="w-[23rem] md:min-h-[22rem]   lg:w-[25rem]">
-			<Card.Content class="grid gap-4 pb-0 pt-6">
-				<div>
-					<form onsubmit={preventDefault(handleSubmit)} class="flex w-[8rem] min-w-full flex-col">
-						<Label for="url" class="my-2">paste your long ass URL here</Label>
-						<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
-							<Input
-								type="url"
-								on:paste={handleInputOnPaste}
-								id="url"
-								placeholder={isExpandingUrl
-									? 'Expanding link...'
-									: 'https://open.spotify.com/xxxx....'}
-								bind:value={inputText}
-								class="placeholder:translate-y-[2px]"
-								required
-								autofocus
-								disabled={isExpandingUrl}
-							/>
-							<Button
-								type="button"
-								id="paste"
-								class="paste-button hover:bg-primary hover:from-[#afffdc]/20 hover:text-black"
-								variant="ghost2"
-								onclick={() => handlePaste()}
-								disabled={isExpandingUrl}
-							>
-								<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
-								</iconify-icon>
-							</Button>
-						</div>
-
-						<!-- <Separator class="my-2"/> -->
-
-						<Accordion.Root class="" value={accordionValue} onValueChange={setAccordionValue}>
-							<Accordion.Item value="item-1" class>
-								<Accordion.Trigger>
-									<p>customize <i class="text-foreground/80">(optional)</i></p></Accordion.Trigger
+	<!-- Cards Container -->
+	<div class="flex w-full flex-col items-center px-6 py-10 lg:px-0 lg:py-10">
+		<div
+			class="grid
+			w-full
+			max-w-[23rem]
+			grid-cols-1
+			gap-6
+			lg:max-w-[52rem]
+			lg:grid-cols-2
+			"
+		>
+			<!-- Left Card: Input Form -->
+			<Card.Root class="flex h-full w-full flex-col">
+				<Card.Content class="grid gap-4 pb-0 pt-6">
+					<div>
+						<form onsubmit={preventDefault(handleSubmit)} class="flex w-[8rem] min-w-full flex-col">
+							<Label for="url" class="my-2">paste your long ass URL here</Label>
+							<div class="align-center mb-2 flex w-full min-w-full items-center space-x-3">
+								<Input
+									type="url"
+									on:paste={handleInputOnPaste}
+									id="url"
+									placeholder={isExpandingUrl
+										? 'Expanding link...'
+										: 'https://open.spotify.com/xxxx....'}
+									bind:value={inputText}
+									class="placeholder:translate-y-[2px] rounded-xl"
+									required
+									autofocus
+									disabled={isExpandingUrl}
+								/>
+								<Button
+									type="button"
+									id="paste"
+									class="paste-button hover:bg-primary rounded-xl hover:from-[#afffdc]/20 hover:text-black"
+									variant="ghost3"
+									onclick={() => handlePaste()}
+									disabled={isExpandingUrl}
 								>
-								<Accordion.Content>
-									<div class="grid grid-cols-2 grid-rows-1 gap-1">
-										<Select.Root portal={null} name="domainSelect" bind:value={selected}>
-											<!-- bind:open={focus1} -->
-											<Select.Trigger class="">
-												{selected?.label || 'domain: sptfy.in/'}
-											</Select.Trigger>
-											<Select.Content>
-												<Select.Group>
-													<Select.Label>select domain :</Select.Label>
-													{#each domainList as domain}
-														<Select.Item
-															value={domain}
-															label="{domain.label}/"
-															onclick={() => escapeSelectHandle()}
-															disabled={domain.disabled}>{domain.label}</Select.Item
-														>
-													{/each}
-												</Select.Group>
-											</Select.Content>
-										</Select.Root>
-										<div
-											class="align-center mb-4 flex w-full max-w-[25rem] flex-col items-center space-x-2"
-										>
-											<!-- custom url -->
-											<Input
-												minlength="4"
-												maxlength="80"
-												type="text"
-												id="short_id"
-												placeholder={shortIdDisplay}
-												bind:value={customShortId}
-												on:input={(e) => updateCustomShortId(e.currentTarget.value)}
-												class={'placeholder:translate-y-[2px] ' + slugInputClass}
-											/>
-											{#if isCustomSlugProvided}
-												<p class="mt-1 w-full text-left text-xs">
-													{#if sanitizedCustomShortId.length < 4}
-														<span class="text-red-400">{strings.SlugMinChars}</span>
-													{:else if reservedSlug}
-														<span class="text-red-400">{strings.SlugReserved}</span>
-													{:else if slugChecking}
-														<span class="text-yellow-300">{strings.SlugChecking}</span>
-													{:else if slugCheckError}
-														<span class="text-yellow-300">{strings.SlugCheckFailed}</span>
-													{:else if slugAvailable === true}
-														<span class="text-emerald-400">{strings.SlugAvailable}</span>
-													{:else if slugAvailable === false}
-														<span class="text-red-400">{strings.SlugTaken}</span>
-													{/if}
-												</p>
-											{/if}
-										</div>
-									</div>
-								</Accordion.Content>
-							</Accordion.Item>
-						</Accordion.Root>
+									<iconify-icon width="20" class="w-[20px]" icon="lucide:clipboard-copy">
+									</iconify-icon>
+								</Button>
+							</div>
 
-						<div class="max-h-[64px] max-w-[300px]">
-							{#if !visible}
-								<Skeleton class="h-[64px] w-[300px]" />
-							{:else}
+							<!-- <Separator class="my-2"/> -->
+
+							<!-- Customize Row - Fixed height inline transform -->
+							<div
+								role="button"
+								tabindex="0"
+								onkeydown={(e) => e.key === 'Enter' && (customizeExpanded = !customizeExpanded)}
+								class="group relative flex h-12 w-full items-center justify-between rounded-md border-0 border-input bg-transparent p-0 text-sm transition-all hover:border-b-2 hover:border-b-secondary"
+							>
+								<!-- Clickable overlay for collapsed state (only visible when collapsed) -->
+								{#if !customizeExpanded}
+									<button
+										type="button"
+										onclick={() => (customizeExpanded = true)}
+										class="absolute inset-0 z-10 cursor-pointer"
+										aria-label="Expand customize options"
+									></button>
+								{/if}
+
+								<div class="relative flex h-full w-full items-center overflow-hidden">
+									<!-- Collapsed state: "customize (optional)" text -->
+									<div
+										class="absolute inset-0 flex items-center transition-all duration-300 ease-out {customizeExpanded
+											? 'pointer-events-none -translate-x-full opacity-0'
+											: 'translate-x-0 opacity-100'}"
+									>
+										<span class="font-medium">customize</span>
+										<span class="ml-1 italic text-foreground/60">(optional)</span>
+									</div>
+
+									<!-- Expanded state: Domain select + Custom slug input -->
+									<div
+										class="absolute inset-0 flex items-center gap-2 transition-all duration-300 ease-out {customizeExpanded
+											? 'translate-x-0 opacity-100'
+											: 'pointer-events-none translate-x-full opacity-0'}"
+									>
+										<Select.Root type="single" name="domainSelect" bind:value={selected}>
+											<Select.Trigger class="h-8 w-[140px] text-xs rounded-xl">
+												{selectedLabel || 'sptfy.in'}
+											</Select.Trigger>
+											<Select.Portal>
+												<Select.Content>
+													<Select.Group>
+														<Select.Label>select domain:</Select.Label>
+														{#each domainList as domain}
+															<Select.Item
+																value={domain.value}
+																label="{domain.label}/"
+																onclick={() => escapeSelectHandle()}
+																disabled={domain.disabled}>{domain.label}</Select.Item
+															>
+														{/each}
+													</Select.Group>
+												</Select.Content>
+											</Select.Portal>
+										</Select.Root>
+										<Input
+											minlength="4"
+											maxlength="80"
+											type="text"
+											id="short_id"
+											placeholder={shortIdDisplay}
+											bind:value={customShortId}
+											oninput={(e) => updateCustomShortId(e.currentTarget.value)}
+											class={'mr-2 h-8 flex-1 text-xs placeholder:translate-y-[2px] rounded-xl ' +
+												slugInputClass}
+										/>
+									</div>
+								</div>
+
+								<!-- Chevron icon - rotates on expand (clickable to toggle) -->
+								<button
+									type="button"
+									onclick={() => (customizeExpanded = !customizeExpanded)}
+									class="z-20 ml-2 flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-secondary"
+									aria-label={customizeExpanded
+										? 'Collapse customize options'
+										: 'Expand customize options'}
+								>
+									<iconify-icon
+										icon="lucide:chevron-down"
+										class="h-4 w-4 text-foreground/60 transition-transform duration-300 {customizeExpanded
+											? 'rotate-180'
+											: ''}"
+									></iconify-icon>
+								</button>
+							</div>
+
+							<!-- Slug validation message (shown below when expanded and has custom slug) -->
+							{#if customizeExpanded && isCustomSlugProvided}
+								<p class="mt-1 text-left text-xs" transition:fade={{ duration: 150 }}>
+									{#if sanitizedCustomShortId.length < 4}
+										<span class="text-red-400">{strings.SlugMinChars}</span>
+									{:else if reservedSlug}
+										<span class="text-red-400">{strings.SlugReserved}</span>
+									{:else if slugChecking}
+										<span class="text-yellow-300">{strings.SlugChecking}</span>
+									{:else if slugCheckError}
+										<span class="text-yellow-300">{strings.SlugCheckFailed}</span>
+									{:else if slugAvailable === true}
+										<span class="text-emerald-400">{strings.SlugAvailable}</span>
+									{:else if slugAvailable === false}
+										<span class="text-red-400">{strings.SlugTaken}</span>
+									{/if}
+								</p>
+							{/if}
+
+							<!-- Invisible Turnstile - appears only if interaction needed -->
+							{#if visible}
 								<Turnstile
-									class="relative inline-block h-[64px] w-[300px]"
 									siteKey={turnstileKey}
 									theme="dark"
+									appearance="interaction-only"
 									retry="auto"
 									bind:reset
 									on:callback={(event) => {
 										turnstileResponse = event.detail.token;
-										//  validateToken(turnstileResponse)
+										turnstileStatus = 'verified';
+									}}
+									on:error={() => {
+										turnstileStatus = 'error';
+									}}
+									on:expired={() => {
+										turnstileStatus = 'expired';
+										turnstileResponse = undefined;
+									}}
+									on:timeout={() => {
+										turnstileStatus = 'error';
 									}}
 								/>
 							{/if}
-						</div>
-						<div class="mt-4">
-							<Button
-								class="submit-button align-center m-auto flex w-full flex-row items-center justify-center text-center
+							<div class="mt-4">
+								<Button
+									class="submit-button align-center m-auto rounded-xl flex w-full flex-row items-center justify-center gap-2 text-center
 								{loading ? 'bg-secondary text-foreground shadow-lg' : ''}
 								transition-all"
-								type="submit"
-								bind:this={theButton}
-								disabled={buttonDisabled}
-							>
-								<div class="flex flex-none items-center justify-center pr-2">
+									type="submit"
+									bind:this={theButton}
+									disabled={buttonDisabled}
+								>
+									<!-- Left icon: scissors or loader -->
 									<iconify-icon
 										icon={loading ? 'lucide:loader' : 'lucide:scissors'}
-										class="m-auto block h-[18px] w-[18px] text-center {loading
+										class="h-[18px] w-[18px] shrink-0 {loading
 											? 'animate-spin [transform-origin:center]'
 											: ''}"
 										width="18"
-										alt="emoji"
 									></iconify-icon>
-								</div>
-								<span>{loading ? 'loading...' : 'short It!'}</span>
-							</Button>
+									<span class="flex-1"
+										>{loading
+											? 'loading...'
+											: turnstileStatus !== 'verified'
+												? 'validating...'
+												: 'short It!'}</span
+									>
+									<!-- Right indicator: Turnstile verification status -->
+									{#if !loading}
+										<div class="flex shrink-0 items-center gap-1 text-xs">
+											{#if turnstileStatus === 'verified'}
+												<iconify-icon icon="lucide:shield-check" class="h-4 w-4 text-emerald-900"
+												></iconify-icon>
+											{:else if turnstileStatus === 'error' || turnstileStatus === 'expired'}
+												<iconify-icon icon="lucide:shield-alert" class="h-4 w-4 text-red-900"
+												></iconify-icon>
+											{:else}
+												<iconify-icon icon="lucide:shield" class="h-4 w-4 animate-pulse"
+												></iconify-icon>
+											{/if}
+										</div>
+									{/if}
+								</Button>
+							</div>
+						</form>
+						<div class="continue mt-4">
+							<p class="text-xs text-foreground/60">
+								by continuing, you agree to
+								<a href="/about/privacy">privacy policy</a> and
+								<a href="/about/terms">terms</a>.
+							</p>
 						</div>
-					</form>
-					<div class="continue mt-4">
-						<p class="text-xs text-foreground/60">
-							by continuing, you agree to
-							<a href="/about/privacy">privacy policy</a> and
-							<a href="/about/terms">terms of ethical use</a>.
-						</p>
 					</div>
-				</div>
-			</Card.Content>
-			<Card.Footer class="flex-col"></Card.Footer>
-		</Card.Root>
-		<div class="right-cards flex w-[23rem] flex-col gap-6 lg:w-[25rem]">
-			<Card.Root class="w-[23rem]   lg:w-[25rem]">
+				</Card.Content>
+				<Card.Footer class="flex-col"></Card.Footer>
+			</Card.Root>
+			<!-- Right Card: URL Preview -->
+			<Card.Root class="flex h-full w-full flex-col">
 				<Card.Header>
 					<Card.Title>url preview</Card.Title>
 					<Card.Description>here's how your URL will look like</Card.Description>
@@ -1108,7 +1185,7 @@
 							class="align-center flex w-full min-w-full items-center justify-between py-2 transition-all lg:h-28 lg:py-2"
 						>
 							<p class="break-all text-[1.44rem] font-semibold lg:text-5xl">
-								{selected.value === 'sptfy.in' ? 'sptfy.in' : `${selected.value}.sptfy.in`}/<span
+								{selected === 'sptfy.in' ? 'sptfy.in' : `${selected}.sptfy.in`}/<span
 									class="text-[#82d1af]">{shortIdDisplay}</span
 								>
 							</p>
@@ -1268,71 +1345,44 @@
 							<i>(TL;DR: not officialy from spotify)</i>
 						</p>
 					</div>
-					<div class="footer mt-4 text-left">
-						<p class="flex flex-row gap-4 text-xs text-foreground/60">
-							<a href="/about/terms">terms of ethical use</a> |
-							<a href="/about/privacy">privacy policy</a>
-							| <a href="/about/socials">socials / contact</a> |
-							<a href="https://status.sptfy.in" target="_blank">server status</a>
-						</p>
-					</div>
 				</Card.Header>
 			</Card.Root>
+		</div>
+		<!-- End of grid container -->
 
-			<Card.Root
-				class="mb-4 h-auto min-h-[10rem] w-[23rem] font-thin md:mb-0 lg:min-h-[9.8rem] lg:w-[25rem]"
-			>
-				<Card.Content>
-					<div class="flex items-center justify-between pt-6">
-						<ToggleGroup.Root type="single" bind:value={activeTab} variant="ghost2" class="gap-0">
-							<ToggleGroup.Item
-								value="recent"
-								class="rounded-r-none border border-r-0 px-3 py-1 text-sm "
-							>
-								recent
-							</ToggleGroup.Item>
-							<ToggleGroup.Item value="top" class="rounded-l-none border px-3 py-1 text-sm">
-								top
-							</ToggleGroup.Item>
-						</ToggleGroup.Root>
-						<a
-							href={activeTab === 'recent' ? '/recent' : '/top'}
-							class="highlightSecondary hover:inverseShadow inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md border-t bg-gradient-to-br from-[#38334f] via-30% px-4 py-2 text-sm font-thin text-secondary-foreground no-underline transition-all hover:bg-secondary/80 hover:text-accent-foreground active:scale-95 active:from-[#afffdc] active:via-primary active:to-primary active:text-secondary"
+		<!-- Recent/Top Card: Full Width -->
+		<Card.Root
+			class="mt-6 h-auto min-h-[10rem] w-full max-w-[23rem] font-thin md:mb-0 lg:min-h-[9.8rem] lg:max-w-[52rem]"
+		>
+			<Card.Content>
+				<div class="flex items-center justify-between pt-6">
+					<ToggleGroup.Root type="single" bind:value={activeTab} variant="ghost" class="gap-0">
+						<ToggleGroup.Item
+							value="recent"
+							class="rounded-r-none border border-r-0 px-3 py-1 text-sm "
 						>
-							view all
-						</a>
-					</div>
-					<div class="mt-2">
-						{#if activeTab === 'recent'}
-							{#if recentLoading}
-								<p class="text-muted-foreground/70">loading...</p>
-							{:else if records.length === 0}
-								<p class="text-muted-foreground/70">no links yet</p>
-							{:else}
-								<div class="max-h-fit break-all">
-									{#each records.slice(0, 2) as item (item.id_url)}
-										<li class="align-center my-1 flex justify-between pl-1" in:slide|global>
-											<a href="/{item.id_url}" class="font-thin" target="_blank">
-												<span class="px-0 text-muted-foreground/70">
-													{item.subdomain === 'sptfy.in'
-														? 'sptfy.in'
-														: `${item.subdomain}.sptfy.in`}/</span
-												><span>{item.id_url}</span>
-											</a>
-											<span class="ml-2 text-muted-foreground/70">
-												{localizeDate(item.created)}
-											</span>
-										</li>
-									{/each}
-								</div>
-							{/if}
-						{:else if topLoading}
+							recent
+						</ToggleGroup.Item>
+						<ToggleGroup.Item value="top" class="rounded-l-none border px-3 py-1 text-sm">
+							top
+						</ToggleGroup.Item>
+					</ToggleGroup.Root>
+					<a
+						href={activeTab === 'recent' ? '/recent' : '/top'}
+						class="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-xl border-t px-4 py-2 text-sm font-thin text-secondary-foreground no-underline border border-secondary/20 shadow-md hover:bg-accent hover:text-accent-foreground hover:bg-secondary/80 hover:outline-primary hover:inverseShadow active:scale-95 transition-all data-[state=on]:text-accent-foreground data-[state=on]:bg-background/30 data-[state=on]:inverseShadow"
+					>
+						view all
+					</a>
+				</div>
+				<div class="mt-2">
+					{#if activeTab === 'recent'}
+						{#if recentLoading}
 							<p class="text-muted-foreground/70">loading...</p>
-						{:else if topRecords.length === 0}
-							<p class="text-muted-foreground/70">no top links yet</p>
+						{:else if records.length === 0}
+							<p class="text-muted-foreground/70">no links yet</p>
 						{:else}
 							<div class="max-h-fit break-all">
-								{#each topRecords.slice(0, 2) as item, i (item.id_url)}
+								{#each records.slice(0, 2) as item (item.id_url)}
 									<li class="align-center my-1 flex justify-between pl-1" in:slide|global>
 										<a href="/{item.id_url}" class="font-thin" target="_blank">
 											<span class="px-0 text-muted-foreground/70">
@@ -1341,19 +1391,89 @@
 													: `${item.subdomain}.sptfy.in`}/</span
 											><span>{item.id_url}</span>
 										</a>
-										<span class="ml-2 flex items-center gap-1 text-primary/80">
-											<iconify-icon icon="lucide:mouse-pointer-click" width="14"></iconify-icon>
-											{formatNumber(item.utm_view)}
+										<span class="ml-2 text-muted-foreground/70">
+											{localizeDate(item.created)}
 										</span>
 									</li>
 								{/each}
 							</div>
 						{/if}
-					</div>
-				</Card.Content>
-			</Card.Root>
-		</div>
+					{:else if topLoading}
+						<p class="text-muted-foreground/70">loading...</p>
+					{:else if topRecords.length === 0}
+						<p class="text-muted-foreground/70">no top links yet</p>
+					{:else}
+						<div class="max-h-fit break-all">
+							{#each topRecords.slice(0, 2) as item, i (item.id_url)}
+								<li class="align-center my-1 flex justify-between pl-1" in:slide|global>
+									<a href="/{item.id_url}" class="font-thin" target="_blank">
+										<span class="px-0 text-muted-foreground/70">
+											{item.subdomain === 'sptfy.in'
+												? 'sptfy.in'
+												: `${item.subdomain}.sptfy.in`}/</span
+										><span>{item.id_url}</span>
+									</a>
+									<span class="ml-2 flex items-center gap-1 text-primary/80">
+										<iconify-icon icon="lucide:mouse-pointer-click" width="14"></iconify-icon>
+										{formatNumber(item.utm_view)}
+									</span>
+								</li>
+							{/each}
+						</div>
+					{/if}
+				</div>
+			</Card.Content>
+		</Card.Root>
 	</div>
+	<!-- End of cards container -->
+
+	<!-- Popped out footer - emerges from the border -->
+	<footer
+		class="pointer-events-none absolute bottom-0 right-0 z-40 hidden w-full justify-end md:flex"
+	>
+		<div
+			bind:clientHeight={footerHeight}
+			class="pointer-events-auto relative -mb-1 rounded-tl-lg bg-card/95 px-5 pb-4 pt-2"
+		>
+			<!-- Bottom-left corner SVG -->
+			<svg
+				class="pointer-events-none absolute bottom-0 left-0"
+				style="fill: hsl(var(--card) / 0.95); transform: translateX(-100%);"
+				width={cornerSize}
+				height={cornerSize}
+				viewBox="0 0 39 39"
+			>
+				<path d="M39 39H0V38.9932C21.5849 38.7288 39 21.3744 39 0V39Z" />
+			</svg>
+
+			<!-- Top-right corner SVG -->
+			<svg
+				class="pointer-events-none absolute right-0 top-0"
+				style="fill: hsl(var(--card) / 0.95); transform: translateY(-100%);"
+				width={cornerSize}
+				height={cornerSize}
+				viewBox="0 0 39 39"
+			>
+				<path d="M39 39H0V38.9932C21.5849 38.7288 39 21.3744 39 0V39Z" />
+			</svg>
+
+			<p class="flex flex-row items-center gap-3 text-xs text-foreground/50">
+				<a href="/about/terms" class="transition-colors hover:text-foreground">terms</a>
+				<span class="text-foreground/20">|</span>
+				<a href="/about/privacy" class="transition-colors hover:text-foreground">privacy</a>
+				<span class="text-foreground/20">|</span>
+				<a href="/about/socials" class="transition-colors hover:text-foreground"
+					>socials / contact</a
+				>
+				<span class="text-foreground/20">|</span>
+				<a
+					href="https://status.sptfy.in"
+					target="_blank"
+					class="transition-colors hover:text-foreground">server status</a
+				>
+			</p>
+		</div>
+	</footer>
 </div>
 
 <style>
