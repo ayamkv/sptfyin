@@ -10,7 +10,7 @@
 
 services:
   pocketbase:
-    image: ghcr.io/muchobien/pocketbase:latest
+    image: ghcr.io/muchobien/pocketbase:0.23.12
     tty: true
     container_name: pocketbase
     restart: unless-stopped
