@@ -1,5 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import { generateRandomURL } from '$lib/pocketbase';
+import { isMaintenanceActive, getMaintenanceState } from '$lib/maintenance';
 const pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
 export async function GET({ locals, url, fetch }) {
@@ -45,6 +46,12 @@ export async function GET({ locals, url, fetch }) {
 }
 
 export async function POST({ locals, request }) {
+	// Check maintenance mode first
+	if (isMaintenanceActive()) {
+		const state = getMaintenanceState();
+		throw error(503, state.message || 'Service temporarily unavailable for maintenance');
+	}
+
 	const body = await request.json();
 	const { from, slug, subdomain, turnstileToken } = body || {};
 	if (!from) throw error(400, 'from is required');

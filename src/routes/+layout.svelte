@@ -6,6 +6,7 @@
 	import { Home, CircleUserRound, HandHeart, Info, History, Trophy } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import logo from '$lib/images/logo.png';
+	import MaintenanceToast from '$lib/components/maintenance-toast.svelte';
 
 	import { onMount } from 'svelte';
 	/**
@@ -85,6 +86,7 @@
 </script>
 
 <Toaster duration={4000} position="top-center" />
+<MaintenanceToast />
 
 <!-- Global background noise overlay (z-index behind content) -->
 <!-- <BackgroundNoise baseFrequency={0.8} numOctaves={2} scale={1} /> -->
