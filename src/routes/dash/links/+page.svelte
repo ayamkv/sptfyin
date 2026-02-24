@@ -15,6 +15,7 @@
 	import { strings } from '$lib/localization/languages/en.json';
 	import { findUrl, isSpotifyShortLink } from '$lib/utils';
 	import { generateRandomURL } from '$lib/pocketbase';
+	import { isMaintenanceActive } from '$lib/maintenance';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Switch } from '$lib/components/ui/switch';
 	import { Label } from '$lib/components/ui/label';
@@ -44,6 +45,8 @@
 	let reset = $state();
 	let createDialogOpen = $state(false);
 	let loading = $state(false);
+	let maintenanceNow = $state(Date.now());
+	let maintenanceActive = $derived(isMaintenanceActive(maintenanceNow));
 	const user = data.user;
 
 	// Edit mode and pre-generation
@@ -204,6 +207,14 @@
 		return () => {
 			window.removeEventListener('resize', handleResize);
 		};
+	});
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			maintenanceNow = Date.now();
+		}, 1000);
+
+		return () => clearInterval(interval);
 	});
 
 	// Fetch previews for all links in the list
@@ -1542,8 +1553,8 @@
 		</div>
 		<Dialog.Footer>
 			<Button variant="outline" onclick={() => (createDialogOpen = false)}>Cancel</Button>
-			<Button onclick={createLink} disabled={loading}>
-				{loading ? 'Creating...' : 'Create Link'}
+			<Button onclick={createLink} disabled={loading || maintenanceActive}>
+				{maintenanceActive ? 'Maintenance...' : loading ? 'Creating...' : 'Create Link'}
 			</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
@@ -1606,7 +1617,11 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 					<Button variant="outline" onclick={refreshLinks} class="gap-2">
 						<iconify-icon icon="lucide:refresh-cw" width="16"></iconify-icon>
 					</Button>
-					<Button onclick={() => (createDialogOpen = true)} class="gap-2">
+					<Button
+						onclick={() => (createDialogOpen = true)}
+						class="gap-2"
+						disabled={maintenanceActive}
+					>
 						<Plus class="h-4 w-4" />
 					</Button>
 				</div>
@@ -1659,7 +1674,12 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 				{#if items.length === 0}
 					<div class="py-8 text-center text-muted-foreground">
 						<p class="mb-2">no links created yet</p>
-						<Button variant="outline" onclick={() => (createDialogOpen = true)} class="gap-2">
+						<Button
+							variant="outline"
+							onclick={() => (createDialogOpen = true)}
+							class="gap-2"
+							disabled={maintenanceActive}
+						>
 							<Plus class="h-4 w-4" />
 							create your first link
 						</Button>

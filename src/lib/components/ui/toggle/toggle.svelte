@@ -7,7 +7,8 @@
 			variant: {
 				default: 'bg-transparent hover:bg-muted data-[state=on]:bg-accent',
 				outline: 'border-input hover:bg-accent hover:text-accent-foreground border bg-transparent',
-				ghost: 'border border-secondary/20 shadow-md hover:bg-accent hover:text-accent-foreground hover:bg-secondary/80 hover:outline-primary hover:inverseShadow active:scale-95 transition-all data-[state=on]:text-accent-foreground data-[state=on]:bg-background/30 data-[state=on]:inverseShadow',
+				ghost:
+					'border border-secondary/20 shadow-md hover:bg-accent hover:text-accent-foreground hover:bg-secondary/80 hover:outline-primary hover:inverseShadow active:scale-95 transition-all data-[state=on]:text-accent-foreground data-[state=on]:bg-background/30 data-[state=on]:inverseShadow',
 				ghost2:
 					'bg-gradient-to-br from-[#302D3A] via-5% text-secondary-foreground hover:text-accent-foreground hover:bg-secondary/40 hover:inverseShadow highlightSecondary active:scale-95 transition-all data-[state=on]:text-accent-foreground data-[state=on]:bg-background/30 data-[state=on]:inverseShadow border-t'
 			},

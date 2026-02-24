@@ -24,6 +24,7 @@
 		isSpotifyShortLink,
 		formatNumber
 	} from '$lib/utils';
+	import { isMaintenanceActive } from '$lib/maintenance';
 	import { WithEase } from '$lib/animations/customSpring';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
@@ -70,6 +71,8 @@
 	let reset = $state();
 	let preGeneratedUrlId = $state();
 	let lastCreatedShortId = $state();
+	let maintenanceNow = $state(Date.now());
+	let maintenanceActive = $derived(isMaintenanceActive(maintenanceNow));
 
 	// Domain selection must be defined before QR derivations
 	let selected = $state('sptfy.in');
@@ -258,6 +261,14 @@
 		isOldFirefox = ua.includes('firefox/') && ua.split('firefox/')[1].split('.')[0] < 103;
 		// console log the ua user is using
 		console.log(getBrowserName());
+	});
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			maintenanceNow = Date.now();
+		}, 1000);
+
+		return () => clearInterval(interval);
 	});
 
 	/**
@@ -488,7 +499,7 @@
 				slugAvailable === false ||
 				!!slugCheckError)
 	);
-	let buttonDisabled = $derived(loading || customSlugInvalidOrChecking);
+	let buttonDisabled = $derived(loading || customSlugInvalidOrChecking || maintenanceActive);
 
 	// Debounced availability check when sanitizedCustomShortId changes
 	$effect(() => {
@@ -864,7 +875,7 @@
 		</Dialog.Content>
 	</Dialog.Root>
 
-	<div class="logo mt-[20em] md:mb-6 flex flex-col items-center justify-center md:mt-[2em]">
+	<div class="logo mt-[20em] flex flex-col items-center justify-center md:mb-6 md:mt-[2em]">
 		<!-- Sticker-style stats badges positioned around the title -->
 		<div class="relative">
 			<!-- Cat sticker - top left -->
@@ -973,7 +984,7 @@
 										? 'Expanding link...'
 										: 'https://open.spotify.com/xxxx....'}
 									bind:value={inputText}
-									class="placeholder:translate-y-[2px] rounded-xl"
+									class="rounded-xl placeholder:translate-y-[2px]"
 									required
 									autofocus
 									disabled={isExpandingUrl}
@@ -981,7 +992,7 @@
 								<Button
 									type="button"
 									id="paste"
-									class="paste-button hover:bg-primary rounded-xl hover:from-[#afffdc]/20 hover:text-black"
+									class="paste-button rounded-xl hover:bg-primary hover:from-[#afffdc]/20 hover:text-black"
 									variant="ghost3"
 									onclick={() => handlePaste()}
 									disabled={isExpandingUrl}
@@ -1028,7 +1039,7 @@
 											: 'pointer-events-none translate-x-full opacity-0'}"
 									>
 										<Select.Root type="single" name="domainSelect" bind:value={selected}>
-											<Select.Trigger class="h-8 w-[140px] text-xs rounded-xl">
+											<Select.Trigger class="h-8 w-[140px] rounded-xl text-xs">
 												{selectedLabel || 'sptfy.in'}
 											</Select.Trigger>
 											<Select.Portal>
@@ -1055,7 +1066,7 @@
 											placeholder={shortIdDisplay}
 											bind:value={customShortId}
 											oninput={(e) => updateCustomShortId(e.currentTarget.value)}
-											class={'mr-2 h-8 flex-1 text-xs placeholder:translate-y-[2px] rounded-xl ' +
+											class={'mr-2 h-8 flex-1 rounded-xl text-xs placeholder:translate-y-[2px] ' +
 												slugInputClass}
 										/>
 									</div>
@@ -1124,7 +1135,7 @@
 							{/if}
 							<div class="mt-4">
 								<Button
-									class="submit-button align-center m-auto rounded-xl flex w-full flex-row items-center justify-center gap-2 text-center
+									class="submit-button align-center m-auto flex w-full flex-row items-center justify-center gap-2 rounded-xl text-center
 								{loading ? 'bg-secondary text-foreground shadow-lg' : ''}
 								transition-all"
 									type="submit"
@@ -1140,11 +1151,13 @@
 										width="18"
 									></iconify-icon>
 									<span class="flex-1"
-										>{loading
-											? 'loading...'
-											: turnstileStatus !== 'verified'
-												? 'validating...'
-												: 'short It!'}</span
+										>{maintenanceActive
+											? 'maintenance...'
+											: loading
+												? 'loading...'
+												: turnstileStatus !== 'verified'
+													? 'validating...'
+													: 'short It!'}</span
 									>
 									<!-- Right indicator: Turnstile verification status -->
 									{#if !loading}
@@ -1369,7 +1382,7 @@
 					</ToggleGroup.Root>
 					<a
 						href={activeTab === 'recent' ? '/recent' : '/top'}
-						class="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-xl border-t px-4 py-2 text-sm font-thin text-secondary-foreground no-underline border border-secondary/20 shadow-md hover:bg-accent hover:text-accent-foreground hover:bg-secondary/80 hover:outline-primary hover:inverseShadow active:scale-95 transition-all data-[state=on]:text-accent-foreground data-[state=on]:bg-background/30 data-[state=on]:inverseShadow"
+						class="hover:inverseShadow data-[state=on]:inverseShadow inline-flex h-10 items-center justify-center whitespace-nowrap rounded-xl border border-t border-secondary/20 px-4 py-2 text-sm font-thin text-secondary-foreground no-underline shadow-md transition-all hover:bg-accent hover:bg-secondary/80 hover:text-accent-foreground hover:outline-primary active:scale-95 data-[state=on]:bg-background/30 data-[state=on]:text-accent-foreground"
 					>
 						view all
 					</a>

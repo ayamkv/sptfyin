@@ -34,6 +34,15 @@ this project is **not** affiliated with, endorsed by, or sponsored by Spotify AB
 
 _(TL;DR: we just like their music links, okay?)_
 
+## infrastructure notes
+
+- backend: PocketBase in Docker (`~/pb-docker`)
+- current VPS size: 2 vCPU / 2 GB RAM / 20 GB disk
+- reverse proxy: Nginx -> `127.0.0.1:8091`
+- frontend: Cloudflare Pages
+- status page: https://status.sptfy.in
+- migration runbook: `docs/MIGRATION-RUNBOOK.md`
+
 ## license
 
 this repository is licensed under [AGPL-3.0](https://github.com/ayamkv/sptfyin?tab=License-1-ov-file)
