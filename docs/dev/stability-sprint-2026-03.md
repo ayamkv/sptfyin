@@ -49,6 +49,14 @@ Exit criteria:
 - Login and session persistence behave consistently across routes.
 - Server routes avoid request-shared mutable state patterns.
 
+Verification checklist (for `sptfyin-8yp`):
+
+- Automated: run `pnpm vitest run "src/routes/[slug]/page.server.test.js" "src/routes/[slug]/s/page.server.test.js"`.
+- Manual (Chrome DevTools on local `pnpm dev`):
+  - Open a valid `/{slug}` and confirm redirect reaches the destination URL.
+  - Open a valid `/{slug}/s` and confirm analytics/stats page renders.
+  - Open a missing `/{slug}` and missing `/{slug}/s` and confirm 404 behavior.
+
 ### Week 2 (Mar 9 - Mar 13): Redirect Reliability and Error Handling
 
 Primary issues:
