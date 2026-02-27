@@ -3,11 +3,12 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { goto } from '$app/navigation';
+	import { untrack } from 'svelte';
 
-	export let data;
-	let username = data.initial || '';
-	let initial = data.initial || '';
-	let errorMsg = '';
+	let { data } = $props();
+	let initial = $derived(data.initial || '');
+	let username = $state(untrack(() => initial));
+	let errorMsg = $state('');
 
 	async function save() {
 		errorMsg = '';

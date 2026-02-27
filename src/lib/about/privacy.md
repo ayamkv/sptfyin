@@ -1,77 +1,67 @@
 # privacy policy
 
-last updated: 2025-01-30
+last updated: 2026-02-27
 
-## 1. general terms
+## 1. overview
 
-at [sptfy.in](/), we are committed to protecting your privacy while providing our link shortening service. this privacy policy outlines:
-
-- what information we collect
-- how we use and protect your data
-- your rights regarding your personal information
-- our commitment to data security and transparency
-
-we adhere to gdpr and similar privacy regulations to ensure your data is handled responsibly.
+at [sptfy.in](/), we collect only the data needed to run and protect a spotify link shortener.
+this page explains what we collect, why we collect it, and how you can contact us.
 
 ## 2. information we collect
 
-### 2.1 link information
+### 2.1 link data
 
-- original spotify urls
-- generated short urls
-- custom back-half selections (when provided)
+- original spotify url
+- generated short url and slug
+- selected `*.sptfy.in` subdomain
 
-### 2.2 usage data
+### 2.2 redirect and usage data
 
-we automatically collect:
+when someone opens a short link, we automatically collect:
 
-- click statistics
-- user agent information
-- approximate geographic location (country)
-- referrer information
+- click events and aggregate counts
+- user agent string
+- country-level location (from request metadata)
+- referrer (when available)
 
-### 2.3 account information (coming soon)
+### 2.3 account data
 
-when our account feature becomes available, we will collect:
+if you sign in, we process account-related data needed for authentication and link management.
 
-- email addresses
-- password (securely hashed)
-- account preferences
+## 3. how we use information
 
-## 3. how we use your information
+we use data to:
 
-we use the collected information to:
-
-- provide and maintain our link shortening service
-- monitor and analyze usage patterns
-- prevent abuse and ensure security
-- improve our service
+- operate redirects and link management features
+- provide analytics views for created links
+- detect abuse, bots, and suspicious traffic
+- monitor reliability and improve service quality
 
 ## 4. data security
 
-we implement appropriate security measures to protect your information, including:
-
-- secure database hosting
-- encryption of sensitive data
-- regular security updates
-- separation of public and private data
+we apply practical security controls, including access controls, environment-level secrets, and routine updates.
+no system is perfect, but we continuously improve our security posture.
 
 ## 5. data sharing
 
-we do not sell your personal information. we may share anonymous, aggregated statistics about service usage.
+we do not sell personal data.
+we may disclose limited data only when required by law, or share anonymized aggregate statistics.
 
 ## 6. your rights
 
-you have the right to:
+you may request:
 
-- access your personal data
-- request deletion of your data
-- opt-out of analytics collection
-- request your data in a portable format
+- access to your personal data
+- correction of inaccurate data
+- deletion of data where applicable
+- export of your data where applicable
+
+note: short links redirect immediately, and analytics collection is part of service operation and abuse prevention. there is currently no per-click opt-out flow for visitors opening a shortened link.
 
 ## 7. contact us
 
-for any privacy-related questions or concerns, please contact us at:
+for privacy-related questions or requests:
 
+- email: [hello@sptfy.in](mailto:hello@sptfy.in)
 - bluesky: [sptfy.in](https://bsky.app/profile/sptfy.in)
-- github: [sptfyin/issues](https://github.com/sptfyin/issues)
+- github issues: [ayamkv/sptfyin](https://github.com/ayamkv/sptfyin/issues)

@@ -1,5 +1,10 @@
 # PocketBase VPS Migration Runbook (v2)
 
+Owner: @ayamkv
+Last updated: 2026-02-27
+Audience: operations, engineering
+Status: active
+
 Battle-tested migration guide for moving PocketBase between VPS providers with minimal downtime and a clean rollback path.
 
 ## Goal
@@ -101,6 +106,20 @@ Mode behavior:
 - `PUBLIC_MAINTENANCE_MODE=off` -> force OFF now
 - `PUBLIC_MAINTENANCE_MODE=false` -> only ON inside scheduled window
 
+### 3.1 Degraded Behavior Matrix (Maintenance Active)
+
+| Route/Capability                                    | Behavior during maintenance                              |
+| --------------------------------------------------- | -------------------------------------------------------- |
+| `GET /[slug]` redirect reads                        | Stay online (cache/KV first, DB fallback when available) |
+| Redirect analytics writes (`analytics`, `utm_view`) | Disabled (skip writes)                                   |
+| `POST /api/links`                                   | `503` maintenance response                               |
+| `PATCH /api/links/:id`                              | `503` maintenance response                               |
+| `DELETE /api/links/:id`                             | `503` maintenance response                               |
+
+Operational note:
+
+- We intentionally accept a temporary analytics gap during maintenance windows.
+
 ---
 
 ## 4) Cutover (Short Freeze)
@@ -160,6 +179,7 @@ Do not lift maintenance until all pass:
 - [ ] `curl -sf https://pb.sptfy.in/api/health`
 - [ ] Admin panel loads at `https://pb.sptfy.in/_/`
 - [ ] Existing redirect works
+- [ ] At least 3-5 known slugs redirect successfully during maintenance mode
 - [ ] New short link creation works
 - [ ] `/recent` and `/top` load correctly
 

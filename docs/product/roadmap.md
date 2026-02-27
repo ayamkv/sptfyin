@@ -1,6 +1,11 @@
 # sptfy.in Product Roadmap & Monetization Plan
 
-**Last Updated:** February 2025  
+Owner: @ayamkv
+Last updated: 2026-02-27
+Audience: product, engineering
+Status: active
+
+**Last Updated:** February 2026  
 **Status:** Approved - Ready for Implementation
 
 > **Payment Provider Decision:** Polar.sh (developer-friendly, Indonesia available via testimonials, flexible payouts without minimum thresholds, subscription management)
@@ -24,15 +29,15 @@ sptfy.in will transition from a completely free service to a **freemium model** 
 
 **Positioning**: Entry-level, highly limited to encourage account creation
 
-| Feature              | Limitation                                       |
-| -------------------- | ------------------------------------------------ |
-| **Dashboard Access** | ❌ No access                                     |
-| **Link Creation**    | ✅ Unlimited with strict rate limiting           |
-| **Bulk Operations**  | ❌ No bulk add, delete, or CSV                   |
-| **Analytics**        | ⚠️ Logs only 5 clicks total per link, basic view |
-| **Custom Domains**   | ❌ Not available                                 |
-| **Public Profile**   | ❌ Not available                                 |
-| **API Access**       | ❌ Not available                                 |
+| Feature               | Limitation                                       |
+| --------------------- | ------------------------------------------------ |
+| **Dashboard Access**  | ❌ No access                                     |
+| **Link Creation**     | ✅ Unlimited with strict rate limiting           |
+| **Bulk Operations**   | ❌ No bulk add, delete, or CSV                   |
+| **Analytics**         | ⚠️ Logs only 5 clicks total per link, basic view |
+| **Branded Subdomain** | ✅ Available (`*.sptfy.in`)                      |
+| **Public Profile**    | ❌ Not available                                 |
+| **API Access**        | ❌ Not available                                 |
 
 **Rate Limits:**
 
@@ -53,7 +58,7 @@ sptfy.in will transition from a completely free service to a **freemium model** 
 | **Bulk Delete**       | ✅ Up to 3 links per operation                        |
 | **CSV Import/Export** | ❌ Not available                                      |
 | **Analytics**         | ✅ Basic analytics (views, referrers, 30-day history) |
-| **Custom Domain**     | ✅ 1 subdomain (e.g., `artist.sptfy.in/your-link`)    |
+| **Branded Subdomain** | ✅ Available (e.g., `artist.sptfy.in/your-link`)      |
 | **Public Profile**    | ✅ Available with watermark                           |
 | **API Access**        | ❌ Not available                                      |
 
@@ -89,7 +94,7 @@ sptfy.in will transition from a completely free service to a **freemium model** 
 | **Bulk Delete**       | ✅ Up to 50 links per operation                                                                |
 | **CSV Import/Export** | ✅ Template-based CSV import/export                                                            |
 | **Analytics**         | ✅ Advanced analytics (referrers, geo heatmaps, UTM tracking, click timelines, 1-year history) |
-| **Custom Domain**     | ✅ Up to 3 custom subdomains                                                                   |
+| **Branded Subdomain** | ✅ Available                                                                                   |
 | **Public Profile**    | ✅ Clean, no watermark                                                                         |
 | **API Access**        | ✅ REST API with API keys (1000 requests/day)                                                  |
 | **Support**           | ✅ Priority support (24-48h response)                                                          |
@@ -114,7 +119,7 @@ sptfy.in will transition from a completely free service to a **freemium model** 
 | CSV Export         | ❌                        | ❌               | ✅                  |
 | Basic Analytics    | 5 clicks only             | ✅               | ✅                  |
 | Advanced Analytics | ❌                        | ❌               | ✅                  |
-| Custom Subdomain   | ❌                        | 1 (watermarked)  | 3 (clean)           |
+| Branded Subdomain  | ✅                        | ✅               | ✅                  |
 | Public Profile     | ❌                        | ✅ (watermarked) | ✅ (clean)          |
 | API Access         | ❌                        | ❌               | ✅                  |
 | Priority Support   | ❌                        | ❌               | ✅                  |
@@ -137,7 +142,7 @@ sptfy.in will transition from a completely free service to a **freemium model** 
   "subscription_end": "datetime",
   "polar_subscription_id": "string",
   "polar_customer_id": "string",
-  "custom_domains": "number",  // count of custom domains used
+  "custom_domains": "number",  // reserved for future BYOD custom domain support
   "api_key": "string",  // encrypted, for Pro users
   "rate_limit_tier": "enum(guest, free, pro)"  // separate from plan for flexibility
 }
@@ -309,7 +314,7 @@ GET    /api/v1/analytics/:id  # Get analytics for link
 - [ ] Implement CSV import/export
 - [ ] Create API system with keys
 - [ ] Public profile improvements (watermark toggle)
-- [ ] Custom subdomain management (up to 3)
+- [ ] BYOD custom domain support (future, demand-validated)
 
 ### Phase 3: Launch & Iterate (Month 5+)
 
@@ -362,6 +367,42 @@ GET    /api/v1/analytics/:id  # Get analytics for link
 
 ---
 
+## Reliability Workstream: Redirect Continuity During DB Maintenance
+
+### Goal
+
+Keep `GET /[slug]` redirect reads online during PocketBase maintenance or temporary DB outage windows.
+
+### Scope
+
+- Redirect reads stay available for existing links.
+- Link write operations are paused during maintenance (`create`, `edit`, `delete`).
+- Analytics writes are paused during maintenance (`analytics` inserts and `utm_view` increments).
+- No analytics replay queue during maintenance (intentional temporary analytics gap).
+
+### Milestones
+
+1. **Redirect hardening (fail-open on analytics failures)**
+   - Redirects must not fail if analytics write/update fails.
+   - Return 404 only for true missing slugs.
+   - Return 503 when slug resolution is unavailable because the DB is down.
+
+2. **Cached slug reads for outage resilience**
+   - Add edge cache/KV mapping for `slug -> destination`.
+   - Use DB lookup as fallback when available.
+
+3. **Maintenance behavior docs + verification**
+   - Document route behavior matrix in runbook/docs.
+   - Add explicit maintenance verification steps for redirect continuity.
+
+### Success Criteria
+
+- Existing links keep redirecting during planned DB maintenance.
+- No redirect failures caused by analytics write failures.
+- Maintenance messaging clearly states analytics are temporarily paused.
+
+---
+
 ## Open Questions
 
 1. **Guest to Free conversion:** Should we require email verification for Free accounts?
@@ -370,6 +411,7 @@ GET    /api/v1/analytics/:id  # Get analytics for link
 4. **Trial period:** Should Pro have a 7-day free trial?
 5. **Refund policy:** 7-day money-back guarantee?
 6. **Team accounts:** Should we support multiple users under one Pro account?
+7. **BYOD domains:** Should user-owned domains (`yourdomain.com`) be introduced later as Pro+?
 
 ---
 

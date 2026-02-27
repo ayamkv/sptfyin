@@ -19,7 +19,7 @@
 		},
 		{
 			href: '/about/privacy',
-			label: 'privacy policies',
+			label: 'privacy policy',
 			icon: 'lucide:lock'
 		},
 		{

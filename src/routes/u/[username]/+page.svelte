@@ -1,5 +1,6 @@
 <script>
-	export let params;
+	let { params: routeParams, data } = $props();
+	let params = $derived(routeParams ?? data?.params ?? {});
 </script>
 
 <div class="mt-10 text-center">

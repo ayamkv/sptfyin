@@ -1,5 +1,5 @@
 <script>
-	export let data;
+	let { data } = $props();
 	import { onMount } from 'svelte';
 
 	onMount(() => {

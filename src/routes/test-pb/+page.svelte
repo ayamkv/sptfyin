@@ -1,5 +1,5 @@
 <script>
-	export let data;
+	let { data } = $props();
 	import { Button } from '$lib/components/ui/button';
 
 	function refreshPage() {
@@ -26,7 +26,7 @@ Environment: {import.meta.env.MODE}
 		<div class="rounded-lg border border-border p-4">
 			<h2 class="mb-4 text-lg font-semibold text-foreground">Connection Tests</h2>
 			<div class="space-y-3">
-				{#each data.results.tests as test}
+				{#each data.results.tests as test (test.name)}
 					<div
 						class="rounded border p-3 {test.status === 'success'
 							? 'border-green-500/30 bg-green-500/10'
