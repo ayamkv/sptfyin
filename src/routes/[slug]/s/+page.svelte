@@ -80,8 +80,16 @@
 		if (currentPage > 1) currentPage--;
 	}
 
-	function toUpperCase(str) {
-		return (str || '').toUpperCase();
+	function getCountryCode(country) {
+		const normalized = String(country || '')
+			.trim()
+			.toLowerCase();
+
+		if (!/^[a-z]{2}$/.test(normalized)) {
+			return 'un';
+		}
+
+		return normalized;
 	}
 
 	onMount(() => {
@@ -512,10 +520,16 @@
 											{#each getCurrentItems(analytics, currentPage, itemsPerPage) as v, i (i)}
 												<Table.Row>
 													<Table.Cell class="border-r border-white/10 pl-0 font-medium">
+														{@const countryCode = getCountryCode(v.utm_country)}
 														<img
-															src={`https://www.flagsapi.com/${toUpperCase(v.utm_country || 'UN')}/shiny/64.png`}
-															alt={v.utm_country}
-															class="mr-2 inline-block h-6 w-6"
+															src={`https://flagcdn.com/24x18/${countryCode}.webp`}
+															srcset={`https://flagcdn.com/48x36/${countryCode}.webp 2x`}
+															alt={`${v.utm_country || 'Unknown'} flag`}
+															class="mr-2 inline-block h-[18px] w-[24px] rounded-[2px]"
+															width="24"
+															height="18"
+															loading="lazy"
+															decoding="async"
 														/>
 														<span>{v.utm_country || 'Unknown'}</span>
 													</Table.Cell>
