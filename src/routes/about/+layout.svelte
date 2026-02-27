@@ -3,6 +3,7 @@
 	import 'iconify-icon';
 	import { fly } from 'svelte/transition';
 	import { page } from '$app/state';
+	import { ABOUT_SECTIONS } from '$lib/about/sections';
 	/**
 	 * @typedef {Object} Props
 	 * @property {import('svelte').Snippet} [children]
@@ -11,28 +12,7 @@
 	/** @type {Props} */
 	let { children } = $props();
 
-	const navItems = [
-		{
-			href: '/about/general',
-			label: "what's sptfyin?",
-			icon: 'lucide:message-circle-question'
-		},
-		{
-			href: '/about/privacy',
-			label: 'privacy policy',
-			icon: 'lucide:lock'
-		},
-		{
-			href: '/about/terms',
-			label: 'terms and ethics',
-			icon: 'lucide:file-check-2'
-		},
-		{
-			href: '/about/socials',
-			label: 'socials',
-			icon: 'lucide:at-sign'
-		}
-	];
+	const navItems = ABOUT_SECTIONS;
 	let showNav = $state(false);
 </script>
 
@@ -72,7 +52,7 @@
 				<div class="nav-header text-4xl">about</div>
 				<div class="navigation-bar">
 					<nav class="subnav flex flex-col gap-4">
-						{#each navItems as nav}
+						{#each navItems as nav (nav.id)}
 							<a
 								href={nav.href}
 								class="align-center hover:inverseShadow flex flex-row justify-start gap-2 rounded-lg p-2 hover:bg-secondary/40 hover:text-white hover:outline-2 hover:outline-primary
@@ -102,7 +82,7 @@
 		<div class="nav-header text-4xl sm:hidden">about</div>
 		<div class="navigation-bar">
 			<nav class="subnav flex flex-col gap-4 lg:col-span-1">
-				{#each navItems as nav}
+				{#each navItems as nav (nav.id)}
 					<a
 						href={nav.href}
 						class="align-center flex flex-row justify-start gap-2 rounded-lg p-2 hover:bg-secondary/40 hover:text-white hover:outline-2 hover:outline-primary
@@ -135,7 +115,7 @@
 		text-decoration: none;
 	}
 	/* Add borders to table :global */
-	.prose table {
+	:global(.prose table) {
 		border-collapse: collapse;
 		border-spacing: 0;
 		width: 100%;
