@@ -1,8 +1,7 @@
 import { redirect, error } from '@sveltejs/kit';
-import { createRecord, updateRecord } from '$lib/pocketbase';
-let pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
-let link = null;
+const LINK_NOT_FOUND_MESSAGE =
+	'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠';
 
 // Function to check if user agent is a bot or crawler
 function isBot(userAgent) {
@@ -37,19 +36,28 @@ function isBot(userAgent) {
 
 export const prerender = false;
 
-export const load = async ({ params, request }) => {
+export const load = async ({ params, request, locals }) => {
 	const slug = params.slug;
-	const res = await fetch(
-		`${pocketBaseURL}/api/collections/viewList/records?filter=(id_url='${slug}')`
-	);
-	const data = await res.json();
+	let link;
 
 	try {
-		const recordId = data?.items[0].id;
-		link = data?.items[0].from;
-		const utmView = data?.items[0].utm_view;
+		const data = await locals.pb.collection('viewList').getList(1, 1, {
+			filter: `id_url='${slug}'`
+		});
+
+		const record = data?.items?.[0];
+		const recordId = record?.id;
+		link = record?.from;
+		const utmView = record?.utm_view;
+
+		if (!recordId || !link) {
+			throw error(404, LINK_NOT_FOUND_MESSAGE);
+		}
+
 		const userAgent = request.headers.get('user-agent') || 'Unknown'; // Log if it's a bot (for debugging) but don't block access
-		if (isBot(userAgent)) {
+		const botRequest = isBot(userAgent);
+
+		if (botRequest) {
 			console.log(`[Debug] Bot access detected: ${userAgent}`);
 		}
 
@@ -57,14 +65,14 @@ export const load = async ({ params, request }) => {
 		console.log('record ID :', recordId);
 
 		// Analytics tracking
-		if (!isBot(userAgent)) {
+		if (!botRequest) {
 			const cf_ipcountry = request.headers.get('CF-IPCountry');
 			console.log('CF IP', cf_ipcountry);
 			const forwardedFor = request.headers.get('x-forwarded-for');
 			console.log('Forwarded for', forwardedFor);
 
 			try {
-				await createRecord('analytics', {
+				await locals.pb.collection('analytics').create({
 					author: recordId,
 					utm_userAgent: userAgent,
 					utm_country: cf_ipcountry,
@@ -78,14 +86,10 @@ export const load = async ({ params, request }) => {
 			}
 		}
 
-		if (!recordId) {
-			throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
-		}
-
 		// View count increment
-		if (!isBot(userAgent)) {
+		if (!botRequest) {
 			try {
-				await updateRecord('random_short', recordId, {
+				await locals.pb.collection('random_short').update(recordId, {
 					'utm_view+': 1
 				});
 				console.log(`[Debug] Successfully incremented UTM view for ${slug}`);
@@ -95,7 +99,7 @@ export const load = async ({ params, request }) => {
 			}
 		}
 	} catch {
-		throw error(404, 'Link does not exist, but may be available in the future. <br>yeehaw 🔍🤠');
+		throw error(404, LINK_NOT_FOUND_MESSAGE);
 	}
 
 	redirect(301, link);
