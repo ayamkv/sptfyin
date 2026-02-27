@@ -4,13 +4,14 @@ Use this page as the single entry point for project docs.
 
 ## Core docs
 
-| Area             | Path                            | Purpose                                               |
-| ---------------- | ------------------------------- | ----------------------------------------------------- |
-| Product          | `docs/product/roadmap.md`       | Monetization, feature strategy, and rollout phases    |
-| Development      | `docs/dev/local-development.md` | Local setup, PocketBase dev workflow, troubleshooting |
-| Operations       | `docs/ops/migration-runbook.md` | PocketBase VPS migration and maintenance runbook      |
-| Agent rules      | `AGENTS.md`                     | Coding agent behavior and workflow requirements       |
-| Project overview | `README.md`                     | External-facing intro, infra summary, and entry links |
+| Area             | Path                                   | Purpose                                               |
+| ---------------- | -------------------------------------- | ----------------------------------------------------- |
+| Product          | `docs/product/roadmap.md`              | Monetization, feature strategy, and rollout phases    |
+| Development      | `docs/dev/local-development.md`        | Local setup, PocketBase dev workflow, troubleshooting |
+| Development plan | `docs/dev/stability-sprint-2026-03.md` | Feature freeze and hardening timeline for March 2026  |
+| Operations       | `docs/ops/migration-runbook.md`        | PocketBase VPS migration and maintenance runbook      |
+| Agent rules      | `AGENTS.md`                            | Coding agent behavior and workflow requirements       |
+| Project overview | `README.md`                            | External-facing intro, infra summary, and entry links |
 
 ## Documentation standards
 
