@@ -41,7 +41,10 @@ _(TL;DR: we just like their music links, okay?)_
 - reverse proxy: Nginx -> `127.0.0.1:8091`
 - frontend: Cloudflare Pages
 - status page: https://status.sptfy.in
-- migration runbook: `docs/MIGRATION-RUNBOOK.md`
+- docs hub: `docs/README.md`
+- local development: `docs/dev/local-development.md`
+- product roadmap: `docs/product/roadmap.md`
+- migration runbook: `docs/ops/migration-runbook.md`
 
 ## license
 

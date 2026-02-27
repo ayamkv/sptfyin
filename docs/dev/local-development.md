@@ -1,5 +1,10 @@
 # sptfy.in Local Development Setup
 
+Owner: @ayamkv
+Last updated: 2026-02-27
+Audience: engineering
+Status: active
+
 This guide explains how to set up a complete local development environment with a local PocketBase instance.
 
 ## Architecture Overview
