@@ -5,14 +5,29 @@ const MAX_BULK_DELETE = 5; // Free tier limit
 export async function DELETE({ locals, request }) {
 	if (!locals.user) throw error(401, 'Authentication required');
 
-	const body = await request.json();
-	const { ids } = body;
+	let body;
+	try {
+		body = await request.json();
+	} catch {
+		throw error(400, 'Invalid JSON body');
+	}
+
+	const { ids } = body ?? {};
 
 	if (!ids || !Array.isArray(ids) || ids.length === 0) {
 		throw error(400, 'ids array is required');
 	}
 
-	if (ids.length > MAX_BULK_DELETE) {
+	const sanitizedIds = [...new Set(ids)]
+		.filter((id) => typeof id === 'string')
+		.map((id) => id.trim())
+		.filter(Boolean);
+
+	if (sanitizedIds.length === 0) {
+		throw error(400, 'ids array must contain valid record ids');
+	}
+
+	if (sanitizedIds.length > MAX_BULK_DELETE) {
 		throw error(400, `Cannot delete more than ${MAX_BULK_DELETE} links at once (free tier limit)`);
 	}
 
@@ -21,7 +36,7 @@ export async function DELETE({ locals, request }) {
 		failed: []
 	};
 
-	for (const id of ids) {
+	for (const id of sanitizedIds) {
 		try {
 			// Verify ownership
 			const record = await locals.pb.collection('random_short').getOne(id);
