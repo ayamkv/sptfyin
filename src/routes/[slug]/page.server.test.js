@@ -5,9 +5,13 @@ function createRouteContext({ viewListGetList, analyticsCreate, randomShortUpdat
 	const viewListGetListMock = viewListGetList || vi.fn(async () => ({ items: [] }));
 	const analyticsCreateMock = analyticsCreate || vi.fn(async () => ({}));
 	const randomShortUpdateMock = randomShortUpdate || vi.fn(async () => ({}));
+	const filterMock = vi.fn(
+		(expression, params) => `FILTER:${expression}:${JSON.stringify(params ?? {})}`
+	);
 
 	const locals = {
 		pb: {
+			filter: filterMock,
 			collection: vi.fn((name) => {
 				if (name === 'viewList') {
 					return {
@@ -34,6 +38,7 @@ function createRouteContext({ viewListGetList, analyticsCreate, randomShortUpdat
 
 	return {
 		locals,
+		filter: filterMock,
 		viewListGetList: viewListGetListMock,
 		analyticsCreate: analyticsCreateMock,
 		randomShortUpdate: randomShortUpdateMock
@@ -80,8 +85,10 @@ describe('GET /[slug] load', () => {
 		});
 
 		expect(context.viewListGetList).toHaveBeenCalledWith(1, 1, {
-			filter: "id_url='hello'"
+			filter: 'FILTER:id_url = {:slug}:{"slug":"hello"}'
 		});
+
+		expect(context.filter).toHaveBeenCalledWith('id_url = {:slug}', { slug: 'hello' });
 
 		expect(context.analyticsCreate).toHaveBeenCalledWith(
 			expect.objectContaining({

@@ -42,7 +42,7 @@ export const load = async ({ params, request, locals }) => {
 
 	try {
 		const data = await locals.pb.collection('viewList').getList(1, 1, {
-			filter: `id_url='${slug}'`
+			filter: locals.pb.filter('id_url = {:slug}', { slug })
 		});
 
 		const record = data?.items?.[0];

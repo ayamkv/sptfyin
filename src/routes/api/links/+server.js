@@ -16,7 +16,7 @@ export async function GET({ locals, url, fetch }) {
 		page: String(page),
 		perPage: String(perPage),
 		sort: '-created',
-		filter: `user.id='${locals.user.id}'`
+		filter: locals.pb.filter('user.id = {:userId}', { userId: locals.user.id })
 	});
 
 	const fetchUrl = `${pocketBaseURL}/api/collections/viewList/records?${qs.toString()}`;

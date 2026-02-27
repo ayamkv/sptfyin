@@ -5,11 +5,15 @@ import PocketBase from 'pocketbase';
 // Mock PocketBase globally
 vi.mock('pocketbase', () => {
 	const mockGetList = vi.fn();
+	const mockFilter = vi.fn((expression, params = {}) =>
+		expression.replace(/\{:(\w+)\}/g, (_, key) => `'${String(params[key] ?? '')}'`)
+	);
 	return {
 		default: vi.fn(() => ({
 			collection: () => ({
 				getList: mockGetList
-			})
+			}),
+			filter: mockFilter
 		}))
 	};
 });
