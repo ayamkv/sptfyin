@@ -1,65 +1,59 @@
-# terms of ethical use
+# terms of use
 
-last updated: 2025-01-30
+last updated: 2026-02-27
 
-## 1. general terms
+## 1. agreement
 
-[sptfyin](/) is a link shortening service specifically designed for Spotify urls, allowing users to create shorter, shareable links to Spotify content.
+by using [sptfyin](/), you agree to these terms.
+if you do not agree, do not use the service.
 
-by using our service, you agree to these terms of ethical use.
+## 2. service scope
 
-## 2. user responsibilities
+sptfyin is a spotify-focused link shortener.
+you may only create links that point to valid spotify resources.
 
-### 2.1 acceptable use
+## 3. acceptable use
 
 you agree to:
 
-- only use the service for legitimate Spotify links
-- respect intellectual property rights
-- not use the service for any illegal or harmful purposes
-- not attempt to circumvent any service limitations
+- use the service for lawful purposes
+- respect intellectual property and third-party rights
+- provide accurate information when submitting support or ownership requests
+- follow service limits and anti-abuse controls
 
-### 2.2 content responsibility
+## 4. prohibited use
 
-you are solely responsible for:
+you must not:
 
-- the content you share through our service
-- how you use and distribute the shortened links
-- any consequences resulting from your use of the service
+- create links for phishing, malware, scams, or other harmful activity
+- use automation to bypass rate limits or abuse protections
+- impersonate others or make fraudulent ownership claims
+- attempt to disrupt, reverse engineer, or degrade the service
 
-## 3. service limitations
+## 5. enforcement
 
-### 3.1 no warranty
+we may investigate suspected abuse and take action, including:
 
-- the service is provided "as is" without warranties
-- we do not guarantee uninterrupted or error-free service
-- we are not affiliated with, endorsed by, or sponsored by Spotify ab
+- disabling links
+- rate-limiting or blocking traffic
+- suspending access to management features
 
-### 3.2 usage restrictions
+## 6. disclaimers and liability
 
-we reserve the right to:
+the service is provided "as is" and "as available" without warranties.
+we do not guarantee uninterrupted availability.
+to the maximum extent allowed by law, we are not liable for indirect, incidental, or consequential damages arising from service use.
 
-- block urls that violate our terms
-- implement rate limiting
-- terminate service to any user violating these terms
+## 7. trademark and affiliation
 
-## 4. legal compliance
+spotify and the spotify logo are trademarks of spotify ab.
+sptfyin is independent and is not affiliated with, endorsed by, or sponsored by spotify ab.
 
-### 4.1 intellectual property
+## 8. changes to these terms
 
-- Spotify® is a registered trademark of Spotify ab
-- our service is independent and **NOT AFFILIATED** with Spotify
+we may update these terms from time to time.
+continued use after updates means you accept the revised terms.
 
-<!--
-### 4.2 open source
-this service is *SOON* to be licensed under AGPL-3.0. users have the right to:
-- access the source code
-- modify and distribute the code under AGPL-3.0 terms -->
+## 9. contact
 
-## 5. modifications to terms
-
-we reserve the right to modify these terms at any time. continued use of the service constitutes acceptance of modified terms.
-
-## 6. termination
-
-we reserve the right to terminate or suspend access to our service immediately, without prior notice, for any violation of these terms.
+for legal or policy questions, contact [hello@sptfy.in](mailto:hello@sptfy.in).

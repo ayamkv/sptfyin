@@ -1,67 +1,54 @@
 # frequently asked questions
 
+last updated: 2026-02-27
+
 ## sptfyin, what's that?
 
-[sptfyin](/) is a simple spotify link shortener,
-no ads, no nonsense—just short links that actually works.
+[sptfyin](/) is a spotify-only link shortener.
+you paste a spotify url, get a short link, and share it anywhere.
 
-## how does this work?
+## what links are supported?
 
-here's a simple example of our url shortening:
+we support spotify links only (tracks, albums, playlists, artists, podcasts, and related spotify content).
 
-| original spotify url             | shortened url       |
-| -------------------------------- | ------------------- |
-| https://open.spotify.com/artist/ | [sptfy.in/sptfy](/) |
+## can i use custom slugs and subdomains?
 
-you can then share your shortened link anywhere - social media, emails, websites, ads, affiliate links, and more!
+yes. you can use a custom back-half (slug) when available, and choose from branded `*.sptfy.in` subdomains.
 
-## can i create an account?
+## how can i view my link statistics and qr code?
 
-this feature is planned and coming soon! with an account, you'll be able to:
-
-- manage all your shortened links in one place
-- view detailed analytics for each link
-- customize your short urls
-- edit or replace destination links
-
-## can i replace or change the spotify link in my created short url?
-
-right now, this isn't possible - but it's coming soon with our account feature! you'll be able to manage and edit your links once logged in.
-
-## how can i view my link statistics?
-
-while the full analytics dashboard is coming soon with our account feature, you can view basic stats by adding `/s` to your short url:
+add `/s` to your short url:
 
 | your short url                               | stats url                                        |
 | -------------------------------------------- | ------------------------------------------------ |
 | [sptfy.in/raharja](https://sptfy.in/raharja) | [sptfy.in/raharja/s](https://sptfy.in/raharja/s) |
 
-## how can i view my qr code again?
+that page includes basic stats and the qr preview for the same link.
 
-easy! just add `/s` to your short url, just like viewing statistics. your qr code will be available on that page.
+## can i replace or change the spotify link in my created short url?
+
+right now, this is planned for broader self-serve management.
+if you need urgent changes, contact us via [our socials](/about/socials) and include proof of ownership.
 
 ## can i delete my url?
 
-currently, as we're still working on the account feature, deletion requires verification of ownership. if you need a url deleted, please contact us through
-[our socials](/about/socials) with proof of ownership.
+for now, deletion requests are handled manually with ownership verification.
+please contact [our socials](/about/socials) with proof of ownership.
 
 ## will my links ever expire?
 
-nope! your shortened links are permanent and will never expire.
+nope. short links do not have an automatic expiration policy at the moment.
 
 ## how many urls can i create?
 
-there's no limit! create as many shortened urls as you need, but do keep in mind we have a rate limiter :)
+there is no fixed quota, but rate limits are applied to prevent abuse.
 
-## planned features
+## what is currently planned?
 
-we're working on some exciting features:
-
-- **detailed analytics**: view comprehensive stats about your links _WORK IN PROGRESS_
-- **subdomain choices**: you can choose your favorite subdomain like `artist.sptfy.in`, `playlist.sptfy.in`, etc
-- **user accounts**: manage all your links in one dashboard
-- **enhanced qr codes**: customizable qr code designs
+- deeper analytics views
+- stronger link management workflows
+- improved qr customization
 
 ## have other questions?
 
-we're here to help! feel free to reach out through [our socials](/about/socials) or email us at [hello@sptfy.in](mailto:hello@sptfy.in).
+reach out through [our socials](/about/socials) or email [hello@sptfy.in](mailto:hello@sptfy.in).
