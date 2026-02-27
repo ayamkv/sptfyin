@@ -15,7 +15,7 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: cloudflare(),
 		csrf: {
-			checkOrigin: false
+			checkOrigin: true
 		},
 		alias: {
 			'@/*': './path/to/lib/*'

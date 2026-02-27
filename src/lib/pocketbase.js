@@ -74,12 +74,19 @@ export function getPocketBase() {
 	return new PocketBase(pocketBaseURL);
 }
 
-export async function getFilteredRecords(collection, filter, sort = '') {
+export async function getFilteredRecords(collection, filter, sort = '', filterParams = {}) {
 	try {
-		const filterParam = filter ? `?filter=${filter}` : '';
-		const sortParam = sort ? `${filterParam ? '&' : '?'}sort=${sort}` : '';
+		const pb = getPocketBaseInstance();
+		const hasFilterParams = Object.keys(filterParams).length > 0;
+		const safeFilter = filter ? (hasFilterParams ? pb.filter(filter, filterParams) : filter) : '';
+
+		const query = new URLSearchParams();
+		if (safeFilter) query.set('filter', safeFilter);
+		if (sort) query.set('sort', sort);
+
+		const queryString = query.toString();
 		const res = await fetch(
-			`${pocketBaseURL}/api/collections/${collection}/records${filterParam}${sortParam}`
+			`${pocketBaseURL}/api/collections/${collection}/records${queryString ? `?${queryString}` : ''}`
 		);
 		const data = await res.json();
 		return data.items || [];
@@ -118,7 +125,7 @@ export async function isSlugAvailable(id) {
 		if (!id || !id.trim()) return false;
 		const pb = getPocketBaseInstance();
 		const records = await pb.collection('viewList').getList(1, 1, {
-			filter: `id_url='${id}'`
+			filter: pb.filter('id_url = {:id}', { id })
 		});
 		return records.items.length === 0;
 	} catch (err) {
@@ -144,7 +151,7 @@ export async function generateRandomURL() {
 				const pb = getPocketBaseInstance();
 				const shortId = generateNanoId();
 				const records = await pb.collection('viewList').getList(1, 1, {
-					filter: `id_url='${shortId}'`
+					filter: pb.filter('id_url = {:shortId}', { shortId })
 				});
 
 				if (!records.items.length) {

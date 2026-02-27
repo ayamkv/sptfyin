@@ -63,7 +63,7 @@ export const load = async ({ params, locals, url }) => {
 
 	try {
 		const urlData = await locals.pb.collection('viewList').getList(1, 1, {
-			filter: `id_url='${slug}'`
+			filter: locals.pb.filter('id_url = {:slug}', { slug })
 		});
 		const urlRecord = urlData?.items?.[0];
 
@@ -72,7 +72,7 @@ export const load = async ({ params, locals, url }) => {
 		}
 
 		const analyticsData = await locals.pb.collection('analytics').getList(1, 30, {
-			filter: `author='${urlRecord.id}'`,
+			filter: locals.pb.filter('author = {:recordId}', { recordId: urlRecord.id }),
 			sort: '-created'
 		});
 
