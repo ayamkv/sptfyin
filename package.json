@@ -44,8 +44,11 @@
 	"dependencies": {
 		"clsx": "^2.1.1",
 		"cors": "^2.8.5",
+		"d3-scale": "^4.0.2",
+		"d3-shape": "^3.2.0",
 		"formsnap": "^1.0.1",
 		"iconify-icon": "^2.1.0",
+		"layerchart": "2.0.0-next.46",
 		"mode-watcher": "^0.3.1",
 		"nanoid": "^5.0.7",
 		"pocketbase": "^0.21.5",
