@@ -3,6 +3,16 @@ import { dev } from '$app/environment';
 
 const pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
+function shouldRefreshAuth(event) {
+	const { pathname } = event.url;
+	const accept = event.request.headers.get('accept') || '';
+	const isHtmlNavigation = accept.includes('text/html');
+	const isApiRequest = pathname.startsWith('/api/');
+	const isAuthRequest = pathname.startsWith('/auth/');
+
+	return isHtmlNavigation || isApiRequest || isAuthRequest;
+}
+
 /** @type {import('@sveltejs/kit').Handle} */
 export const handle = async ({ event, resolve }) => {
 	const pb = new PocketBase(pocketBaseURL);
@@ -15,7 +25,7 @@ export const handle = async ({ event, resolve }) => {
 	console.log('[Auth] Auth store valid:', pb.authStore.isValid);
 	console.log('[Auth] User ID:', pb.authStore.model?.id || 'none');
 
-	if (pb.authStore.isValid) {
+	if (pb.authStore.isValid && shouldRefreshAuth(event)) {
 		try {
 			await pb.collection('users').authRefresh();
 			console.log('[Auth] Session refreshed successfully');

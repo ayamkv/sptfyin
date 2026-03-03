@@ -271,6 +271,15 @@
 	}
 } */
 
+/* LayerChart v2 theme integration */
+.lc-root-container {
+	--color-primary: hsl(var(--primary));
+	--color-surface-100: hsl(var(--card));
+	--color-surface-200: hsl(var(--muted));
+	--color-surface-300: hsl(var(--accent));
+	--color-surface-content: hsl(var(--card-foreground));
+}
+
 @layer utilities {
 	.ss03 {
 		font-feature-settings: 'ss03';

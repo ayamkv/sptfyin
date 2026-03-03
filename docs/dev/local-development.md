@@ -133,6 +133,10 @@ VITE_POCKETBASE_URL=http://127.0.0.1:8090
 
 # IMPORTANT: Use 127.0.0.1, NOT localhost (Spotify requirement since April 2025)
 VITE_APP_URL=http://127.0.0.1:5173
+
+# Optional: screenshot provider key for /prev endpoint
+# If omitted, /prev returns HTTP 503 with a clear "disabled" message
+SCREENSHOTMACHINE_API_KEY=your_screenshotmachine_api_key_here
 ```
 
 ---

@@ -2,17 +2,15 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Loader2 } from 'lucide-svelte';
-	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 
-	let isLoading = false;
+	let isLoading = $state(false);
 
-	async function handleSpotifyLogin() {
+	function handleSpotifyLogin() {
 		isLoading = true;
-		try {
-			// Navigate to Spotify auth
-			await goto('/auth/spotify');
-		} catch (error) {
-			console.error('Login failed:', error);
+		if (browser) {
+			window.location.href = '/auth/spotify';
+		} else {
 			isLoading = false;
 		}
 	}
