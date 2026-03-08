@@ -1,7 +1,7 @@
 # PR Quality Gates
 #
 # Runs on pull requests to main branch.
-# Ensures code passes linting and builds successfully.
+# Ensures code passes linting, tests, and builds successfully.
 
 name: PR Quality Gates
 
@@ -11,8 +11,18 @@ on:
 
 jobs:
   quality:
-    name: Lint & Build
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Lint
+            command: pnpm lint
+          - name: Test
+            command: pnpm test
+          - name: Build
+            command: pnpm build
 
     steps:
       - name: Checkout code
@@ -32,8 +42,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run linter
-        run: pnpm lint
-
-      - name: Build
-        run: pnpm build
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}
