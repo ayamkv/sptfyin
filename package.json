@@ -6,6 +6,7 @@
 		"dev": "vite --host",
 		"build": "vite build",
 		"preview": "vite preview",
+		"test": "vitest run",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"preinstall": "npx only-allow pnpm"
