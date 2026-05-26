@@ -7,7 +7,12 @@
 	import { fade, slide } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
 	import { expoOut } from 'svelte/easing';
-	import { createRecord, generateRandomURL, isSlugAvailable } from '$lib/pocketbase';
+	import {
+		createRecord,
+		generateRandomURL,
+		getRecentRecords,
+		isSlugAvailable
+	} from '$lib/pocketbase';
 	import { clearHomeDataCache, getHomeData } from '$lib/homeDataCache';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	// import { generateRandomURL } from "$lib/utils";
@@ -182,11 +187,11 @@
 		recentLoading = true;
 		topLoading = true;
 		try {
-			const data = await getHomeData();
-			records = data.recent || [];
-			topRecords = data.top || [];
-			totalLinkCreated = data.totalLinkCreated;
-			totalClicks = data.totalClicks;
+			const [cachedData, recentResponse] = await Promise.all([getHomeData(), getRecentRecords()]);
+			topRecords = cachedData.top || [];
+			totalLinkCreated = cachedData.totalLinkCreated;
+			totalClicks = cachedData.totalClicks;
+			records = recentResponse.items;
 		} catch (error) {
 			console.error(error);
 			errorMessage = 'An error occurred while fetching data.';

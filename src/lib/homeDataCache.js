@@ -15,6 +15,9 @@ export async function getHomeData() {
 	}
 
 	const res = await fetch('/home-data.json');
+	if (!res.ok) {
+		throw new Error(`Failed to fetch home data: ${res.status}`);
+	}
 	const data = await res.json();
 
 	if (typeof localStorage !== 'undefined') {
