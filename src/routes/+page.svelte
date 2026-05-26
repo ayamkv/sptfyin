@@ -7,14 +7,8 @@
 	import { fade, slide } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
 	import { expoOut } from 'svelte/easing';
-	import {
-		createRecord,
-		getTotalClicks,
-		getRecentRecords,
-		getTopLinks,
-		generateRandomURL,
-		isSlugAvailable
-	} from '$lib/pocketbase';
+	import { createRecord, generateRandomURL, isSlugAvailable } from '$lib/pocketbase';
+	import { clearHomeDataCache, getHomeData } from '$lib/homeDataCache';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	// import { generateRandomURL } from "$lib/utils";
 	import {
@@ -184,51 +178,30 @@
 	let totalLinkCreated = $state();
 	let totalClicks = $state();
 
-	async function fetchData() {
+	async function loadHomeData() {
 		recentLoading = true;
-		try {
-			const response = await getRecentRecords();
-			records = response.items;
-			totalLinkCreated = response.totalItems;
-		} catch (error) {
-			console.error(error);
-			errorMessage = 'An error occurred while fetching data.'; // Added error message handling
-		} finally {
-			recentLoading = false;
-		}
-
-		try {
-			const cresponse = await getTotalClicks();
-			totalClicks = cresponse.totalItems;
-
-			console.log('Analytics Records: ', cresponse);
-		} catch (error) {
-			console.error(error);
-			errorMessage = 'An error occurred while fetching data.'; // Added error message handling
-		}
-	}
-
-	async function fetchTopLinks() {
 		topLoading = true;
 		try {
-			const response = await getTopLinks(2, 1);
-			topRecords = response.items;
+			const data = await getHomeData();
+			records = data.recent || [];
+			topRecords = data.top || [];
+			totalLinkCreated = data.totalLinkCreated;
+			totalClicks = data.totalClicks;
 		} catch (error) {
-			console.error('Error fetching top links:', error);
+			console.error(error);
+			errorMessage = 'An error occurred while fetching data.';
 		} finally {
+			recentLoading = false;
 			topLoading = false;
 		}
 	}
 	onMount(async () => {
-		// Generate random URL on page load
 		preGeneratedUrlId = await generateRandomURL();
 		console.log(preGeneratedUrlId);
 
-		recordsPromise = await fetchData();
+		await loadHomeData();
+		recordsPromise = records;
 		rrecords = records;
-
-		// Fetch top links for the leaderboard tab
-		await fetchTopLinks();
 	});
 	function getBrowserName() {
 		const userAgent = navigator.userAgent;
@@ -611,6 +584,7 @@
 			};
 			records = [newRecord, ...records].slice(0, 2);
 			totalLinkCreated = (totalLinkCreated || 0) + 1;
+			clearHomeDataCache();
 
 			toast.promise(promise, {
 				class: 'my-toast',
