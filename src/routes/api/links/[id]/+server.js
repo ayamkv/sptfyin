@@ -1,4 +1,5 @@
 import { json, error } from '@sveltejs/kit';
+import { buildGuestOwnershipHeaders } from '$lib/server/guest-links';
 
 export async function PATCH({ locals, params, request }) {
 	if (!locals.user) throw error(401);
@@ -29,9 +30,26 @@ export async function PATCH({ locals, params, request }) {
 	}
 }
 
-export async function DELETE({ locals, params }) {
-	if (!locals.user) throw error(401, 'Authentication required');
+export async function DELETE({ locals, params, cookies }) {
 	const id = params.id;
+	const guestSecret = cookies.get('sptfyin_guest') || '';
+
+	if (!locals.user) {
+		if (!guestSecret) {
+			throw error(401, 'Authentication required');
+		}
+
+		try {
+			await locals.pb.collection('random_short').delete(id, {
+				headers: await buildGuestOwnershipHeaders(guestSecret)
+			});
+			return new Response(null, { status: 204 });
+		} catch (e) {
+			console.error('[API Links DELETE] Failed to delete guest-owned link:', e);
+			if (e?.status === 404) throw error(404, 'Link not found');
+			throw error(403, 'Not authorized to delete this link');
+		}
+	}
 
 	let record;
 	try {
@@ -40,8 +58,9 @@ export async function DELETE({ locals, params }) {
 		throw error(404, 'Link not found');
 	}
 
-	// Verify ownership
-	if (record.user !== locals.user.id) {
+	const isAuthenticatedOwner = Boolean(locals.user && record.user === locals.user.id);
+
+	if (!isAuthenticatedOwner) {
 		throw error(403, 'Not authorized to delete this link');
 	}
 

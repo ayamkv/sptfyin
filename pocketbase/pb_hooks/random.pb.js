@@ -29,12 +29,33 @@ onRecordCreateRequest((e) => {
 }, 'analytics');
 
 onRecordCreateRequest((e) => {
+	function getRequestHeaders() {
+		const req = e.request || (typeof e.requestInfo === 'function' ? e.requestInfo() : {}) || {};
+		return req.headers || {};
+	}
+
+	function getHeaderValue(headers, headerName) {
+		const normalizedHeaderName = headerName.toLowerCase().replace(/-/g, '_');
+
+		for (const key in headers) {
+			const normalizedKey = key.toLowerCase().replace(/-/g, '_');
+			if (normalizedKey === normalizedHeaderName) {
+				return headers[key];
+			}
+		}
+
+		return '';
+	}
+
+	function getGuestProofHash() {
+		const proof = getHeaderValue(getRequestHeaders(), 'x-sptfyin-guest-proof');
+		return proof ? $security.sha256(proof) : '';
+	}
+
 	// Log the complete request info for debugging.
 	$app.logger().debug('Full Request Info', e.requestInfo());
 
-	// Retrieve headers from either e.request or the fallback from e.requestInfo()
-	const req = e.request || e.requestInfo() || {};
-	const headers = req.headers || {};
+	const headers = getRequestHeaders();
 
 	// Log the headers so we can see every key available
 	$app.logger().debug('Available Headers', headers);
@@ -86,11 +107,77 @@ onRecordCreateRequest((e) => {
 		});
 	}
 
+	const authenticatedUserId = e.auth?.id;
+	const requestedUserId = e.record.get('user');
+	const requestedGuestOwnerHash = e.record.get('guest_owner_hash');
+
+	if (authenticatedUserId) {
+		if (requestedUserId && requestedUserId !== authenticatedUserId) {
+			throw new BadRequestError('User ownership mismatch');
+		}
+
+		e.record.set('user', authenticatedUserId);
+		e.record.set('guest_owner_hash', '');
+	} else {
+		const providedGuestProofHash = getGuestProofHash();
+
+		if (requestedUserId) {
+			throw new BadRequestError('Anonymous users cannot assign link ownership');
+		}
+
+		if (
+			!requestedGuestOwnerHash ||
+			!providedGuestProofHash ||
+			!$security.equal(requestedGuestOwnerHash, providedGuestProofHash)
+		) {
+			throw new BadRequestError('Guest ownership proof missing or invalid');
+		}
+	}
+
 	$app.logger().info('Turnstile verification passed', { record: e.record });
 	e.next(); // Continue with record creation
 }, 'random_short');
 
 onRecordUpdateRequest((e) => {
+	function getRequestHeaders() {
+		const req = e.request || (typeof e.requestInfo === 'function' ? e.requestInfo() : {}) || {};
+		return req.headers || {};
+	}
+
+	function getHeaderValue(headers, headerName) {
+		const normalizedHeaderName = headerName.toLowerCase().replace(/-/g, '_');
+
+		for (const key in headers) {
+			const normalizedKey = key.toLowerCase().replace(/-/g, '_');
+			if (normalizedKey === normalizedHeaderName) {
+				return headers[key];
+			}
+		}
+
+		return '';
+	}
+
+	function getGuestProofHash() {
+		const proof = getHeaderValue(getRequestHeaders(), 'x-sptfyin-guest-proof');
+		return proof ? $security.sha256(proof) : '';
+	}
+
+	function canTransferGuestOwnership(originalRecord, newRecord) {
+		const authenticatedUserId = e.auth?.id;
+		const originalGuestOwnerHash = originalRecord.get('guest_owner_hash');
+		const providedGuestProofHash = getGuestProofHash();
+
+		if (!authenticatedUserId || !originalGuestOwnerHash || !providedGuestProofHash) {
+			return false;
+		}
+
+		return (
+			$security.equal(originalGuestOwnerHash, providedGuestProofHash) &&
+			newRecord.get('user') === authenticatedUserId &&
+			!newRecord.get('guest_owner_hash')
+		);
+	}
+
 	// Configuration for protected and increment-only fields
 	const config = {
 		protectedFields: [
@@ -100,7 +187,9 @@ onRecordUpdateRequest((e) => {
 			'subdomain',
 			'enable',
 			'analytics',
-			'utm_userAgent'
+			'utm_userAgent',
+			'user',
+			'guest_owner_hash'
 		],
 		incrementOnlyFields: [
 			{
@@ -168,6 +257,18 @@ onRecordUpdateRequest((e) => {
 		const newValue = newRecord.get(field);
 
 		if (originalValue !== newValue) {
+			if (
+				(field === 'user' || field === 'guest_owner_hash') &&
+				canTransferGuestOwnership(originalRecord, newRecord)
+			) {
+				$app.logger().info('Transferring guest-owned link to authenticated user', {
+					field: field,
+					userId: authenticatedUserId,
+					recordId: originalRecord.id
+				});
+				continue;
+			}
+
 			// Check if this field can be updated by the owner
 			if (config.userOwnedFields.includes(field) && isOwner) {
 				$app.logger().info('Owner updating user-owned field', {
@@ -285,6 +386,56 @@ onRecordAfterUpdateSuccess((e) => {
 	logger.info('Update successfully persisted', 'finalValues', finalValues);
 	e.next();
 });
+
+onRecordDeleteRequest((e) => {
+	function getRequestHeaders() {
+		const req = e.request || (typeof e.requestInfo === 'function' ? e.requestInfo() : {}) || {};
+		return req.headers || {};
+	}
+
+	function getHeaderValue(headers, headerName) {
+		const normalizedHeaderName = headerName.toLowerCase().replace(/-/g, '_');
+
+		for (const key in headers) {
+			const normalizedKey = key.toLowerCase().replace(/-/g, '_');
+			if (normalizedKey === normalizedHeaderName) {
+				return headers[key];
+			}
+		}
+
+		return '';
+	}
+
+	function getGuestProofHash() {
+		const proof = getHeaderValue(getRequestHeaders(), 'x-sptfyin-guest-proof');
+		return proof ? $security.sha256(proof) : '';
+	}
+
+	if (e.hasSuperuserAuth()) {
+		return e.next();
+	}
+
+	const recordOwnerId = e.record.get('user');
+	const authenticatedUserId = e.auth?.id;
+
+	if (authenticatedUserId && recordOwnerId === authenticatedUserId) {
+		return e.next();
+	}
+
+	const recordGuestOwnerHash = e.record.get('guest_owner_hash');
+	const providedGuestProofHash = getGuestProofHash();
+
+	if (
+		!recordOwnerId &&
+		recordGuestOwnerHash &&
+		providedGuestProofHash &&
+		$security.equal(recordGuestOwnerHash, providedGuestProofHash)
+	) {
+		return e.next();
+	}
+
+	throw new BadRequestError('Not authorized to delete this link');
+}, 'random_short');
 
 // Hook to handle Spotify OAuth user creation/authentication
 onRecordAuthRequest((e) => {

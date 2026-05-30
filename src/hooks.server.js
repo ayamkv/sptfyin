@@ -1,5 +1,10 @@
 import PocketBase from 'pocketbase';
 import { dev } from '$app/environment';
+import {
+	clearGuestSession,
+	getGuestSessionSecret,
+	transferGuestLinksToUser
+} from '$lib/server/guest-links';
 
 const pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
@@ -44,6 +49,28 @@ export const handle = async ({ event, resolve }) => {
 	event.locals.user = pb.authStore.model;
 
 	const response = await resolve(event);
+
+	if (pb.authStore.isValid && pb.authStore.model?.id) {
+		const guestSecret = getGuestSessionSecret(event.cookies);
+
+		if (guestSecret) {
+			try {
+				const transferredCount = await transferGuestLinksToUser(
+					pb,
+					pb.authStore.model.id,
+					guestSecret
+				);
+
+				if (transferredCount > 0) {
+					console.log('[Guest Links] Transferred guest links:', transferredCount);
+				}
+			} catch (error) {
+				console.error('[Guest Links] Failed to transfer guest links:', error);
+			} finally {
+				clearGuestSession(event.cookies, event.url);
+			}
+		}
+	}
 
 	const hadPbAuthCookie = cookieHeader.includes('pb_auth=');
 	const secureFlag = !dev && event.url.protocol === 'https:';
