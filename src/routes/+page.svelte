@@ -3,16 +3,12 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import { browser } from '$app/environment';
+	import { resolve } from '$app/paths';
 	import { Turnstile } from 'svelte-turnstile';
 	import { fade, slide } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
 	import { expoOut } from 'svelte/easing';
-	import {
-		createRecord,
-		generateRandomURL,
-		getRecentRecords,
-		isSlugAvailable
-	} from '$lib/pocketbase';
+	import { generateRandomURL, getRecentRecords, isSlugAvailable } from '$lib/pocketbase';
 	import { clearHomeDataCache, getHomeData } from '$lib/homeDataCache';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	// import { generateRandomURL } from "$lib/utils";
@@ -42,13 +38,15 @@
 
 	import { toastGroups } from '$lib/debug';
 	import BackgroundNoise from '$lib/components/BackgroundNoise.svelte';
+	import MobileHomeRedesign from '$lib/components/home/mobile-redesign.svelte';
+	import { homeUiMode } from '$lib/ui-mode.svelte.js';
 
 	let debugMode = import.meta.env.VITE_DEBUG_MODE;
 	console.log('debugMode: ', debugMode);
 	let debugToastVisible = $state(false);
 	let isQrLoaded = $state(false);
 	let visible = $state(false);
-	let scrollHere = $state();
+	let scrollHere;
 	let customizeExpanded = $state(false);
 	let customShortId = $state();
 	let turnstileResponse = $state();
@@ -57,6 +55,7 @@
 	let cornerSize = $derived(footerHeight / 2);
 	let isIOS, isAndroid, isMobile, isSafari, isFirefox, isOldFirefox;
 	let records = $state([]);
+	let ownedLinks = $state([]);
 	let topRecords = $state([]);
 	let activeTab = $state('recent');
 	let rrecords;
@@ -65,6 +64,8 @@
 	let loading = $state(false);
 	let recentLoading = $state(true);
 	let topLoading = $state(false);
+	let ownedLinksLoading = $state(false);
+	let deletingOwnedLinkId = $state('');
 	let currentItems = 4;
 	let turnstileKey = import.meta.env.VITE_CF_SITE_KEY;
 	let reset = $state();
@@ -72,6 +73,8 @@
 	let lastCreatedShortId = $state();
 	let maintenanceNow = $state(Date.now());
 	let maintenanceActive = $derived(isMaintenanceActive(maintenanceNow));
+	let isDesktopViewport = $state(false);
+	let useNewHome = $derived(homeUiMode.mode === 'new' && !isDesktopViewport);
 
 	// Domain selection must be defined before QR derivations
 	let selected = $state('sptfy.in');
@@ -85,9 +88,6 @@
 		{ value: 'album', label: 'album.sptfy.in', disabled: true }
 	];
 	let selectedLabel = $derived(domainList.find((d) => d.value === selected)?.label ?? 'sptfy.in');
-	$effect(() => {
-		console.log('domain selected: ', selected);
-	});
 
 	// Make shortIdDisplay reactive to show either custom slug or generated URL
 	let shortIdDisplay = $derived(
@@ -111,12 +111,7 @@
 
 	// Function to update customShortId with sanitized value
 	function updateCustomShortId(value) {
-		if (!value) {
-			customShortId = '';
-			return;
-		}
-
-		const sanitized = value
+		const sanitized = (value || '')
 			.toLowerCase()
 			.replace(/[^a-zA-Z0-9\-_]/g, '-')
 			// Remove multiple consecutive hyphens/underscores
@@ -125,11 +120,13 @@
 			.replace(/^[-_]+|[-_]+$/g, '');
 
 		customShortId = sanitized;
+		checkSlugAvailability(sanitized);
 	}
 	let qrDomain = $derived(selected === 'sptfy.in' ? 'sptfy.in' : `${selected}.sptfy.in`);
 	let qrUrl = $derived(
 		`https://api.qrserver.com/v1/create-qr-code?size=350x350&margin=20&data=https://${qrDomain}/${shortIdDisplay}`
 	);
+	let previewShortURL = $derived(`https://${qrDomain}/${shortIdDisplay}`);
 	let inputText = $state(null);
 	let isError = $state(false);
 	let alertDialogTitle = $state('');
@@ -138,21 +135,12 @@
 	let errorIcon = $state(errorIconDefault);
 	let errorCode = $state();
 	let focus1 = false;
-	let theButton = $state();
 	let fullShortURL = $state();
 	let qrDrawerOpen = $state(false);
 	let recent = [];
 	let urlInput;
 	let errorMessage = $state();
 	let isExpandingUrl = $state(false);
-	$effect(() => {
-		console.log('errorMessage var: ', errorMessage);
-	});
-
-	// Debug inputText reactivity
-	$effect(() => {
-		console.log('inputText changed:', inputText, 'isEmpty:', isInputTextEmpty);
-	});
 	let actions = [
 		{
 			icon: 'lucide:copy',
@@ -174,12 +162,17 @@
 	});
 
 	function scrollToBottom() {
-		scrollHere.scrollIntoView();
+		scrollHere?.scrollIntoView();
 	}
 
-	function toggleCustomize() {
-		customizeExpanded = !customizeExpanded;
+	function scrollAnchor(node) {
+		scrollHere = node;
+
+		return () => {
+			if (scrollHere === node) scrollHere = undefined;
+		};
 	}
+
 	let totalLinkCreated = $state();
 	let totalClicks = $state();
 
@@ -200,13 +193,43 @@
 			topLoading = false;
 		}
 	}
+
+	async function loadOwnedLinks() {
+		ownedLinksLoading = true;
+		try {
+			const response = await fetch('/api/links?perPage=3&page=1');
+			if (!response.ok) {
+				ownedLinks = [];
+				return;
+			}
+
+			const data = await response.json();
+			ownedLinks = data.items || [];
+		} catch (error) {
+			console.error('[Home] Failed to load owned links:', error);
+			ownedLinks = [];
+		} finally {
+			ownedLinksLoading = false;
+		}
+	}
 	onMount(async () => {
 		preGeneratedUrlId = await generateRandomURL();
 		console.log(preGeneratedUrlId);
 
-		await loadHomeData();
+		await Promise.all([loadHomeData(), loadOwnedLinks()]);
 		recordsPromise = records;
 		rrecords = records;
+	});
+	onMount(() => {
+		const mediaQuery = window.matchMedia('(min-width: 768px)');
+		const updateViewport = () => {
+			isDesktopViewport = mediaQuery.matches;
+		};
+
+		updateViewport();
+		mediaQuery.addEventListener('change', updateViewport);
+
+		return () => mediaQuery.removeEventListener('change', updateViewport);
 	});
 	function getBrowserName() {
 		const userAgent = navigator.userAgent;
@@ -414,19 +437,6 @@
 		}
 	}
 
-	function escapeSelectHandle() {
-		onMount(() => {
-			setTimeout(() => {
-				theButton.focus();
-			}, 100);
-		});
-		console.log('something is selected');
-	}
-
-	// onMount(() => {
-	//   escapeSelectHandle();
-	// })
-
 	let promiseResolve, promiseReject;
 
 	const protectedRoutes = [
@@ -479,14 +489,24 @@
 	);
 	let buttonDisabled = $derived(loading || customSlugInvalidOrChecking || maintenanceActive);
 
-	// Debounced availability check when sanitizedCustomShortId changes
-	$effect(() => {
-		const slug = sanitizedCustomShortId;
-
+	function clearSlugCheckTimeout() {
 		if (slugCheckTimeout) {
 			clearTimeout(slugCheckTimeout);
 			slugCheckTimeout = null;
 		}
+	}
+
+	function resetSlugCheckState() {
+		clearSlugCheckTimeout();
+		lastSlugCheckId += 1;
+		slugCheckError = '';
+		slugAvailable = null;
+		slugChecking = false;
+	}
+
+	function checkSlugAvailability(slug) {
+		clearSlugCheckTimeout();
+		const runId = ++lastSlugCheckId;
 
 		slugCheckError = '';
 
@@ -508,7 +528,6 @@
 			return;
 		}
 
-		const runId = ++lastSlugCheckId;
 		slugChecking = true;
 		slugCheckTimeout = setTimeout(async () => {
 			try {
@@ -526,7 +545,7 @@
 				}
 			}
 		}, 350);
-	});
+	}
 
 	const handleSubmit = async (e) => {
 		const promise = new Promise(function (resolve, reject) {
@@ -574,11 +593,33 @@
 		try {
 			console.log(url_id);
 			const originalInputText = inputText; // Store before clearing
-			const response = await createRecord('random_short', dataForm, turnstileResponse);
+			const response = await fetch('/api/links', {
+				method: 'POST',
+				headers: {
+					'content-type': 'application/json'
+				},
+				body: JSON.stringify({
+					...dataForm,
+					turnstileToken: turnstileResponse
+				})
+			});
+
+			if (!response.ok) {
+				const responseData = await response.json().catch(() => null);
+				const requestError = new Error('Create failed');
+				requestError.response = {
+					status: response.status,
+					data: responseData
+				};
+				throw requestError;
+			}
+
 			console.log('Record created');
 			inputText = '';
 			customShortId = '';
+			resetSlugCheckState();
 			lastCreatedShortId = url_id;
+			await loadOwnedLinks();
 
 			// Add newly created link to recent records (prepend and keep only 2)
 			const newRecord = {
@@ -603,7 +644,9 @@
 				}
 			});
 			reset?.();
+			turnstileResponse = undefined;
 			turnstileStatus = 'pending';
+			visible = true;
 			promiseResolve();
 			loading = false;
 			fullShortURL = `https://${selected === 'sptfy.in' ? 'sptfy.in' : `${selected}.sptfy.in`}/${url_id}`;
@@ -632,7 +675,9 @@
 					alertDialogTitle = strings.ErrorTurnstileValidationTitle;
 					alertDialogDescription = strings.ErrorTurnstileValidationDesc;
 					reset?.(); // Reset the turnstile widget
+					turnstileResponse = undefined;
 					turnstileStatus = 'pending';
+					visible = true;
 				}
 				// Handle invalid turnstile value (validation_invalid_value)
 				else if (errorData?.code === 'validation_invalid_value') {
@@ -640,7 +685,9 @@
 					alertDialogTitle = strings.ErrorTurnstileValidationTitle;
 					alertDialogDescription = strings.ErrorTurnstileValidationDesc;
 					reset?.(); // Reset the turnstile widget
+					turnstileResponse = undefined;
 					turnstileStatus = 'pending';
+					visible = true;
 				}
 				// Handle duplicate short URL error
 				else if (errorData.id_url?.code === 'validation_not_unique') {
@@ -687,6 +734,39 @@
 
 			if (error.includes('denied')) alert('Clipboard access denied');
 			console.error('Failed to write to clipboard: ', error);
+		}
+	}
+
+	async function handlePreviewCopy() {
+		try {
+			await navigator.clipboard.writeText(fullShortURL || previewShortURL);
+			toast.success('copied!', {
+				description: 'short link copied to your clipboard'
+			});
+		} catch (error) {
+			console.error('Failed to copy preview URL:', error);
+			toast.error('could not copy link');
+		}
+	}
+
+	async function deleteOwnedLink(link) {
+		deletingOwnedLinkId = link.id;
+		try {
+			const response = await fetch(`/api/links/${link.id}`, {
+				method: 'DELETE'
+			});
+
+			if (!response.ok) {
+				throw new Error(`Delete failed with status ${response.status}`);
+			}
+
+			ownedLinks = ownedLinks.filter((item) => item.id !== link.id);
+			toast.success('link deleted');
+		} catch (error) {
+			console.error('[Home] Failed to delete owned link:', error);
+			toast.error('could not delete link');
+		} finally {
+			deletingOwnedLinkId = '';
 		}
 	}
 	// const handleKeydown = (e) => {
@@ -770,8 +850,58 @@
 {/if}
 <!-- 
 <svelte:window on:keydown={handleKeydown} /> -->
+{#if useNewHome}
+	<MobileHomeRedesign
+		{totalLinkCreated}
+		{totalClicks}
+		{formatNumber}
+		{qrDomain}
+		{shortIdDisplay}
+		{qrUrl}
+		bind:inputText
+		bind:customShortId
+		bind:selected
+		bind:reset
+		bind:turnstileResponse
+		bind:turnstileStatus
+		bind:customizeExpanded
+		{isExpandingUrl}
+		{handleInputOnPaste}
+		{handlePaste}
+		{updateCustomShortId}
+		{handlePreviewCopy}
+		{handleSubmit}
+		{domainList}
+		{selectedLabel}
+		{slugInputClass}
+		{isCustomSlugProvided}
+		{sanitizedCustomShortId}
+		{reservedSlug}
+		{slugChecking}
+		{slugCheckError}
+		{slugAvailable}
+		{strings}
+		bind:visible
+		{turnstileKey}
+		{loading}
+		{buttonDisabled}
+		{maintenanceActive}
+		{records}
+		{topRecords}
+		{ownedLinks}
+		bind:activeTab
+		{recentLoading}
+		{topLoading}
+		{ownedLinksLoading}
+		{deleteOwnedLink}
+		{deletingOwnedLinkId}
+	/>
+{/if}
+
 <div
-	class="transform-y-2 relative flex h-[85vh] flex-col items-center justify-center overflow-auto rounded-2xl border-b-4 bg-background/50 pb-0 md:mt-0 md:rounded-xl md:border-2 md:border-b-0 md:border-r-0 md:pb-0 lg:min-h-[96vh] lg:overflow-hidden"
+	class="{useNewHome
+		? 'hidden md:flex'
+		: 'flex'} transform-y-2 relative h-[85vh] flex-col items-center justify-center overflow-auto rounded-2xl border-b-4 bg-background/50 pb-0 md:mt-0 md:rounded-xl md:border-2 md:border-b-0 md:border-r-0 md:pb-0 lg:min-h-[96vh] lg:overflow-hidden"
 	data-vaul-drawer-wrapper
 >
 	<!-- Background decorations applied to the drawer wrapper -->
@@ -794,12 +924,12 @@
 								: alertDialogTitle}
 						{/each}
 					{:else}
-						{@html alertDialogTitle}
+						{alertDialogTitle}
 					{/if}
 				</AlertDialog.Title>
 
 				<AlertDialog.Description>
-					{@html alertDialogDescription}
+					{alertDialogDescription}
 					<!-- iterate errorMessage
 					using something along the lines of
 					
@@ -918,10 +1048,10 @@
 
 				<div class="flex flex-col items-center justify-center">
 					{#if debugToastVisible}
-						{#each toastGroups as group}
+						{#each toastGroups as group (group.title)}
 							<div class="mt-1">
 								<h4 class="text-lg">{group.title}</h4>
-								{#each group.buttons as btn}
+								{#each group.buttons as btn (btn.label)}
 									<div class="mx-1 inline-block">
 										<Button class={btn.class} onclick={btn.onClick}>
 											{btn.label}
@@ -1025,11 +1155,10 @@
 												<Select.Content>
 													<Select.Group>
 														<Select.Label>select domain:</Select.Label>
-														{#each domainList as domain}
+														{#each domainList as domain (domain.value)}
 															<Select.Item
 																value={domain.value}
 																label="{domain.label}/"
-																onclick={() => escapeSelectHandle()}
 																disabled={domain.disabled}>{domain.label}</Select.Item
 															>
 														{/each}
@@ -1089,7 +1218,7 @@
 							{/if}
 
 							<!-- Invisible Turnstile - appears only if interaction needed -->
-							{#if visible}
+							{#if visible && !useNewHome}
 								<Turnstile
 									siteKey={turnstileKey}
 									theme="dark"
@@ -1099,6 +1228,12 @@
 									on:callback={(event) => {
 										turnstileResponse = event.detail.token;
 										turnstileStatus = 'verified';
+										const verifiedToken = event.detail.token;
+										setTimeout(() => {
+											if (turnstileStatus === 'verified' && turnstileResponse === verifiedToken) {
+												visible = false;
+											}
+										}, 250);
 									}}
 									on:error={() => {
 										turnstileStatus = 'error';
@@ -1118,7 +1253,6 @@
 								{loading ? 'bg-secondary text-foreground shadow-lg' : ''}
 								transition-all"
 									type="submit"
-									bind:this={theButton}
 									disabled={buttonDisabled}
 								>
 									<!-- Left icon: scissors or loader -->
@@ -1159,8 +1293,8 @@
 						<div class="continue mt-4">
 							<p class="text-xs text-foreground/60">
 								by continuing, you agree to
-								<a href="/about/privacy">privacy policy</a> and
-								<a href="/about/terms">terms</a>.
+								<a href={resolve('/about/privacy')}>privacy policy</a> and
+								<a href={resolve('/about/terms')}>terms</a>.
 							</p>
 						</div>
 					</div>
@@ -1183,7 +1317,7 @@
 							</p>
 							{#if fullShortURL}
 								<div class="buttons button-copy flex max-h-20 gap-1 lg:flex-col-reverse">
-									{#each actions as action, i}
+									{#each actions as action, i (action.icon)}
 										<div
 											in:WithEase|global={{ delay: (i + 1) * 100 }}
 											out:fade|global={{ duration: 200 }}
@@ -1327,7 +1461,7 @@
 								</Button>
 							</div>
 						{/if}
-						<div class="scrollhere" bind:this={scrollHere}></div>
+						<div class="scrollhere" {@attach scrollAnchor}></div>
 					</Card.Content>
 					<div class="disclaim">
 						<h4 class="bold text-md">🫡 disclaimer</h4>
@@ -1360,13 +1494,55 @@
 						</ToggleGroup.Item>
 					</ToggleGroup.Root>
 					<a
-						href={activeTab === 'recent' ? '/recent' : '/top'}
+						href={resolve(activeTab === 'recent' ? '/recent' : '/top')}
 						class="hover:inverseShadow data-[state=on]:inverseShadow inline-flex h-10 items-center justify-center whitespace-nowrap rounded-xl border border-t border-secondary/20 px-4 py-2 text-sm font-thin text-secondary-foreground no-underline shadow-md transition-all hover:bg-accent hover:bg-secondary/80 hover:text-accent-foreground hover:outline-primary active:scale-95 data-[state=on]:bg-background/30 data-[state=on]:text-accent-foreground"
 					>
 						view all
 					</a>
 				</div>
 				<div class="mt-2">
+					{#if ownedLinksLoading}
+						<p class="mb-3 text-xs text-muted-foreground/60">
+							checking links saved on this device...
+						</p>
+					{:else if ownedLinks.length > 0}
+						<div class="mb-4 rounded-xl border border-border/50 bg-card/40 p-3">
+							<div class="mb-2 flex items-center justify-between gap-3">
+								<p class="text-sm font-medium">your links on this device</p>
+								<Badge variant="outline">{ownedLinks.length}/3</Badge>
+							</div>
+							<p class="mb-3 text-xs text-muted-foreground/60">
+								guests can delete links here. editing still needs an account.
+							</p>
+							<div class="space-y-2">
+								{#each ownedLinks as item (item.id)}
+									<div
+										class="flex items-center justify-between gap-3 rounded-lg border border-border/40 px-3 py-2"
+									>
+										<a
+											href={resolve(`/${item.id_url}`)}
+											class="min-w-0 flex-1 truncate text-sm"
+											target="_blank"
+										>
+											<span class="text-muted-foreground/70">
+												{item.subdomain === 'sptfy.in'
+													? 'sptfy.in'
+													: `${item.subdomain}.sptfy.in`}/</span
+											><span>{item.id_url}</span>
+										</a>
+										<Button
+											variant="secondary"
+											class="h-8 px-3 text-xs"
+											on:click={() => deleteOwnedLink(item)}
+											disabled={deletingOwnedLinkId === item.id}
+										>
+											{deletingOwnedLinkId === item.id ? 'deleting...' : 'delete'}
+										</Button>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
 					{#if activeTab === 'recent'}
 						{#if recentLoading}
 							<p class="text-muted-foreground/70">loading...</p>
@@ -1376,7 +1552,7 @@
 							<div class="max-h-fit break-all">
 								{#each records.slice(0, 2) as item (item.id_url)}
 									<li class="align-center my-1 flex justify-between pl-1" in:slide|global>
-										<a href="/{item.id_url}" class="font-thin" target="_blank">
+										<a href={resolve(`/${item.id_url}`)} class="font-thin" target="_blank">
 											<span class="px-0 text-muted-foreground/70">
 												{item.subdomain === 'sptfy.in'
 													? 'sptfy.in'
@@ -1398,7 +1574,7 @@
 						<div class="max-h-fit break-all">
 							{#each topRecords.slice(0, 2) as item, i (item.id_url)}
 								<li class="align-center my-1 flex justify-between pl-1" in:slide|global>
-									<a href="/{item.id_url}" class="font-thin" target="_blank">
+									<a href={resolve(`/${item.id_url}`)} class="font-thin" target="_blank">
 										<span class="px-0 text-muted-foreground/70">
 											{item.subdomain === 'sptfy.in'
 												? 'sptfy.in'
@@ -1450,11 +1626,13 @@
 			</svg>
 
 			<p class="flex flex-row items-center gap-3 text-xs text-foreground/50">
-				<a href="/about/terms" class="transition-colors hover:text-foreground">terms</a>
+				<a href={resolve('/about/terms')} class="transition-colors hover:text-foreground">terms</a>
 				<span class="text-foreground/20">|</span>
-				<a href="/about/privacy" class="transition-colors hover:text-foreground">privacy</a>
+				<a href={resolve('/about/privacy')} class="transition-colors hover:text-foreground"
+					>privacy</a
+				>
 				<span class="text-foreground/20">|</span>
-				<a href="/about/socials" class="transition-colors hover:text-foreground"
+				<a href={resolve('/about/socials')} class="transition-colors hover:text-foreground"
 					>socials / contact</a
 				>
 				<span class="text-foreground/20">|</span>
