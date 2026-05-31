@@ -3,11 +3,9 @@ import { generateRandomURL } from '$lib/pocketbase';
 import { isMaintenanceActive, getMaintenanceState } from '$lib/maintenance';
 import {
 	buildGuestOwnershipHeaders,
-	countGuestOwnedLinks,
 	ensureGuestSession,
 	hashGuestSessionSecret,
-	listOwnedGuestLinks,
-	MAX_ACTIVE_GUEST_LINKS
+	listOwnedGuestLinks
 } from '$lib/server/guest-links';
 const pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
@@ -81,10 +79,10 @@ export async function POST({ locals, request, cookies, url }) {
 	}
 
 	const body = await request.json();
-	const { from, slug, subdomain, turnstileToken } = body || {};
+	const { from, id_url: requestedIdUrl, slug, subdomain, turnstileToken } = body || {};
 	if (!from) throw error(400, 'from is required');
 
-	const id_url = slug || (await generateRandomURL());
+	const id_url = requestedIdUrl || slug || (await generateRandomURL());
 
 	const data = {
 		from,
@@ -93,26 +91,16 @@ export async function POST({ locals, request, cookies, url }) {
 		enable: true
 	};
 	let headers;
+	let guestSecret = '';
 
 	// Always use authenticated user ID - never trust client-provided value
 	// This prevents users from creating links owned by other users
 	if (locals.user) {
 		data.user = locals.user.id;
 	} else {
-		const guestSecret = ensureGuestSession(cookies, url);
-		let activeGuestLinks;
-		try {
-			activeGuestLinks = await countGuestOwnedLinks(locals.pb, guestSecret);
-		} catch (e) {
-			console.error('[API Links POST] Failed to count guest-owned links:', e);
-			throw error(500, 'failed to check guest link limit');
-		}
-
-		if (activeGuestLinks >= MAX_ACTIVE_GUEST_LINKS) {
-			throw error(403, `Guest link limit reached (${MAX_ACTIVE_GUEST_LINKS} active links max)`);
-		}
-
+		guestSecret = ensureGuestSession(cookies, url);
 		data.guest_owner_hash = await hashGuestSessionSecret(guestSecret);
+		data.guest_active = true;
 		headers = await buildGuestOwnershipHeaders(guestSecret);
 	}
 
@@ -127,7 +115,9 @@ export async function POST({ locals, request, cookies, url }) {
 		const record = await locals.pb.collection('random_short').create(data, {
 			headers
 		});
+
 		delete record.guest_owner_hash;
+		delete record.guest_active;
 		return json(record, { status: 201 });
 	} catch (e) {
 		console.error('[API Links POST] Failed to create link:', e);

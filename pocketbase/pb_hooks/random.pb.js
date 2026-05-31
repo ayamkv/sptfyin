@@ -52,6 +52,39 @@ onRecordCreateRequest((e) => {
 		return proof ? $security.sha256(proof) : '';
 	}
 
+	function verifyTurnstile() {
+		const turnstileToken = getHeaderValue(getRequestHeaders(), 'x-turnstile-token');
+
+		if (!turnstileToken) {
+			throw new BadRequestError('Turnstile error', {
+				verification: {
+					code: 'missing_token',
+					message: 'Turnstile token not found.'
+				}
+			});
+		}
+
+		const verifyResponse = $http.send({
+			url: 'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				secret: process.env.CF_SECRET_KEY,
+				response: turnstileToken
+			})
+		});
+
+		const verifyResult = verifyResponse.json;
+		if (!verifyResult.success) {
+			throw new BadRequestError('Turnstile verification failed', {
+				verification: new ValidationError(
+					verifyResult['error-codes']?.[0] || 'verification_failed',
+					'Turnstile verification failed'
+				)
+			});
+		}
+	}
+
 	// Log the complete request info for debugging.
 	$app.logger().debug('Full Request Info', e.requestInfo());
 
@@ -118,6 +151,7 @@ onRecordCreateRequest((e) => {
 
 		e.record.set('user', authenticatedUserId);
 		e.record.set('guest_owner_hash', '');
+		e.record.set('guest_active', false);
 	} else {
 		const providedGuestProofHash = getGuestProofHash();
 
@@ -132,10 +166,43 @@ onRecordCreateRequest((e) => {
 		) {
 			throw new BadRequestError('Guest ownership proof missing or invalid');
 		}
+
+		e.record.set('guest_active', true);
 	}
 
 	$app.logger().info('Turnstile verification passed', { record: e.record });
 	e.next(); // Continue with record creation
+}, 'random_short');
+
+onRecordAfterCreateSuccess((e) => {
+	const guestOwnerHash = e.record.get('guest_owner_hash');
+
+	if (!e.record.get('user') && guestOwnerHash) {
+		try {
+			const maxActiveGuestLinks = 3;
+			const activeLinks = $app.findRecordsByFilter(
+				'random_short',
+				'user = "" && guest_owner_hash = {:guestOwnerHash} && guest_active = true',
+				'-created,-id',
+				500,
+				0,
+				{ guestOwnerHash }
+			);
+
+			for (let i = maxActiveGuestLinks; i < activeLinks.length; i += 1) {
+				activeLinks[i].set('guest_active', false);
+				$app.save(activeLinks[i]);
+			}
+		} catch (err) {
+			$app.logger().error('Failed to deactivate stale guest links', {
+				recordId: e.record.id,
+				error: err.toString()
+			});
+			throw err;
+		}
+	}
+
+	e.next();
 }, 'random_short');
 
 onRecordUpdateRequest((e) => {
@@ -165,6 +232,7 @@ onRecordUpdateRequest((e) => {
 	function canTransferGuestOwnership(originalRecord, newRecord) {
 		const authenticatedUserId = e.auth?.id;
 		const originalGuestOwnerHash = originalRecord.get('guest_owner_hash');
+		const newGuestOwnerHash = newRecord.get('guest_owner_hash');
 		const providedGuestProofHash = getGuestProofHash();
 
 		if (!authenticatedUserId || !originalGuestOwnerHash || !providedGuestProofHash) {
@@ -172,9 +240,10 @@ onRecordUpdateRequest((e) => {
 		}
 
 		return (
+			!originalRecord.get('user') &&
 			$security.equal(originalGuestOwnerHash, providedGuestProofHash) &&
 			newRecord.get('user') === authenticatedUserId &&
-			!newRecord.get('guest_owner_hash')
+			newGuestOwnerHash === originalGuestOwnerHash
 		);
 	}
 
@@ -188,8 +257,8 @@ onRecordUpdateRequest((e) => {
 			'enable',
 			'analytics',
 			'utm_userAgent',
-			'user',
-			'guest_owner_hash'
+			'guest_active',
+			'user'
 		],
 		incrementOnlyFields: [
 			{
@@ -257,10 +326,7 @@ onRecordUpdateRequest((e) => {
 		const newValue = newRecord.get(field);
 
 		if (originalValue !== newValue) {
-			if (
-				(field === 'user' || field === 'guest_owner_hash') &&
-				canTransferGuestOwnership(originalRecord, newRecord)
-			) {
+			if (field === 'user' && canTransferGuestOwnership(originalRecord, newRecord)) {
 				$app.logger().info('Transferring guest-owned link to authenticated user', {
 					field: field,
 					userId: authenticatedUserId,
@@ -411,6 +477,39 @@ onRecordDeleteRequest((e) => {
 		return proof ? $security.sha256(proof) : '';
 	}
 
+	function verifyTurnstile() {
+		const turnstileToken = getHeaderValue(getRequestHeaders(), 'x-turnstile-token');
+
+		if (!turnstileToken) {
+			throw new BadRequestError('Turnstile error', {
+				verification: {
+					code: 'missing_token',
+					message: 'Turnstile token not found.'
+				}
+			});
+		}
+
+		const verifyResponse = $http.send({
+			url: 'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				secret: process.env.CF_SECRET_KEY,
+				response: turnstileToken
+			})
+		});
+
+		const verifyResult = verifyResponse.json;
+		if (!verifyResult.success) {
+			throw new BadRequestError('Turnstile verification failed', {
+				verification: new ValidationError(
+					verifyResult['error-codes']?.[0] || 'verification_failed',
+					'Turnstile verification failed'
+				)
+			});
+		}
+	}
+
 	if (e.hasSuperuserAuth()) {
 		return e.next();
 	}
@@ -423,14 +522,17 @@ onRecordDeleteRequest((e) => {
 	}
 
 	const recordGuestOwnerHash = e.record.get('guest_owner_hash');
+	const isGuestActive = e.record.get('guest_active');
 	const providedGuestProofHash = getGuestProofHash();
 
 	if (
 		!recordOwnerId &&
 		recordGuestOwnerHash &&
+		isGuestActive &&
 		providedGuestProofHash &&
 		$security.equal(recordGuestOwnerHash, providedGuestProofHash)
 	) {
+		verifyTurnstile();
 		return e.next();
 	}
 

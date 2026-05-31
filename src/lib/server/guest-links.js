@@ -6,6 +6,8 @@ export const GUEST_HASH_HEADER = 'X-Sptfyin-Guest-Hash';
 export const MAX_ACTIVE_GUEST_LINKS = 3;
 
 const GUEST_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+const GUEST_ACTIVE_FILTER = 'guest_active = true';
+const GUEST_TRANSFER_PAGE_SIZE = 100;
 
 function getGuestCookieOptions(url) {
 	return {
@@ -79,18 +81,21 @@ function serializeOwnedLink(record) {
 	};
 }
 
-export async function countGuestOwnedLinks(pb, guestSecret) {
-	const result = await pb.collection('random_short').getList(1, MAX_ACTIVE_GUEST_LINKS + 1, {
+export async function getRecentGuestOwnedLinkIds(pb, guestSecret) {
+	const result = await pb.collection('random_short').getList(1, MAX_ACTIVE_GUEST_LINKS, {
+		sort: '-created,-id',
+		filter: GUEST_ACTIVE_FILTER,
 		fields: 'id',
 		headers: await buildGuestOwnershipHeaders(guestSecret)
 	});
 
-	return result.items.length;
+	return result.items.map((item) => item.id);
 }
 
 export async function listOwnedGuestLinks(pb, guestSecret, { page = 1, perPage = 10 } = {}) {
 	const result = await pb.collection('random_short').getList(page, perPage, {
-		sort: '-created',
+		sort: '-created,-id',
+		filter: GUEST_ACTIVE_FILTER,
 		fields: 'id,id_url,from,subdomain,created,utm_view,user',
 		headers: await buildGuestOwnershipHeaders(guestSecret)
 	});
@@ -101,28 +106,45 @@ export async function listOwnedGuestLinks(pb, guestSecret, { page = 1, perPage =
 	};
 }
 
+async function listAllGuestOwnedLinks(pb, guestSecret) {
+	const headers = await buildGuestOwnershipHeaders(guestSecret);
+	const items = [];
+	let page = 1;
+	let totalPages = 1;
+
+	do {
+		const result = await pb.collection('random_short').getList(page, GUEST_TRANSFER_PAGE_SIZE, {
+			sort: '-created,-id',
+			fields: 'id',
+			headers
+		});
+
+		items.push(...result.items);
+		totalPages = result.totalPages || 0;
+		page += 1;
+	} while (page <= totalPages);
+
+	return items;
+}
+
 export async function transferGuestLinksToUser(pb, userId, guestSecret) {
 	if (!userId || !guestSecret) return 0;
 
-	const guestLinks = await listOwnedGuestLinks(pb, guestSecret, {
-		page: 1,
-		perPage: MAX_ACTIVE_GUEST_LINKS
-	});
+	const guestLinks = await listAllGuestOwnedLinks(pb, guestSecret);
 
-	if (!guestLinks.items.length) return 0;
+	if (!guestLinks.length) return 0;
 
 	const headers = await buildGuestOwnershipHeaders(guestSecret);
 
-	for (const link of guestLinks.items) {
+	for (const link of guestLinks) {
 		await pb.collection('random_short').update(
 			link.id,
 			{
-				user: userId,
-				guest_owner_hash: ''
+				user: userId
 			},
 			{ headers }
 		);
 	}
 
-	return guestLinks.items.length;
+	return guestLinks.length;
 }

@@ -35,12 +35,14 @@ describe('POST /api/links', () => {
 
 	it('creates a guest-owned link with server-managed ownership fields', async () => {
 		const create = vi.fn(async (data) => ({ id: 'rec_1', ...data }));
+		const update = vi.fn(async () => ({}));
 		const locals = {
 			user: null,
 			pb: {
 				collection: vi.fn(() => ({
 					getList: vi.fn(async () => ({ items: [] })),
-					create
+					create,
+					update
 				}))
 			}
 		};
@@ -65,6 +67,7 @@ describe('POST /api/links', () => {
 				id_url: 'guestslug',
 				subdomain: 'sptfy.in',
 				enable: true,
+				guest_active: true,
 				guest_owner_hash: 'c14d572fd83485db6ea9a8c149030c662c061d413d4bc23b895b6619ea06e02a'
 			},
 			{
@@ -78,31 +81,51 @@ describe('POST /api/links', () => {
 		);
 	});
 
-	it('rejects guest creation after the active link limit is reached', async () => {
+	it('creates a new active guest link without pre-counting existing links', async () => {
+		const create = vi.fn(async (data) => ({ id: 'new_link', ...data }));
+		const update = vi.fn(async () => ({}));
+		const getList = vi.fn(async () => ({ items: [] }));
 		const locals = {
 			user: null,
 			pb: {
 				collection: vi.fn(() => ({
-					getList: vi.fn(async () => ({
-						items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }]
-					})),
-					create: vi.fn()
+					getList,
+					create,
+					update
 				}))
 			}
 		};
 
-		await expect(
-			POST({
-				locals,
-				request: createRequest({
-					from: 'https://open.spotify.com/track/abc'
-				}),
-				cookies: createCookies('guest-secret'),
-				url: new URL('https://sptfy.in/')
-			})
-		).rejects.toMatchObject({
-			status: 403,
-			body: { message: 'Guest link limit reached (3 active links max)' }
+		const response = await POST({
+			locals,
+			request: createRequest({
+				from: 'https://open.spotify.com/track/abc',
+				turnstileToken: 'turnstile-token'
+			}),
+			cookies: createCookies('guest-secret'),
+			url: new URL('https://sptfy.in/')
 		});
+
+		expect(response.status).toBe(201);
+		expect(getList).not.toHaveBeenCalled();
+		expect(update).not.toHaveBeenCalled();
+		expect(create).toHaveBeenCalledWith(
+			{
+				from: 'https://open.spotify.com/track/abc',
+				id_url: 'rand1234',
+				subdomain: 'sptfy.in',
+				enable: true,
+				guest_owner_hash: 'c14d572fd83485db6ea9a8c149030c662c061d413d4bc23b895b6619ea06e02a',
+				guest_active: true
+			},
+			{
+				headers: {
+					'X-Sptfyin-Guest-Proof': 'guest-secret',
+					'X-Sptfyin-Guest-Hash':
+						'c14d572fd83485db6ea9a8c149030c662c061d413d4bc23b895b6619ea06e02a',
+					'X-Turnstile-Token': 'turnstile-token'
+				}
+			}
+		);
 	});
 });

@@ -15,9 +15,15 @@ class HomeUiMode {
 
 		if (VALID_MODES.has(requestedMode)) {
 			this.mode = requestedMode;
-			window.localStorage.setItem(STORAGE_KEY, requestedMode);
-		} else if (VALID_MODES.has(storedMode)) {
+			if (requestedMode === 'new') {
+				window.localStorage.setItem(STORAGE_KEY, requestedMode);
+			} else {
+				window.localStorage.removeItem(STORAGE_KEY);
+			}
+		} else if (storedMode === 'new') {
 			this.mode = storedMode;
+		} else if (storedMode === 'old') {
+			window.localStorage.removeItem(STORAGE_KEY);
 		}
 	}
 
@@ -28,7 +34,11 @@ class HomeUiMode {
 
 		if (!browser) return;
 
-		window.localStorage.setItem(STORAGE_KEY, nextMode);
+		if (nextMode === 'new') {
+			window.localStorage.setItem(STORAGE_KEY, nextMode);
+		} else {
+			window.localStorage.removeItem(STORAGE_KEY);
+		}
 	};
 }
 
