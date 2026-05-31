@@ -1,13 +1,39 @@
 import { json, error } from '@sveltejs/kit';
 import { generateRandomURL } from '$lib/pocketbase';
 import { isMaintenanceActive, getMaintenanceState } from '$lib/maintenance';
+import {
+	buildGuestOwnershipHeaders,
+	ensureGuestSession,
+	hashGuestSessionSecret,
+	listOwnedGuestLinks
+} from '$lib/server/guest-links';
 const pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
-export async function GET({ locals, url, fetch }) {
-	if (!locals.user) throw error(401, 'Authentication required');
-
+export async function GET({ locals, url, fetch, cookies }) {
 	const page = Number(url.searchParams.get('page') || 1);
 	const perPage = Math.min(Number(url.searchParams.get('perPage') || 20), 50);
+
+	if (!locals.user) {
+		const guestSecret = cookies.get('sptfyin_guest');
+		if (!guestSecret) {
+			return json({
+				items: [],
+				page,
+				perPage,
+				totalPages: 0,
+				totalItems: 0
+			});
+		}
+
+		const ownedLinks = await listOwnedGuestLinks(locals.pb, guestSecret, { page, perPage });
+		return json({
+			items: ownedLinks.items,
+			page: ownedLinks.page,
+			perPage: ownedLinks.perPage,
+			totalPages: ownedLinks.totalPages,
+			totalItems: ownedLinks.totalItems
+		});
+	}
 
 	console.log('[API Links GET] Fetching links for user:', locals.user.id);
 
@@ -45,7 +71,7 @@ export async function GET({ locals, url, fetch }) {
 	});
 }
 
-export async function POST({ locals, request }) {
+export async function POST({ locals, request, cookies, url }) {
 	// Check maintenance mode first
 	if (isMaintenanceActive()) {
 		const state = getMaintenanceState();
@@ -53,10 +79,10 @@ export async function POST({ locals, request }) {
 	}
 
 	const body = await request.json();
-	const { from, slug, subdomain, turnstileToken } = body || {};
+	const { from, id_url: requestedIdUrl, slug, subdomain, turnstileToken } = body || {};
 	if (!from) throw error(400, 'from is required');
 
-	const id_url = slug || (await generateRandomURL());
+	const id_url = requestedIdUrl || slug || (await generateRandomURL());
 
 	const data = {
 		from,
@@ -64,22 +90,41 @@ export async function POST({ locals, request }) {
 		subdomain: subdomain || 'sptfy.in',
 		enable: true
 	};
+	let headers;
+	let guestSecret = '';
 
 	// Always use authenticated user ID - never trust client-provided value
 	// This prevents users from creating links owned by other users
 	if (locals.user) {
 		data.user = locals.user.id;
+	} else {
+		guestSecret = ensureGuestSession(cookies, url);
+		data.guest_owner_hash = await hashGuestSessionSecret(guestSecret);
+		data.guest_active = true;
+		headers = await buildGuestOwnershipHeaders(guestSecret);
 	}
-	// If not authenticated, user field will be empty (anonymous link)
 
 	try {
+		if (turnstileToken) {
+			headers = {
+				...(headers || {}),
+				'X-Turnstile-Token': turnstileToken
+			};
+		}
+
 		const record = await locals.pb.collection('random_short').create(data, {
-			headers: turnstileToken ? { 'X-Turnstile-Token': turnstileToken } : undefined
+			headers
 		});
+
+		delete record.guest_owner_hash;
+		delete record.guest_active;
 		return json(record, { status: 201 });
 	} catch (e) {
+		console.error('[API Links POST] Failed to create link:', e);
 		const code = e?.response?.data?.id_url?.code;
 		if (code === 'validation_not_unique') throw error(409, 'slug taken');
-		throw error(400, 'create failed');
+
+		const message = e?.response?.message || e?.message || 'create failed';
+		throw error(e?.status || 400, message);
 	}
 }

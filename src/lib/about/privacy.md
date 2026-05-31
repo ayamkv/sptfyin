@@ -28,6 +28,17 @@ when someone opens a short link, we automatically collect:
 
 if you sign in, we process account-related data needed for authentication and link management.
 
+### 2.4 guest session data
+
+when you create links without signing in, we set a private guest session cookie in your browser. this cookie contains a secure secret that lets us identify which links you created locally, so you can see and manage them in the "my links" tab.
+
+the guest cookie is:
+
+- stored only in your browser (not shared across devices)
+- used solely to remember your locally created links
+- deleted if you clear your browser cookies or storage
+- not linked to any account or personal identity
+
 ## 3. how we use information
 
 we use data to:

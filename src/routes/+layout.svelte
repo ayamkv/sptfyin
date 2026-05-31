@@ -5,6 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Home, CircleUserRound, HandHeart, Info, History, Trophy } from 'lucide-svelte';
 	import { page } from '$app/stores';
+	import { resolve } from '$app/paths';
 	import logo from '$lib/images/logo.png';
 	import MaintenanceToast from '$lib/components/maintenance-toast.svelte';
 
@@ -19,7 +20,7 @@
 
 	let isCollapsed = true;
 	let currentPath = $derived($page.url.pathname);
-	let isActive = $derived((routeLabel) => {
+	let isActive = $derived.by(() => (routeLabel) => {
 		if (routeLabel === '/about/general' && currentPath.includes('about/')) {
 			return true;
 		}
@@ -48,6 +49,7 @@
 			variant: 'ghost',
 			label: '/top',
 			visible: true,
+			mobileVisible: false,
 			section: 'actions'
 		},
 		{
@@ -96,26 +98,22 @@
 		class="scrollbar-gutter-stable md:highlightN fixed inset-0 flex
     rounded-md bg-background/30 md:flex-row md:rounded-none"
 	>
-		<!--- todo: fix the gradient, we need to hide the gradient in large displays like desktop using sm:, and show it in mobile.-->
 		<div
 			data-collapsed={isCollapsed}
-			class="highlightNav2 group fixed bottom-0 left-0 right-0 z-50 flex flex-col
-                    bg-card/95 data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto
-                   md:min-h-screen md:w-24
-                   md:bg-none md:shadow-none"
+			class="md:highlightNav2 group fixed bottom-[7px] left-1/2 z-50 flex h-[86px] w-[calc(100%-33px)] max-w-[369px] -translate-x-1/2 flex-col bg-transparent data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto md:left-auto md:h-auto md:min-h-screen md:w-24 md:max-w-none md:translate-x-0 md:bg-[#1b191e] md:shadow-none"
 		>
 			<!-- Logo (desktop only) -->
 			<a
 				class="sptfyin-logo mx-auto my-4 hidden size-16 items-center justify-center md:flex"
-				href="/"
+				href={resolve('/')}
 			>
 				<img src={logo} alt="Sptfyin Logo" class="h-full w-full" />
 			</a>
 
 			<!-- Navigation -->
 			<nav
-				class="flex items-center justify-evenly px-1 py-1 pb-2 md:grid md:justify-start md:gap-2 md:px-2
-                        group-[[data-collapsed=true]]:md:justify-center"
+				class="grid h-full grid-cols-4 items-center gap-2 pb-2 pt-1 md:h-auto md:grid-cols-none md:justify-items-center md:gap-2 md:px-2
+						group-[[data-collapsed=true]]:md:justify-center"
 			>
 				{#each routes.filter((route) => route.visible) as route (route.label)}
 					<Tooltip.Root openDelay={0}>
@@ -123,23 +121,24 @@
 							{#snippet child({ props })}
 								<Button
 									{...props}
-									href={route.label}
+									href={route.label.startsWith('/') ? resolve(route.label) : route.label}
 									variant={route.variant}
 									size="icon"
-									class="hover:inverseShadow size-14
-                                    hover:bg-secondary/80
-                                    hover:outline-primary
-                                    md:size-20
-                                    {isActive(route.label)
-										? ' md:hover:highlight inverseShadow bg-background/40 md:bg-background/60 md:text-foreground md:hover:bg-primary/90 md:hover:text-background'
+									class="h-[74px] w-full flex-col items-center justify-center gap-1 rounded-2xl px-0 text-[var(--rd-ink)] no-underline hover:bg-transparent hover:outline-primary md:h-20 md:w-20 md:gap-1 md:rounded-md
+									{route.mobileVisible === false ? 'hidden md:flex' : 'flex'}
+									{isActive(route.label)
+										? 'rd-shadow-nav-active md:inverseShadow md:hover:highlight bg-[#10111199] md:bg-background/60 md:text-foreground md:hover:bg-primary/90 md:hover:text-background'
 										: route.variant === 'default'
-											? 'highlightCard dark:bg-muted dark:text-muted-foreground  dark:hover:bg-secondary/40'
-											: ''}
-                                    flex w-full flex-col items-center justify-center gap-0 rounded-md px-2 no-underline md:gap-1 md:rounded-md md:px-0
-                                    "
+											? 'md:highlightCard bg-transparent md:dark:bg-muted md:dark:text-muted-foreground md:dark:hover:bg-secondary/40'
+											: 'bg-transparent'}"
 								>
-									<route.icon class="size-6 md:size-8" aria-hidden="true" />
-									<span class="hidden text-xs no-underline md:inline-block">{route.title}</span>
+									<route.icon class="size-8" aria-hidden="true" />
+									<span
+										class="{isActive(route.label)
+											? 'inline-block'
+											: 'sr-only'} text-xs leading-4 no-underline md:inline-block"
+										>{route.title}</span
+									>
 								</Button>
 							{/snippet}
 						</Tooltip.Trigger>

@@ -6,24 +6,42 @@
 	import { getRecentRecords } from '$lib/pocketbase';
 	import { localizeDate } from '$lib/utils';
 
+	const MAX_LINK_PAGES = 25;
+	const NOTE_PAGE = MAX_LINK_PAGES + 1;
+
 	let records = $state([]);
 	let currentPage = $state(1);
 	let itemsPerPage = 10;
-	let totalPages = $state(1);
+	let actualTotalPages = $state(1);
+	let hasHiddenPages = $derived(actualTotalPages > MAX_LINK_PAGES);
+	let visibleTotalPages = $derived(hasHiddenPages ? NOTE_PAGE : actualTotalPages);
+	let hiddenPageCount = $derived(Math.max(0, actualTotalPages - MAX_LINK_PAGES));
+	let isNotePage = $derived(currentPage === NOTE_PAGE && hasHiddenPages);
 	let isLoading = $state(true);
 	let hasError = $state(false);
 
 	async function fetchData(page = currentPage) {
 		isLoading = true;
 		hasError = false;
+		const requestedPage = Math.min(Math.max(1, page), visibleTotalPages);
+		if (requestedPage === NOTE_PAGE && hasHiddenPages) {
+			records = [];
+			currentPage = NOTE_PAGE;
+			isLoading = false;
+			return;
+		}
+
 		try {
-			const response = await getRecentRecords('viewList', itemsPerPage, page);
+			const response = await getRecentRecords('viewList', itemsPerPage, requestedPage);
 			records = response.items || [];
-			totalPages = Math.max(
+			actualTotalPages = Math.max(
 				1,
 				response.totalPages || Math.ceil((response.totalItems || 0) / itemsPerPage)
 			);
-			currentPage = Math.min(Math.max(1, page), totalPages);
+			currentPage = Math.min(
+				requestedPage,
+				actualTotalPages > MAX_LINK_PAGES ? NOTE_PAGE : actualTotalPages
+			);
 		} catch (error) {
 			hasError = true;
 			console.error(error);
@@ -33,7 +51,7 @@
 	}
 
 	async function nextPage() {
-		if (isLoading || currentPage >= totalPages) {
+		if (isLoading || currentPage >= visibleTotalPages) {
 			return;
 		}
 
@@ -74,7 +92,7 @@
 			<Card.Content class="">
 				{#if isLoading}
 					<div class="space-y-4">
-						{#each Array(10) as _}
+						{#each Array(10) as _, index (index)}
 							<div class="flex items-center justify-between border-b py-2 last:border-0">
 								<div class="mr-4 flex min-w-0 flex-1 items-center gap-1">
 									<div class="w-16"><Skeleton class="h-4" /></div>
@@ -95,8 +113,45 @@
 					<p class="py-4 text-center text-red-500">Failed to load recent links.</p>
 				{:else}
 					<div class="space-y-4">
-						{#if records.length > 0}
-							{#each records as item}
+						{#if isNotePage}
+							<div
+								class="space-y-3 rounded-lg border bg-muted/30 p-4 text-center text-sm text-muted-foreground"
+							>
+								<pre class="overflow-x-auto text-center text-xs leading-none">
+				a@@@@a
+        a@@@@@@@@@@@@a
+      a@@@@@@by@@@@@@@@a
+    a@@@@@S@C@E@S@W@@@@@@a
+    @@@@@@@@@@@@@@@@@@@@@@
+     `@@@@@@`\\//'@@@@@@'
+          ,,  ||  ,, S.C.E.S.W.
+         /(-\ || /.)m
+    ,---' /`-'||`-'\ `----,
+   /( )__))   ||   ((,==( )\
+_ /_//___\\ __|| ___\\ __\\ ____
+    ``    `` /MM\   ''   '' </pre>
+								<p>
+									woah hold your horses, pal. <br /> there are
+									<span class="font-semibold text-primary">{actualTotalPages}</span>
+									recent pages total, with
+									<span class="font-semibold text-primary">{hiddenPageCount}</span> older pages past
+									this point. <br /><br />
+									we cap link browsing at 25 pages because old recents get noisy and expensive to browse,
+									and this keeps the page fast.
+								</p>
+
+								<p>ascii art by: Stephen C.E.S. Wilson (S.C.E.S.W.)</p>
+							</div>
+
+							<div class="flex items-center justify-between pt-4">
+								<Button variant="ghost2" onclick={previousPage} disabled={isLoading}>prev</Button>
+								<span class="text-sm text-muted-foreground">
+									{currentPage} / {visibleTotalPages}
+								</span>
+								<Button variant="ghost2" disabled>next</Button>
+							</div>
+						{:else if records.length > 0}
+							{#each records as item (item.id_url)}
 								<div class="flex items-center justify-between border-b py-1 last:border-0">
 									<a
 										href="https://{item.subdomain === 'sptfy.in'
@@ -128,12 +183,12 @@
 									prev
 								</Button>
 								<span class="text-sm text-muted-foreground">
-									{currentPage} / {totalPages}
+									{currentPage} / {visibleTotalPages}
 								</span>
 								<Button
 									variant="ghost2"
 									onclick={nextPage}
-									disabled={isLoading || currentPage === totalPages}
+									disabled={isLoading || currentPage === visibleTotalPages}
 								>
 									next
 								</Button>

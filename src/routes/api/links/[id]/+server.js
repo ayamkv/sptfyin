@@ -1,4 +1,5 @@
 import { json, error } from '@sveltejs/kit';
+import { buildGuestOwnershipHeaders, getRecentGuestOwnedLinkIds } from '$lib/server/guest-links';
 
 export async function PATCH({ locals, params, request }) {
 	if (!locals.user) throw error(401);
@@ -29,9 +30,41 @@ export async function PATCH({ locals, params, request }) {
 	}
 }
 
-export async function DELETE({ locals, params }) {
-	if (!locals.user) throw error(401, 'Authentication required');
+export async function DELETE({ locals, params, cookies, request }) {
 	const id = params.id;
+	const guestSecret = cookies.get('sptfyin_guest') || '';
+	const body = await request.json().catch(() => ({}));
+	const turnstileToken = body?.turnstileToken;
+
+	if (!locals.user) {
+		if (!guestSecret) {
+			throw error(401, 'Authentication required');
+		}
+
+		if (!turnstileToken) {
+			throw error(400, 'Turnstile verification required');
+		}
+
+		try {
+			const recentOwnedIds = await getRecentGuestOwnedLinkIds(locals.pb, guestSecret);
+			if (!recentOwnedIds.includes(id)) {
+				throw error(403, 'Only your active local links can be deleted');
+			}
+
+			await locals.pb.collection('random_short').delete(id, {
+				headers: {
+					...(await buildGuestOwnershipHeaders(guestSecret)),
+					'X-Turnstile-Token': turnstileToken
+				}
+			});
+			return new Response(null, { status: 204 });
+		} catch (e) {
+			if (e?.body?.message === 'Only your active local links can be deleted') throw e;
+			console.error('[API Links DELETE] Failed to delete guest-owned link:', e);
+			if (e?.status === 404) throw error(404, 'Link not found');
+			throw error(403, 'Not authorized to delete this link');
+		}
+	}
 
 	let record;
 	try {
@@ -40,8 +73,9 @@ export async function DELETE({ locals, params }) {
 		throw error(404, 'Link not found');
 	}
 
-	// Verify ownership
-	if (record.user !== locals.user.id) {
+	const isAuthenticatedOwner = Boolean(locals.user && record.user === locals.user.id);
+
+	if (!isAuthenticatedOwner) {
 		throw error(403, 'Not authorized to delete this link');
 	}
 
