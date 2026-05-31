@@ -38,6 +38,10 @@
 
 	import { toastGroups } from '$lib/debug';
 	import BackgroundNoise from '$lib/components/BackgroundNoise.svelte';
+<<<<<<< HEAD
+=======
+	import DesktopHomeRedesign from '$lib/components/home/desktop-redesign.svelte';
+>>>>>>> 09309c198c94f1a2ff0ded19e4944a11d0a338b3
 	import MobileHomeRedesign from '$lib/components/home/mobile-redesign.svelte';
 	import { homeUiMode } from '$lib/ui-mode.svelte.js';
 
@@ -1014,7 +1018,11 @@
 			</Dialog.Content>
 		</Dialog.Root>
 
+<<<<<<< HEAD
 		{#if useNewDesktopHome && DesktopHomeRedesign}
+=======
+		{#if useNewDesktopHome}
+>>>>>>> 09309c198c94f1a2ff0ded19e4944a11d0a338b3
 			<DesktopHomeRedesign
 				{totalLinkCreated}
 				{totalClicks}
