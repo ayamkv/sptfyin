@@ -38,7 +38,6 @@
 
 	import { toastGroups } from '$lib/debug';
 	import BackgroundNoise from '$lib/components/BackgroundNoise.svelte';
-	import DesktopHomeRedesign from '$lib/components/home/desktop-redesign.svelte';
 	import MobileHomeRedesign from '$lib/components/home/mobile-redesign.svelte';
 	import { homeUiMode } from '$lib/ui-mode.svelte.js';
 
@@ -81,6 +80,15 @@
 	let isDesktopViewport = $state(false);
 	let useNewHome = $derived(homeUiMode.mode === 'new' && !isDesktopViewport);
 	let useNewDesktopHome = $derived(homeUiMode.mode === 'new' && isDesktopViewport);
+	let DesktopHomeRedesign = $state(null);
+
+	$effect(() => {
+		if (useNewDesktopHome && !DesktopHomeRedesign && browser) {
+			import('$lib/components/home/desktop-redesign.svelte').then((m) => {
+				DesktopHomeRedesign = m.default;
+			});
+		}
+	});
 
 	// Domain selection must be defined before QR derivations
 	let selected = $state('sptfy.in');
@@ -1006,7 +1014,7 @@
 			</Dialog.Content>
 		</Dialog.Root>
 
-		{#if useNewDesktopHome}
+		{#if useNewDesktopHome && DesktopHomeRedesign}
 			<DesktopHomeRedesign
 				{totalLinkCreated}
 				{totalClicks}
