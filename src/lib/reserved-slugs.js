@@ -10,6 +10,7 @@ export const COOLDOWN_RESERVED_ROOT_SLUGS = [
 	'onboarding',
 	'recent',
 	'top',
+	'updates',
 	'prev',
 	'profile',
 	'debug',

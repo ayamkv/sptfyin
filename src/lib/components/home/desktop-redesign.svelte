@@ -60,7 +60,12 @@
 		deleteTurnstileReset = $bindable(),
 		deleteTurnstileStatus = 'pending',
 		handleDeleteTurnstileCallback,
-		resetDeleteTurnstile
+		resetDeleteTurnstile,
+		appVersion = '0.1.0',
+		latestUpdate = null,
+		latestUpdateHref = '/@/updates',
+		showLatestUpdate = false,
+		handleLatestUpdateClick = () => {}
 	} = $props();
 
 	const tabs = [
@@ -72,6 +77,7 @@
 
 	let linkCount = $derived(totalLinkCreated ? formatNumber(totalLinkCreated) : '65.7k');
 	let clickCount = $derived(totalClicks ? formatNumber(totalClicks) : '1.2m');
+	let versionText = $derived(`v${String(appVersion).replace(/^v/, '')}`);
 
 	let tabContent = $derived({
 		loading:
@@ -150,8 +156,28 @@
 			</div>
 		</header>
 
+		{#if showLatestUpdate && latestUpdate}
+			<a
+				href={resolve(latestUpdateHref)}
+				onclick={handleLatestUpdateClick}
+				class="rd-squircle rd-shadow-inset mx-auto mb-4 mt-3 flex max-w-md items-center justify-center gap-1.5 rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-4 py-2 text-xs font-semibold text-[var(--rd-ink)] no-underline hover:text-[var(--rd-mint)]"
+			>
+				<iconify-icon icon="lucide:sparkles" width="15" class="text-[var(--rd-mint)]"
+				></iconify-icon>
+				<span class="text-[var(--rd-muted)]">updates:</span>
+				<span class="truncate">{latestUpdate.chip}</span>
+			</a>
+		{:else}
+			<a
+				href={resolve('/@/updates')}
+				class="rd-squircle rd-shadow-inset mx-auto mb-4 mt-3 flex w-fit items-center rounded-full border border-[var(--rd-line)] bg-[var(--rd-panel)] px-3 py-1 text-xs font-semibold text-[var(--rd-muted)] no-underline hover:text-[var(--rd-mint)]"
+			>
+				{versionText}
+			</a>
+		{/if}
+
 		<section
-			class="rd-squircle rd-shadow-inset mb-4 mt-8 grid min-h-[4.75rem] grid-cols-[1fr_auto] items-center gap-4 rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-5 py-4"
+			class="rd-squircle rd-shadow-inset mb-4 mt-3 grid min-h-[4.75rem] grid-cols-[1fr_auto] items-center gap-4 rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-5 py-4"
 		>
 			<div class="min-w-0">
 				<p class="mb-1.5 text-xs font-normal leading-none text-[var(--rd-mint)]">url preview</p>

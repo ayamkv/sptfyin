@@ -30,6 +30,13 @@
 	import { Label } from '$lib/components/ui/label';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { isReservedRootSlug } from '$lib/reserved-slugs';
+	import {
+		APP_VERSION,
+		latestRelease,
+		isReleaseFresh,
+		releaseHref,
+		releaseSeenStorageKey
+	} from '$lib/updates/releases';
 
 	import { Badge } from '$lib/components/ui/badge';
 	import 'iconify-icon';
@@ -83,6 +90,13 @@
 	let useNewHome = $derived(homeUiMode.mode === 'new' && !isDesktopViewport);
 	let useNewDesktopHome = $derived(homeUiMode.mode === 'new' && isDesktopViewport);
 	let DesktopHomeRedesign = $state(null);
+	let latestUpdate = latestRelease;
+	let releaseNow = $state(new Date());
+	let latestUpdateSeen = $state(false);
+	let latestUpdateHref = $derived(latestUpdate ? releaseHref(latestUpdate) : '/@/updates');
+	let showLatestUpdate = $derived(
+		latestUpdate && isReleaseFresh(latestUpdate, releaseNow) && !latestUpdateSeen
+	);
 
 	$effect(() => {
 		if (useNewDesktopHome && !DesktopHomeRedesign && browser) {
@@ -247,6 +261,21 @@
 
 		return () => mediaQuery.removeEventListener('change', updateViewport);
 	});
+	onMount(() => {
+		releaseNow = new Date();
+
+		if (latestUpdate) {
+			latestUpdateSeen = localStorage.getItem(releaseSeenStorageKey(latestUpdate)) === '1';
+		}
+	});
+
+	function handleLatestUpdateClick() {
+		if (!browser || !latestUpdate) return;
+
+		localStorage.setItem(releaseSeenStorageKey(latestUpdate), '1');
+		latestUpdateSeen = true;
+	}
+
 	function getBrowserName() {
 		const userAgent = navigator.userAgent;
 
@@ -926,6 +955,11 @@
 		{deleteTurnstileStatus}
 		{handleDeleteTurnstileCallback}
 		{resetDeleteTurnstile}
+		appVersion={APP_VERSION}
+		{latestUpdate}
+		{latestUpdateHref}
+		{showLatestUpdate}
+		{handleLatestUpdateClick}
 	/>
 {:else}
 	<div
@@ -1050,6 +1084,11 @@
 				{deleteTurnstileStatus}
 				{handleDeleteTurnstileCallback}
 				{resetDeleteTurnstile}
+				appVersion={APP_VERSION}
+				{latestUpdate}
+				{latestUpdateHref}
+				{showLatestUpdate}
+				{handleLatestUpdateClick}
 			/>
 		{:else}
 			<div class="logo mt-[20em] flex flex-col items-center justify-center md:mb-6 md:mt-[2em]">
@@ -1088,6 +1127,18 @@
 						<span class="text-[10px] md:text-xs">{formatNumber(totalClicks)}</span>
 					</Badge>
 				</div>
+
+				{#if showLatestUpdate && latestUpdate}
+					<a
+						href={resolve(latestUpdateHref)}
+						onclick={handleLatestUpdateClick}
+						class="mt-7 inline-flex max-w-[20rem] items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary no-underline shadow-sm backdrop-blur transition-colors hover:bg-primary/20"
+					>
+						<iconify-icon icon="lucide:sparkles" width="14"></iconify-icon>
+						<span class="text-foreground/70">updates:</span>
+						<span class="truncate">{latestUpdate.chip}</span>
+					</a>
+				{/if}
 
 				{#if debugMode === 'true'}
 					<h3

@@ -1,6 +1,6 @@
 # frequently asked questions
 
-last updated: 2026-02-27
+last updated: 2026-06-02
 
 ## sptfyin, what's that?
 
@@ -27,8 +27,9 @@ that page includes basic stats and the qr preview for the same link.
 
 ## can i replace or change the spotify link in my created short url?
 
-right now, this is planned for broader self-serve management.
-if you need urgent changes, contact us via [our socials](/@/about/socials) and include proof of ownership.
+yes, if the link belongs to your account. sign in, open [your dashboard](/@/dash/links), and edit the destination or slug from there.
+
+for guest links that have not been transferred to an account, deletion is self-serve for your active local links, but edits may require signing in first.
 
 ## can i delete my url?
 
@@ -46,6 +47,7 @@ when you shorten a link without signing in, sptfyin creates a private guest sess
 - see your 3 newest active links in the "my links" tab
 - delete any of those 3 active links after Turnstile verification
 - copy, share, and view QR codes for all your links
+- sign in later to transfer guest links from that browser session into your account
 
 **rolling active window:**
 
@@ -56,9 +58,15 @@ the "my links" tab only shows your 3 most recent active guest links. when you cr
 - clearing your browser cookies or storage will lose access to your local guest links
 - switching devices or browsers means you won't see those links in "my links"
 - there's no way to recover a lost guest session at this time
-- guest links are not tied to any account system yet (this may change in the future)
+- guest links can only transfer to your account while the original guest session cookie still exists
 
-if you need permanent, cross-device access to your links, consider signing in when account features become available.
+if you need permanent, cross-device access to your links, sign in with google or discord.
+
+## how do accounts work?
+
+accounts let you keep your links tied to a login instead of a single browser session. sptfyin currently supports google and discord oauth sign-in.
+
+after signing in, you can use [your dashboard](/@/dash/links) to view, edit, delete, and manage links connected to your account. if you had guest links in the same browser, sptfyin will try to transfer those links into your account automatically.
 
 ## will my links ever expire?
 
@@ -71,7 +79,7 @@ there is no fixed quota, but rate limits are applied to prevent abuse.
 ## what is currently planned?
 
 - deeper analytics views
-- stronger link management workflows
+- stronger account and link-management workflows
 - improved qr customization
 
 ## have other questions?
