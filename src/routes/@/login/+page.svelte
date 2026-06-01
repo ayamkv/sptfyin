@@ -75,7 +75,7 @@
 
 			<div class="grid gap-2">
 				<Button
-					class="relative w-full justify-start gap-3 border border-border bg-background pl-4 text-foreground hover:bg-muted"
+					class="relative w-full justify-start gap-3 border border-[#dadce0] bg-white pl-4 text-[#1f1f1f] transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#f8fafd] hover:shadow-md active:translate-y-0 active:shadow-sm"
 					variant="outline"
 					onclick={() => handleOAuthLogin('google')}
 					disabled={!!loadingProvider}
@@ -87,11 +87,11 @@
 						<iconify-icon icon="logos:google-icon" width="18" class="h-[18px] w-[18px]"
 						></iconify-icon>
 						Continue with Google
-						<ArrowRight class="ml-auto h-4 w-4 text-foreground/40" />
+						<ArrowRight class="ml-auto h-4 w-4 text-[#5f6368]" />
 					{/if}
 				</Button>
 				<Button
-					class="relative w-full justify-start gap-3 bg-[#5865F2] pl-4 text-white hover:bg-[#4752c4]"
+					class="relative w-full justify-start gap-3 bg-[#5865F2] pl-4 text-white transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#4752c4] hover:shadow-md active:translate-y-0 active:shadow-sm"
 					onclick={() => handleOAuthLogin('discord')}
 					disabled={!!loadingProvider}
 				>
@@ -99,7 +99,10 @@
 						<Loader2 class="h-4 w-4 animate-spin" />
 						Connecting to Discord...
 					{:else}
-						<iconify-icon icon="logos:discord-icon" width="18" class="h-[18px] w-[18px]"
+						<iconify-icon
+							icon="simple-icons:discord"
+							width="18"
+							class="h-[18px] w-[18px] text-white"
 						></iconify-icon>
 						Continue with Discord
 						<ArrowRight class="ml-auto h-4 w-4 text-white/70" />
