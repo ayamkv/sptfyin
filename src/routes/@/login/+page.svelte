@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { ArrowRight, Loader2 } from 'lucide-svelte';
+	import { ArrowRight, Eye, EyeOff, Loader2 } from 'lucide-svelte';
 	import { browser } from '$app/environment';
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
@@ -12,6 +12,7 @@
 	let { form } = $props();
 	let loadingProvider = $state('');
 	let popupWindow = $state(null);
+	let showPassword = $state(false);
 
 	function handleOAuthLogin(provider) {
 		loadingProvider = provider;
@@ -121,13 +122,29 @@
 				</div>
 				<div class="grid gap-1.5">
 					<Label for="login-password">Password</Label>
-					<Input
-						id="login-password"
-						name="password"
-						type="password"
-						autocomplete="current-password"
-						required
-					/>
+					<div class="relative">
+						<Input
+							id="login-password"
+							name="password"
+							type={showPassword ? 'text' : 'password'}
+							autocomplete="current-password"
+							class="pr-10"
+							required
+						/>
+						<button
+							type="button"
+							class="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
+							aria-label={showPassword ? 'Hide password' : 'Show password'}
+							aria-pressed={showPassword}
+							onclick={() => (showPassword = !showPassword)}
+						>
+							{#if showPassword}
+								<EyeOff class="h-4 w-4" />
+							{:else}
+								<Eye class="h-4 w-4" />
+							{/if}
+						</button>
+					</div>
 				</div>
 				<Button type="submit" class="w-full">Log in</Button>
 			</form>

@@ -4,8 +4,10 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { resolve } from '$app/paths';
+	import { Eye, EyeOff } from 'lucide-svelte';
 
 	let { form } = $props();
+	let showPassword = $state(false);
 </script>
 
 <div class="mt-0 flex flex-col items-center justify-center md:min-h-[80vh]">
@@ -51,13 +53,29 @@
 				</div>
 				<div class="grid gap-1.5">
 					<Label for="password">Password</Label>
-					<Input
-						id="password"
-						name="password"
-						type="password"
-						autocomplete="new-password"
-						required
-					/>
+					<div class="relative">
+						<Input
+							id="password"
+							name="password"
+							type={showPassword ? 'text' : 'password'}
+							autocomplete="new-password"
+							class="pr-10"
+							required
+						/>
+						<button
+							type="button"
+							class="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
+							aria-label={showPassword ? 'Hide password' : 'Show password'}
+							aria-pressed={showPassword}
+							onclick={() => (showPassword = !showPassword)}
+						>
+							{#if showPassword}
+								<EyeOff class="h-4 w-4" />
+							{:else}
+								<Eye class="h-4 w-4" />
+							{/if}
+						</button>
+					</div>
 				</div>
 				<Button type="submit" class="w-full">Create account</Button>
 			</form>
