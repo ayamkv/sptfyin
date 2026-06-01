@@ -311,6 +311,7 @@
 				console.log('[Dashboard] Avatar URL fetched:', avatarUrl);
 			} else {
 				console.warn('[Dashboard] No image found in Microlink response:', data);
+				avatarUrl = `https://api.dicebear.com/9.x/glass/svg?seed=${user.id}`;
 			}
 		} catch (error) {
 			console.error('[Dashboard] Failed to fetch avatar from Microlink:', error);
