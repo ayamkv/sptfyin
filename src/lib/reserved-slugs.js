@@ -4,6 +4,7 @@ export const COOLDOWN_RESERVED_ROOT_SLUGS = [
 	'about',
 	'login',
 	'register',
+	'forgot-password',
 	'auth',
 	'dash',
 	'onboarding',

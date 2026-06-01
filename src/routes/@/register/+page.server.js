@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { DASHBOARD_PATH, redirectAfterAuth } from '$lib/server/auth-flow';
+import { GUEST_SESSION_COOKIE } from '$lib/server/guest-links';
 
 function normalizeFormString(value) {
 	return typeof value === 'string' ? value.trim() : '';
@@ -16,12 +17,14 @@ function usernameFromEmail(email) {
 	return username.length >= 3 ? username : `user${Math.floor(100000 + Math.random() * 900000)}`;
 }
 
-export const load = async ({ locals }) => {
+export const load = async ({ locals, cookies }) => {
 	if (locals.user) {
 		throw redirect(302, DASHBOARD_PATH);
 	}
 
-	return {};
+	return {
+		hasGuestSession: Boolean(cookies.get(GUEST_SESSION_COOKIE))
+	};
 };
 
 export const actions = {
