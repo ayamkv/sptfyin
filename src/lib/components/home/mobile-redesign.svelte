@@ -59,11 +59,17 @@
 		deleteTurnstileReset = $bindable(),
 		deleteTurnstileStatus = 'pending',
 		handleDeleteTurnstileCallback,
-		resetDeleteTurnstile
+		resetDeleteTurnstile,
+		appVersion = '0.1.0',
+		latestUpdate = null,
+		latestUpdateHref = '/@/updates',
+		showLatestUpdate = false,
+		handleLatestUpdateClick = () => {}
 	} = $props();
 
 	let linkCount = $derived(totalLinkCreated ? formatNumber(totalLinkCreated) : '65.7k');
 	let clickCount = $derived(totalClicks ? formatNumber(totalClicks) : '1.2m');
+	let versionText = $derived(`v${String(appVersion).replace(/^v/, '')}`);
 
 	const tabs = [
 		{ id: 'mylinks', label: 'my links', edgeClass: 'rounded-l-2xl', borderSide: 'border-r-0' },
@@ -86,7 +92,7 @@
 		},
 		{
 			icon: null,
-			text: 'v0.1',
+			text: versionText,
 			cssClass: 'mobile-home-pill-version',
 			left: 'left-[8.9375rem]',
 			top: 'top-[3.1875rem]',
@@ -109,13 +115,6 @@
 			textSize: 'text-[0.75rem]'
 		}
 	]);
-
-	const showHotmAndChangelog = false;
-
-	const hotmPills = [
-		{ text: '/ topplaylist', maxW: 'max-w-[3.5625rem]', squircle: true },
-		{ text: '/ topplaylistthis', maxW: 'max-w-[4.25rem]', squircle: false }
-	];
 
 	const footerLinks = [
 		{ href: 'https://status.sptfy.in', external: true, label1: 'server', label2: 'status' },
@@ -215,7 +214,7 @@
 				</div>
 			{/if}
 			<header
-				class="mobile-home-header relative mt-4 {showHotmAndChangelog
+				class="mobile-home-header relative mt-4 {showLatestUpdate
 					? 'h-[8.125rem]'
 					: 'h-[5.25rem]'} w-[20rem]"
 			>
@@ -236,35 +235,17 @@
 					</div>
 				{/each}
 
-				{#if showHotmAndChangelog}
-					<div
-						class="mobile-home-hotm rd-squircle rd-shadow-inset absolute left-px top-[6.3125rem] h-[1.75rem] w-[10.875rem] rounded-2xl bg-[var(--rd-panel)]"
+				{#if showLatestUpdate && latestUpdate}
+					<a
+						href={resolve(latestUpdateHref)}
+						onclick={handleLatestUpdateClick}
+						class="mobile-home-changelog rd-squircle rd-shadow-inset absolute left-px top-[6.3125rem] flex h-[1.8125rem] w-[19.75rem] items-center gap-1 overflow-hidden rounded-2xl bg-[var(--rd-panel)] px-3 text-[0.5625rem] leading-none text-[var(--rd-ink-soft)] no-underline"
 					>
-						<div
-							class="mobile-home-hotm-content absolute left-[0.6875rem] top-[0.4375rem] flex h-[0.9375rem] w-[9.5rem] items-center gap-[0.3125rem] overflow-hidden whitespace-nowrap text-[0.5rem] italic text-[var(--rd-ink)]"
-						>
-							<iconify-icon icon="lucide:flame" width="14" class="shrink-0 text-[var(--rd-mint)]"
-							></iconify-icon>
-							{#each hotmPills as pill (pill.text)}
-								<span
-									class="mobile-home-hotm-pill {pill.squircle
-										? 'rd-squircle rounded-[0.625rem]'
-										: ''} inline-flex h-[0.9375rem] {pill.maxW} items-center truncate bg-[var(--rd-chip)] px-[0.4375rem] underline shadow-[inset_0_-1px_2.5px_0_rgba(197,97,212,0.44)]"
-									>{pill.text}</span
-								>
-							{/each}
-						</div>
-					</div>
-					<div
-						class="mobile-home-changelog rd-squircle rd-shadow-inset absolute left-[11.1875rem] top-[6.3125rem] h-[1.8125rem] w-[8.6875rem] rounded-2xl bg-[var(--rd-panel)]"
-					>
-						<p
-							class="mobile-home-changelog-text absolute left-2.5 top-[0.6875rem] max-w-[7.1875rem] overflow-hidden text-ellipsis whitespace-nowrap text-[0.4375rem] leading-[0.8125rem] text-[var(--rd-ink-soft)]"
-						>
-							<span class="font-bold not-italic text-[var(--rd-mint)]">updates:</span>
-							<span class="italic underline"> guest links are live</span>
-						</p>
-					</div>
+						<iconify-icon icon="lucide:sparkles" width="14" class="shrink-0 text-[var(--rd-mint)]"
+						></iconify-icon>
+						<span class="font-bold not-italic text-[var(--rd-mint)]">updates:</span>
+						<span class="truncate italic underline">{latestUpdate.chip}</span>
+					</a>
 				{/if}
 			</header>
 
