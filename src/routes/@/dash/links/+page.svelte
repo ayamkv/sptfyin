@@ -1045,11 +1045,10 @@
 	}
 
 	// Edit mode functions
-	function toggleEditMode() {
-		editMode = !editMode;
-		console.log('[Dashboard] Edit mode:', editMode ? 'ON' : 'OFF');
+	function toggleEditMode(checked) {
+		console.log('[Dashboard] Edit mode:', checked ? 'ON' : 'OFF');
 		// Clear selection when edit mode is turned off
-		if (!editMode) {
+		if (!checked) {
 			clearSelection();
 		}
 	}
