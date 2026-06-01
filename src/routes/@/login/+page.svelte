@@ -75,7 +75,7 @@
 
 			<div class="grid gap-2">
 				<Button
-					class="relative w-full justify-start gap-3 border border-[#dadce0] bg-white pl-4 text-[#1f1f1f] transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#f8fafd] hover:shadow-md active:translate-y-0 active:shadow-sm"
+					class="relative w-full justify-start gap-3 border border-[#dadce0] bg-white pl-4 text-[#1f1f1f] transition-all duration-150 hover:scale-[1.01] hover:bg-[#f8fafd] hover:shadow-md active:scale-[0.99] active:shadow-sm"
 					variant="outline"
 					onclick={() => handleOAuthLogin('google')}
 					disabled={!!loadingProvider}
@@ -91,7 +91,7 @@
 					{/if}
 				</Button>
 				<Button
-					class="relative w-full justify-start gap-3 bg-[#5865F2] pl-4 text-white transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#4752c4] hover:shadow-md active:translate-y-0 active:shadow-sm"
+					class="relative w-full justify-start gap-3 bg-[#5865F2] pl-4 text-white transition-all duration-150 hover:scale-[1.01] hover:bg-[#4752c4] hover:shadow-md active:scale-[0.99] active:shadow-sm"
 					onclick={() => handleOAuthLogin('discord')}
 					disabled={!!loadingProvider}
 				>
