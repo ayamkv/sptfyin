@@ -119,9 +119,9 @@
 
 	const footerLinks = [
 		{ href: 'https://status.sptfy.in', external: true, label1: 'server', label2: 'status' },
-		{ href: '/about/terms', external: false, label1: 'terms', label2: null },
-		{ href: '/about/privacy', external: false, label1: 'privacy', label2: null },
-		{ href: '/about/socials', external: false, label1: 'contact', label2: null }
+		{ href: '/@/about/terms', external: false, label1: 'terms', label2: null },
+		{ href: '/@/about/privacy', external: false, label1: 'privacy', label2: null },
+		{ href: '/@/about/socials', external: false, label1: 'contact', label2: null }
 	];
 
 	let tabContent = $derived({
@@ -480,8 +480,8 @@
 					<div class="mobile-home-main-box-continue my-2">
 						<p class="text-[0.5625rem] leading-tight text-[var(--rd-muted)]">
 							by continuing, you agree to
-							<a href={resolve('/about/privacy')} class="underline">privacy policy</a> and
-							<a href={resolve('/about/terms')} class="underline">terms</a>.
+							<a href={resolve('/@/about/privacy')} class="underline">privacy policy</a> and
+							<a href={resolve('/@/about/terms')} class="underline">terms</a>.
 						</p>
 					</div>
 				</section>
@@ -539,10 +539,10 @@
 							<a
 								href={resolve(
 									activeTab === 'recent'
-										? '/recent'
+										? '/@/recent'
 										: activeTab === 'mylinks'
-											? '/dash/links'
-											: '/top'
+											? '/@/dash/links'
+											: '/@/top'
 								)}
 								class="offset-0 flex h-8 w-fit items-center rounded-2xl border border-[rgba(57,54,77,0.2)] bg-[rgba(57,54,77,0.2)] px-[1.0625rem] text-[0.625rem] font-light leading-none text-[#fafafa] shadow-[0px_1px_1.2px_0px_rgba(16,17,17,0.54),inset_0px_-3px_2px_0px_rgba(24,24,27,0.32),inset_0px_1.2px_2.7px_0px_rgba(145,95,183,0.78)] hover:bg-secondary/80 hover:shadow-[0.1px_1px_1.7px_0px_rgba(62,56,88,0.49),inset_1px_3px_3px_2px_rgba(9,7,17,0.47)]"
 							>
