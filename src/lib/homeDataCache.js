@@ -14,7 +14,7 @@ export async function getHomeData() {
 		} catch {}
 	}
 
-	const res = await fetch('/home-data.json');
+	const res = await fetch('/api/home-data');
 	if (!res.ok) {
 		throw new Error(`Failed to fetch home data: ${res.status}`);
 	}

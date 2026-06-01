@@ -106,7 +106,7 @@
 					: 'loading...',
 		getId: activeTab === 'mylinks' ? (item) => item.id : (item) => item.id_url,
 		viewAllHref:
-			activeTab === 'recent' ? '/recent' : activeTab === 'mylinks' ? '/dash/links' : '/top'
+			activeTab === 'recent' ? '/@/recent' : activeTab === 'mylinks' ? '/@/dash/links' : '/@/top'
 	});
 
 	function toggleCustomize() {
@@ -365,8 +365,8 @@
 				</form>
 				<p class="mt-4 text-xs leading-tight text-[var(--rd-muted)]">
 					by continuing, you agree to
-					<a href={resolve('/about/privacy')} class="underline">privacy policy</a> and
-					<a href={resolve('/about/terms')} class="underline">terms</a>.
+					<a href={resolve('/@/about/privacy')} class="underline">privacy policy</a> and
+					<a href={resolve('/@/about/terms')} class="underline">terms</a>.
 				</p>
 			</section>
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { DELETE } from './+server.js';
+import { DELETE, PATCH } from './+server.js';
 
 function createCookies(guestSecret = '') {
 	return {
@@ -17,6 +17,7 @@ function createLocals(record, userId = null) {
 	const deleteRecord = vi.fn(async () => {});
 	const getOne = vi.fn(async () => record);
 	const getList = vi.fn(async () => ({ items: [{ id: 'link_1' }] }));
+	const update = vi.fn(async (id, data) => ({ id, ...record, ...data }));
 
 	return {
 		user: userId ? { id: userId } : null,
@@ -24,14 +25,35 @@ function createLocals(record, userId = null) {
 			collection: vi.fn(() => ({
 				getOne,
 				getList,
+				update,
 				delete: deleteRecord
 			}))
 		},
 		getOne,
 		getList,
+		update,
 		deleteRecord
 	};
 }
+
+describe('PATCH /api/links/[id]', () => {
+	it('rejects reserved slug changes server-side', async () => {
+		const locals = createLocals({ id: 'link_1', user: 'user_1', id_url: 'old' }, 'user_1');
+
+		await expect(
+			PATCH({
+				locals,
+				params: { id: 'link_1' },
+				request: createRequest({ id_url: 'about' })
+			})
+		).rejects.toMatchObject({
+			status: 400,
+			body: { message: 'slug reserved' }
+		});
+
+		expect(locals.update).not.toHaveBeenCalled();
+	});
+});
 
 describe('DELETE /api/links/[id]', () => {
 	let consoleErrorSpy;

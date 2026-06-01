@@ -28,13 +28,13 @@ that page includes basic stats and the qr preview for the same link.
 ## can i replace or change the spotify link in my created short url?
 
 right now, this is planned for broader self-serve management.
-if you need urgent changes, contact us via [our socials](/about/socials) and include proof of ownership.
+if you need urgent changes, contact us via [our socials](/@/about/socials) and include proof of ownership.
 
 ## can i delete my url?
 
 if you created the link as a guest (without signing in), you can delete your active local links directly from the homepage after completing a quick Turnstile verification.
 
-for links outside your active local window, or if you've lost access to the original browser session, deletion requests are handled manually with ownership verification. please contact [our socials](/about/socials) with proof of ownership.
+for links outside your active local window, or if you've lost access to the original browser session, deletion requests are handled manually with ownership verification. please contact [our socials](/@/about/socials) with proof of ownership.
 
 ## how do guest links work?
 
@@ -76,4 +76,4 @@ there is no fixed quota, but rate limits are applied to prevent abuse.
 
 ## have other questions?
 
-reach out through [our socials](/about/socials) or email [hello@sptfy.in](mailto:hello@sptfy.in).
+reach out through [our socials](/@/about/socials) or email [hello@sptfy.in](mailto:hello@sptfy.in).

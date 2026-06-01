@@ -1,6 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import { generateRandomURL } from '$lib/pocketbase';
 import { isMaintenanceActive, getMaintenanceState } from '$lib/maintenance';
+import { isReservedRootSlug } from '$lib/reserved-slugs';
 import {
 	buildGuestOwnershipHeaders,
 	ensureGuestSession,
@@ -83,6 +84,7 @@ export async function POST({ locals, request, cookies, url }) {
 	if (!from) throw error(400, 'from is required');
 
 	const id_url = requestedIdUrl || slug || (await generateRandomURL());
+	if (isReservedRootSlug(id_url)) throw error(400, 'slug reserved');
 
 	const data = {
 		from,

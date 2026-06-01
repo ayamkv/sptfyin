@@ -53,6 +53,7 @@ describe('guest link helpers', () => {
 		}));
 
 		const pb = {
+			filter: vi.fn((expression, params) => `FILTER:${expression}:${JSON.stringify(params)}`),
 			collection: vi.fn(() => ({
 				getList,
 				update
@@ -64,6 +65,8 @@ describe('guest link helpers', () => {
 		expect(transferred).toBe(3);
 		expect(getList).toHaveBeenNthCalledWith(1, 1, 100, {
 			sort: '-created,-id',
+			filter:
+				'FILTER:user = "" && guest_owner_hash = {:guestOwnerHash}:{"guestOwnerHash":"c14d572fd83485db6ea9a8c149030c662c061d413d4bc23b895b6619ea06e02a"}',
 			fields: 'id',
 			headers: {
 				[GUEST_PROOF_HEADER]: 'guest-secret',
@@ -72,6 +75,8 @@ describe('guest link helpers', () => {
 		});
 		expect(getList).toHaveBeenNthCalledWith(2, 2, 100, {
 			sort: '-created,-id',
+			filter:
+				'FILTER:user = "" && guest_owner_hash = {:guestOwnerHash}:{"guestOwnerHash":"c14d572fd83485db6ea9a8c149030c662c061d413d4bc23b895b6619ea06e02a"}',
 			fields: 'id',
 			headers: {
 				[GUEST_PROOF_HEADER]: 'guest-secret',

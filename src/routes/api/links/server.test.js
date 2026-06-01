@@ -128,4 +128,31 @@ describe('POST /api/links', () => {
 			}
 		);
 	});
+
+	it('rejects reserved slugs server-side', async () => {
+		const create = vi.fn(async (data) => ({ id: 'rec_1', ...data }));
+		const locals = {
+			user: { id: 'user_1' },
+			pb: {
+				collection: vi.fn(() => ({ create }))
+			}
+		};
+
+		await expect(
+			POST({
+				locals,
+				request: createRequest({
+					from: 'https://open.spotify.com/track/abc',
+					slug: 'login'
+				}),
+				cookies: createCookies(),
+				url: new URL('https://sptfy.in/')
+			})
+		).rejects.toMatchObject({
+			status: 400,
+			body: { message: 'slug reserved' }
+		});
+
+		expect(create).not.toHaveBeenCalled();
+	});
 });

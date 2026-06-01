@@ -1,5 +1,6 @@
 import PocketBase from 'pocketbase';
 import { customAlphabet } from 'nanoid';
+import { isReservedRootSlug } from '$lib/reserved-slugs';
 
 let pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
@@ -123,6 +124,7 @@ export async function deleteRecord(collection, id) {
 export async function isSlugAvailable(id) {
 	try {
 		if (!id || !id.trim()) return false;
+		if (isReservedRootSlug(id)) return false;
 		const pb = getPocketBaseInstance();
 		const records = await pb.collection('viewList').getList(1, 1, {
 			filter: pb.filter('id_url = {:id}', { id })
@@ -150,6 +152,10 @@ export async function generateRandomURL() {
 			while (attempts < maxAttempts) {
 				const pb = getPocketBaseInstance();
 				const shortId = generateNanoId();
+				if (isReservedRootSlug(shortId)) {
+					attempts++;
+					continue;
+				}
 				const records = await pb.collection('viewList').getList(1, 1, {
 					filter: pb.filter('id_url = {:shortId}', { shortId })
 				});

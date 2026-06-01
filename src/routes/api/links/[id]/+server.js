@@ -1,5 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import { buildGuestOwnershipHeaders, getRecentGuestOwnedLinkIds } from '$lib/server/guest-links';
+import { isReservedRootSlug } from '$lib/reserved-slugs';
 
 export async function PATCH({ locals, params, request }) {
 	if (!locals.user) throw error(401);
@@ -17,7 +18,10 @@ export async function PATCH({ locals, params, request }) {
 
 	const update = {};
 	if (from) update.from = from;
-	if (id_url) update.id_url = id_url;
+	if (id_url) {
+		if (isReservedRootSlug(id_url)) throw error(400, 'slug reserved');
+		update.id_url = id_url;
+	}
 	if (subdomain) update.subdomain = subdomain;
 
 	try {

@@ -564,8 +564,8 @@ onRecordAuthRequest((e) => {
 				metaKeys: Object.keys(e.meta || {})
 			});
 
-			// Only process if this appears to be from Spotify
-			if (rawUser && (providerName === 'spotify' || e.meta.id)) {
+			// Only Spotify OAuth should populate spotify_id.
+			if (rawUser && providerName === 'spotify') {
 				// Extract Spotify user ID from the raw user data
 				const spotifyUserId = rawUser.id || e.meta.id;
 				const spotifyUsername = rawUser.display_name || rawUser.username || e.meta.username;
