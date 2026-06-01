@@ -3,21 +3,54 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { Loader2 } from 'lucide-svelte';
+	import { ArrowRight, Loader2 } from 'lucide-svelte';
 	import { browser } from '$app/environment';
 	import { resolve } from '$app/paths';
+	import { onMount } from 'svelte';
+	import 'iconify-icon';
 
 	let { form } = $props();
 	let loadingProvider = $state('');
+	let popupWindow = $state(null);
 
 	function handleOAuthLogin(provider) {
 		loadingProvider = provider;
-		if (browser) {
-			window.location.href = resolve(`/@/auth/${provider}`);
-		} else {
+		if (!browser) {
 			loadingProvider = '';
+			return;
 		}
+
+		const authUrl = resolve(`/@/auth/${provider}?popup=1`);
+		popupWindow = window.open(authUrl, 'sptfyin-oauth', 'popup,width=520,height=720');
+		if (!popupWindow) {
+			window.location.href = resolve(`/@/auth/${provider}`);
+			return;
+		}
+
+		popupWindow.focus();
 	}
+
+	onMount(() => {
+		function handleOAuthMessage(event) {
+			if (event.origin !== window.location.origin) return;
+			if (event.data?.type !== 'sptfyin:oauth-success') return;
+
+			window.location.href = resolve(event.data.destination || '/@/dash/links');
+		}
+
+		const closeCheck = window.setInterval(() => {
+			if (popupWindow?.closed) {
+				loadingProvider = '';
+				popupWindow = null;
+			}
+		}, 500);
+
+		window.addEventListener('message', handleOAuthMessage);
+		return () => {
+			window.removeEventListener('message', handleOAuthMessage);
+			window.clearInterval(closeCheck);
+		};
+	});
 </script>
 
 <div class="mt-0 flex flex-col items-center justify-center md:min-h-[80vh]">
@@ -31,7 +64,7 @@
 		<Card.Content class="grid gap-5 pb-6 pt-6">
 			<div class="space-y-1">
 				<h2 class="text-xl font-semibold">Sign in</h2>
-				<p class="text-sm text-foreground/60">Use OAuth or continue with email.</p>
+				<p class="text-sm text-foreground/60">Use Google, Discord, or your email.</p>
 			</div>
 
 			{#if form?.message}
@@ -42,7 +75,8 @@
 
 			<div class="grid gap-2">
 				<Button
-					class="w-full gap-2"
+					class="relative w-full justify-start gap-3 border border-border bg-background pl-4 text-foreground hover:bg-muted"
+					variant="outline"
 					onclick={() => handleOAuthLogin('google')}
 					disabled={!!loadingProvider}
 				>
@@ -50,12 +84,14 @@
 						<Loader2 class="h-4 w-4 animate-spin" />
 						Connecting to Google...
 					{:else}
+						<iconify-icon icon="logos:google-icon" width="18" class="h-[18px] w-[18px]"
+						></iconify-icon>
 						Continue with Google
+						<ArrowRight class="ml-auto h-4 w-4 text-foreground/40" />
 					{/if}
 				</Button>
 				<Button
-					class="w-full gap-2"
-					variant="secondary"
+					class="relative w-full justify-start gap-3 bg-[#5865F2] pl-4 text-white hover:bg-[#4752c4]"
 					onclick={() => handleOAuthLogin('discord')}
 					disabled={!!loadingProvider}
 				>
@@ -63,7 +99,10 @@
 						<Loader2 class="h-4 w-4 animate-spin" />
 						Connecting to Discord...
 					{:else}
+						<iconify-icon icon="logos:discord-icon" width="18" class="h-[18px] w-[18px]"
+						></iconify-icon>
 						Continue with Discord
+						<ArrowRight class="ml-auto h-4 w-4 text-white/70" />
 					{/if}
 				</Button>
 			</div>
@@ -90,47 +129,12 @@
 				<Button type="submit" class="w-full">Log in</Button>
 			</form>
 
-			<form method="POST" action="?/signup" class="grid gap-3 border-t pt-4">
-				<h3 class="text-sm font-medium">Create an account</h3>
-				<div class="grid gap-1.5">
-					<Label for="signup-email">Email</Label>
-					<Input id="signup-email" name="email" type="email" autocomplete="email" required />
-				</div>
-				<div class="grid gap-1.5">
-					<Label for="signup-username"
-						>Username <span class="text-foreground/50">optional</span></Label
-					>
-					<Input id="signup-username" name="username" autocomplete="username" />
-				</div>
-				<div class="grid gap-1.5">
-					<Label for="signup-password">Password</Label>
-					<Input
-						id="signup-password"
-						name="password"
-						type="password"
-						autocomplete="new-password"
-						required
-					/>
-				</div>
-				<Button type="submit" class="w-full" variant="secondary">Sign up</Button>
-			</form>
-
-			<details class="rounded border border-border/70 p-3 text-xs text-foreground/60">
-				<summary class="cursor-pointer">More sign-in options</summary>
-				<Button
-					class="mt-3 w-full gap-2"
-					variant="ghost"
-					onclick={() => handleOAuthLogin('spotify')}
-					disabled={!!loadingProvider}
+			<p class="border-t pt-4 text-center text-sm text-foreground/60">
+				New here?
+				<a href={resolve('/@/register')} class="font-medium text-primary hover:underline"
+					>Create an account</a
 				>
-					{#if loadingProvider === 'spotify'}
-						<Loader2 class="h-4 w-4 animate-spin" />
-						Connecting to Spotify...
-					{:else}
-						Continue with Spotify (optional)
-					{/if}
-				</Button>
-			</details>
+			</p>
 
 			{#if import.meta.env.DEV}
 				<div class="mt-4 rounded border border-orange-500/30 bg-orange-500/10 p-2 text-xs">

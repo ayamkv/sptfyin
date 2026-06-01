@@ -39,10 +39,7 @@ export const load = async ({ locals }) => {
 			result: {
 				oauth2ProvidersCount: authMethods.oauth2?.providers?.length || 0,
 				googleConfigured: Boolean(authMethods.oauth2?.providers?.find((p) => p.name === 'google')),
-				discordConfigured: Boolean(
-					authMethods.oauth2?.providers?.find((p) => p.name === 'discord')
-				),
-				spotifyConfigured: Boolean(authMethods.oauth2?.providers?.find((p) => p.name === 'spotify'))
+				discordConfigured: Boolean(authMethods.oauth2?.providers?.find((p) => p.name === 'discord'))
 			}
 		});
 	} catch (error) {

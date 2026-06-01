@@ -3,6 +3,7 @@ export const LONG_TERM_RESERVED_ROOT_SLUGS = ['api', '@'];
 export const COOLDOWN_RESERVED_ROOT_SLUGS = [
 	'about',
 	'login',
+	'register',
 	'auth',
 	'dash',
 	'onboarding',

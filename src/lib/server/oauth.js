@@ -1,8 +1,8 @@
 import { error, redirect } from '@sveltejs/kit';
 import { saveOAuthState, takeOAuthVerifier } from '$lib/oauthStateStore.js';
-import { redirectAfterAuth } from '$lib/server/auth-flow';
+import { getPostAuthPath, redirectAfterAuth } from '$lib/server/auth-flow';
 
-const ALLOWED_OAUTH_PROVIDERS = new Set(['google', 'discord', 'spotify']);
+const ALLOWED_OAUTH_PROVIDERS = new Set(['google', 'discord']);
 
 function getAppUrl(url) {
 	return import.meta.env.VITE_APP_URL || url.origin;
@@ -25,9 +25,33 @@ function decodeCookieValue(value) {
 	return value?.includes('%') ? decodeURIComponent(value) : value;
 }
 
+function popupResponse(destination) {
+	const body = `<!doctype html>
+<html lang="en">
+	<head><meta charset="utf-8"><title>Authentication complete</title></head>
+	<body>
+		<script>
+			if (window.opener) {
+				window.opener.postMessage({ type: 'sptfyin:oauth-success', destination: ${JSON.stringify(destination)} }, window.location.origin);
+			}
+			window.close();
+			setTimeout(() => window.location.replace(${JSON.stringify(destination)}), 250);
+		</script>
+		<p>Authentication complete. You can close this window.</p>
+	</body>
+</html>`;
+
+	return new Response(body, {
+		headers: {
+			'content-type': 'text/html; charset=utf-8'
+		}
+	});
+}
+
 export async function startOAuthProvider({ locals, params, url, cookies }) {
 	const providerName = params.provider;
 	if (!ALLOWED_OAUTH_PROVIDERS.has(providerName)) throw error(404, 'OAuth provider not found');
+	const usePopup = url.searchParams.get('popup') === '1';
 
 	let provider;
 	try {
@@ -56,6 +80,9 @@ export async function startOAuthProvider({ locals, params, url, cookies }) {
 		...cookieOptions,
 		sameSite: 'lax'
 	});
+	if (usePopup) {
+		cookies.set('pb_oauth_popup', '1', { ...cookieOptions, sameSite: 'lax' });
+	}
 
 	throw redirect(302, provider.authUrl + encodeURIComponent(redirectUrl));
 }
@@ -86,6 +113,7 @@ export async function finishOAuthProvider({ locals, params, url, cookies }) {
 
 	const cookieProvider = cookies.get('pb_oauth_provider') || providerName;
 	if (cookieProvider !== providerName) throw error(400, 'OAuth provider mismatch');
+	const usePopup = cookies.get('pb_oauth_popup') === '1';
 
 	try {
 		await locals.pb
@@ -108,6 +136,12 @@ export async function finishOAuthProvider({ locals, params, url, cookies }) {
 		cookies.delete('pb_oauth_state_raw', { path: '/', secure, sameSite: 'lax' });
 		cookies.delete('pb_oauth_verifier_raw', { path: '/', secure, sameSite: 'lax' });
 		cookies.delete('oauth_backup', { path: '/', secure, sameSite: 'lax' });
+		cookies.delete('pb_oauth_popup', { path: '/', secure, sameSite: 'lax' });
+	}
+
+	if (usePopup) {
+		const destination = await getPostAuthPath({ locals, cookies, url });
+		return popupResponse(destination);
 	}
 
 	await redirectAfterAuth({ locals, cookies, url });

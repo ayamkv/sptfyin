@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 
 export const LOGIN_PATH = '/@/login';
+export const REGISTER_PATH = '/@/register';
 export const DASHBOARD_PATH = '/@/dash/links';
 export const ONBOARDING_PATH = '/@/onboarding';
 
@@ -15,7 +16,7 @@ export function needsOnboarding(record) {
 	);
 }
 
-export async function redirectAfterAuth({ locals, cookies, url }) {
+export async function getPostAuthPath({ locals, cookies, url }) {
 	let record;
 	try {
 		record = await locals.pb.collection('users').getOne(locals.user.id);
@@ -33,8 +34,14 @@ export async function redirectAfterAuth({ locals, cookies, url }) {
 			secure: url.protocol === 'https:',
 			maxAge: 600
 		});
-		throw redirect(302, ONBOARDING_PATH);
+		return ONBOARDING_PATH;
 	}
 
-	throw redirect(302, DASHBOARD_PATH);
+	return DASHBOARD_PATH;
+}
+
+export async function redirectAfterAuth({ locals, cookies, url }) {
+	const destination = await getPostAuthPath({ locals, cookies, url });
+
+	throw redirect(302, destination);
 }
