@@ -29,6 +29,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Label } from '$lib/components/ui/label';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import { isReservedRootSlug } from '$lib/reserved-slugs';
 
 	import { Badge } from '$lib/components/ui/badge';
 	import 'iconify-icon';
@@ -454,20 +455,6 @@
 
 	let promiseResolve, promiseReject;
 
-	const protectedRoutes = [
-		'recent',
-		'top',
-		'about',
-		'terms',
-		'privacy',
-		'login',
-		'prev',
-		'dash',
-		'debug',
-		'api',
-		'admin'
-	];
-
 	// Realtime slug availability state and helpers
 	let slugAvailable = $state(null);
 	let slugChecking = $state(false);
@@ -478,9 +465,7 @@
 	let isCustomSlugProvided = $derived(
 		!!sanitizedCustomShortId && sanitizedCustomShortId.length > 0
 	);
-	let reservedSlug = $derived(
-		isCustomSlugProvided && protectedRoutes.includes(sanitizedCustomShortId)
-	);
+	let reservedSlug = $derived(isCustomSlugProvided && isReservedRootSlug(sanitizedCustomShortId));
 
 	let slugInputClass = $derived(
 		!isCustomSlugProvided
@@ -537,7 +522,7 @@
 			return;
 		}
 
-		if (protectedRoutes.includes(slug)) {
+		if (isReservedRootSlug(slug)) {
 			slugAvailable = false;
 			slugChecking = false;
 			return;
@@ -572,7 +557,7 @@
 		// Use sanitized version for validation and submission
 		const finalCustomShortId = sanitizedCustomShortId;
 
-		if (protectedRoutes.includes(finalCustomShortId)) {
+		if (isReservedRootSlug(finalCustomShortId)) {
 			isError = true;
 			alertDialogTitle = strings.ErrorCustomShortIdRouteTitle;
 			alertDialogDescription = strings.ErrorCustomShortIdRouteDesc;
@@ -1385,8 +1370,8 @@
 								<div class="continue mt-4">
 									<p class="text-xs text-foreground/60">
 										by continuing, you agree to
-										<a href={resolve('/about/privacy')}>privacy policy</a> and
-										<a href={resolve('/about/terms')}>terms</a>.
+										<a href={resolve('/@/about/privacy')}>privacy policy</a> and
+										<a href={resolve('/@/about/terms')}>terms</a>.
 									</p>
 								</div>
 							</div>
@@ -1588,7 +1573,7 @@
 								</ToggleGroup.Item>
 							</ToggleGroup.Root>
 							<a
-								href={resolve(activeTab === 'recent' ? '/recent' : '/top')}
+								href={resolve(activeTab === 'recent' ? '/@/recent' : '/@/top')}
 								class="hover:inverseShadow data-[state=on]:inverseShadow inline-flex h-10 items-center justify-center whitespace-nowrap rounded-xl border border-t border-secondary/20 px-4 py-2 text-sm font-thin text-secondary-foreground no-underline shadow-md transition-all hover:bg-accent hover:bg-secondary/80 hover:text-accent-foreground hover:outline-primary active:scale-95 data-[state=on]:bg-background/30 data-[state=on]:text-accent-foreground"
 							>
 								view all
@@ -1762,14 +1747,15 @@
 				</svg>
 
 				<p class="flex flex-row items-center gap-3 text-xs text-foreground/50">
-					<a href={resolve('/about/terms')} class="transition-colors hover:text-foreground">terms</a
+					<a href={resolve('/@/about/terms')} class="transition-colors hover:text-foreground"
+						>terms</a
 					>
 					<span class="text-foreground/20">|</span>
-					<a href={resolve('/about/privacy')} class="transition-colors hover:text-foreground"
+					<a href={resolve('/@/about/privacy')} class="transition-colors hover:text-foreground"
 						>privacy</a
 					>
 					<span class="text-foreground/20">|</span>
-					<a href={resolve('/about/socials')} class="transition-colors hover:text-foreground"
+					<a href={resolve('/@/about/socials')} class="transition-colors hover:text-foreground"
 						>socials / contact</a
 					>
 					<span class="text-foreground/20">|</span>

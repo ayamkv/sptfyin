@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { generateRandomURL } from '../pocketbase';
+import { generateRandomURL, isSlugAvailable } from '../pocketbase';
 import PocketBase from 'pocketbase';
 
 // Mock PocketBase globally
@@ -90,5 +90,23 @@ describe('generateRandomURL', () => {
 		expect(url).toMatch(/^[0-9a-z]+$/);
 		expect(url.length).toBeGreaterThanOrEqual(4);
 		expect(url.length).toBeLessThanOrEqual(8);
+	});
+});
+
+describe('isSlugAvailable', () => {
+	let mockDb;
+
+	beforeEach(() => {
+		mockDb = new PocketBase();
+		mockDb.collection().getList.mockResolvedValue({ items: [] });
+	});
+
+	afterEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('rejects reserved root slugs before querying PocketBase', async () => {
+		await expect(isSlugAvailable('login')).resolves.toBe(false);
+		expect(mockDb.collection().getList).not.toHaveBeenCalled();
 	});
 });
