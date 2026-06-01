@@ -17,6 +17,7 @@ on:
       - 'pocketbase/pb_hooks/**'
       - 'pocketbase/pb_migrations/**'
       - 'docker-compose.yml'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch: # Manual trigger
 
 jobs:
@@ -41,11 +42,20 @@ jobs:
 
             echo "🔄 Restarting PocketBase..."
             docker compose up -d
+            docker compose restart pocketbase
 
-            echo "⏳ Waiting for container to be healthy..."
-            sleep 10
+            echo "⏳ Waiting for PocketBase health..."
+            for i in $(seq 1 30); do
+              if curl -sf http://localhost:8091/api/health; then
+                echo "🎉 Deployment complete!"
+                exit 0
+              fi
 
-            echo "✅ Health check..."
-            curl -sf http://localhost:8091/api/health || exit 1
+              echo "PocketBase not ready yet, retrying... ($i/30)"
+              sleep 2
+            done
 
-            echo "🎉 Deployment complete!"
+            echo "❌ PocketBase health check failed"
+            docker compose ps
+            docker compose logs --tail=100 pocketbase
+            exit 1
