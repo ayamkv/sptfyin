@@ -40,7 +40,7 @@ describe('GET /@/admin load', () => {
 			})
 		).rejects.toMatchObject({
 			status: 302,
-			location: '/login'
+			location: '/@/login'
 		});
 	});
 

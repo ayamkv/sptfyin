@@ -1,9 +1,10 @@
 import { redirect, error } from '@sveltejs/kit';
 import { isAdminAuthorized } from '$lib/server/admin-auth';
 import { buildAdminMetrics, parseDaysParam } from '$lib/server/admin-metrics';
+import { LOGIN_PATH } from '$lib/server/auth-flow';
 
 export const load = async ({ locals, url }) => {
-	if (!locals.user) throw redirect(302, '/login');
+	if (!locals.user) throw redirect(302, LOGIN_PATH);
 
 	const adminCheck = isAdminAuthorized(locals);
 	if (!adminCheck.allowed) {
