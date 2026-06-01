@@ -108,6 +108,8 @@ export async function listOwnedGuestLinks(pb, guestSecret, { page = 1, perPage =
 
 async function listAllGuestOwnedLinks(pb, guestSecret) {
 	const headers = await buildGuestOwnershipHeaders(guestSecret);
+	const guestOwnerHash = await hashGuestSessionSecret(guestSecret);
+	const filter = pb.filter('user = "" && guest_owner_hash = {:guestOwnerHash}', { guestOwnerHash });
 	const items = [];
 	let page = 1;
 	let totalPages = 1;
@@ -115,6 +117,7 @@ async function listAllGuestOwnedLinks(pb, guestSecret) {
 	do {
 		const result = await pb.collection('random_short').getList(page, GUEST_TRANSFER_PAGE_SIZE, {
 			sort: '-created,-id',
+			filter,
 			fields: 'id',
 			headers
 		});

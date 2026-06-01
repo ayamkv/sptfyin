@@ -13,7 +13,7 @@ function shouldRefreshAuth(event) {
 	const accept = event.request.headers.get('accept') || '';
 	const isHtmlNavigation = accept.includes('text/html');
 	const isApiRequest = pathname.startsWith('/api/');
-	const isAuthRequest = pathname.startsWith('/auth/');
+	const isAuthRequest = pathname.startsWith('/auth/') || pathname.startsWith('/@/auth/');
 
 	return isHtmlNavigation || isApiRequest || isAuthRequest;
 }
@@ -64,10 +64,9 @@ export const handle = async ({ event, resolve }) => {
 				if (transferredCount > 0) {
 					console.log('[Guest Links] Transferred guest links:', transferredCount);
 				}
+				clearGuestSession(event.cookies, event.url);
 			} catch (error) {
 				console.error('[Guest Links] Failed to transfer guest links:', error);
-			} finally {
-				clearGuestSession(event.cookies, event.url);
 			}
 		}
 	}
