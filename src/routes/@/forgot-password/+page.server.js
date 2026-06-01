@@ -1,9 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { DASHBOARD_PATH } from '$lib/server/auth-flow';
-
-function normalizeFormString(value) {
-	return typeof value === 'string' ? value.trim() : '';
-}
+import { normalizeEmail, validateEmailFormat } from '$lib/auth-validation';
 
 export const load = async ({ locals }) => {
 	if (locals.user) {
@@ -16,10 +13,11 @@ export const load = async ({ locals }) => {
 export const actions = {
 	default: async ({ locals, request }) => {
 		const form = await request.formData();
-		const email = normalizeFormString(form.get('email')).toLowerCase();
+		const email = normalizeEmail(form.get('email'));
+		const emailValidation = validateEmailFormat(email);
 
-		if (!email) {
-			return fail(400, { email, message: 'Email is required.' });
+		if (!emailValidation.valid) {
+			return fail(400, { email, message: emailValidation.message });
 		}
 
 		try {

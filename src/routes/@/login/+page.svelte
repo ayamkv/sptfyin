@@ -1,7 +1,8 @@
 <script>
 	import { browser } from '$app/environment';
 	import { resolve } from '$app/paths';
-	import { onMount } from 'svelte';
+	import { validateEmailFormat, validatePassword } from '$lib/auth-validation';
+	import { onMount, tick } from 'svelte';
 	import { ArrowRight, Eye, EyeOff, Loader2 } from 'lucide-svelte';
 	import 'iconify-icon';
 
@@ -10,8 +11,37 @@
 	let popupWindow = $state(null);
 	let showPassword = $state(false);
 	let popupBlockedMessage = $state('');
+	let email = $state('');
+	let password = $state('');
+	let formHydrated = $state(false);
+	let emailAccordionOpen = $state(false);
+	let emailForm;
+	let emailAccordionAnimation;
+	let emailAccordionGsap;
+	let emailAccordionLoad;
+	let reduceMotion = false;
+
+	const AUTH_ACCORDION_EASE = 'elastic.out(1,1)';
+	const AUTH_ACCORDION_DURATION = 0.4;
 
 	let hasLoginError = $derived(form?.mode === 'login' && form?.message);
+	let emailValidation = $derived(validateEmailFormat(email));
+	let passwordValidation = $derived(validatePassword(password));
+	let canSubmitEmailLogin = $derived(emailValidation.valid && passwordValidation.valid);
+
+	function validationClass(valid) {
+		return valid ? 'text-[var(--rd-mint)]' : 'text-[var(--rd-yellow)]';
+	}
+
+	$effect(() => {
+		if (formHydrated) return;
+		email = form?.email || '';
+		formHydrated = true;
+	});
+
+	$effect(() => {
+		if (hasLoginError) emailAccordionOpen = true;
+	});
 
 	function handleOAuthLogin(provider) {
 		loadingProvider = provider;
@@ -32,7 +62,99 @@
 		popupWindow.focus();
 	}
 
+	async function loadEmailAccordionGsap() {
+		if (emailAccordionGsap) return emailAccordionGsap;
+
+		emailAccordionLoad ??= import('gsap')
+			.then((module) => {
+				emailAccordionGsap = module.gsap || module.default || module;
+				return emailAccordionGsap;
+			})
+			.catch((error) => {
+				console.error('[Auth Accordion] Could not load GSAP', error);
+				return null;
+			});
+
+		return emailAccordionLoad;
+	}
+
+	async function animateEmailAccordionOpen() {
+		if (reduceMotion || !emailForm) return;
+
+		const loadedGsap = await loadEmailAccordionGsap();
+		if (!loadedGsap || !emailForm) return;
+
+		emailAccordionAnimation?.kill();
+		emailAccordionAnimation = loadedGsap.fromTo(
+			emailForm,
+			{
+				autoAlpha: 0,
+				height: 0,
+				overflow: 'hidden',
+				scaleY: 0.96,
+				transformOrigin: 'top center',
+				y: -8
+			},
+			{
+				autoAlpha: 1,
+				height: 'auto',
+				overflow: 'hidden',
+				scaleY: 1,
+				y: 0,
+				duration: AUTH_ACCORDION_DURATION,
+				ease: AUTH_ACCORDION_EASE,
+				overwrite: true,
+				clearProps: 'height,overflow,opacity,visibility,transform'
+			}
+		);
+	}
+
+	async function animateEmailAccordionClose() {
+		if (reduceMotion || !emailForm) {
+			emailAccordionOpen = false;
+			return;
+		}
+
+		const loadedGsap = await loadEmailAccordionGsap();
+		if (!loadedGsap || !emailForm) {
+			emailAccordionOpen = false;
+			return;
+		}
+
+		emailAccordionAnimation?.kill();
+		emailAccordionAnimation = loadedGsap.to(emailForm, {
+			autoAlpha: 0,
+			height: 0,
+			overflow: 'hidden',
+			scaleY: 0.96,
+			transformOrigin: 'top center',
+			y: -8,
+			duration: AUTH_ACCORDION_DURATION,
+			ease: AUTH_ACCORDION_EASE,
+			overwrite: true,
+			onComplete: () => {
+				emailAccordionOpen = false;
+			}
+		});
+	}
+
+	async function handleEmailAccordionClick() {
+		if (emailAccordionOpen) {
+			await animateEmailAccordionClose();
+			return;
+		}
+
+		emailAccordionOpen = true;
+		await tick();
+		await animateEmailAccordionOpen();
+	}
+
 	onMount(() => {
+		const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const updateReduceMotion = () => {
+			reduceMotion = motionQuery.matches;
+		};
+
 		function handleOAuthMessage(event) {
 			if (event.origin !== window.location.origin) return;
 			if (event.data?.type !== 'sptfyin:oauth-success') return;
@@ -47,8 +169,14 @@
 			}
 		}, 500);
 
+		updateReduceMotion();
+		motionQuery.addEventListener('change', updateReduceMotion);
+		if (!reduceMotion) void loadEmailAccordionGsap();
+
 		window.addEventListener('message', handleOAuthMessage);
 		return () => {
+			emailAccordionAnimation?.kill();
+			motionQuery.removeEventListener('change', updateReduceMotion);
 			window.removeEventListener('message', handleOAuthMessage);
 			window.clearInterval(closeCheck);
 		};
@@ -59,32 +187,43 @@
 	<div class="mx-auto flex min-h-[calc(100dvh-10rem)] w-full max-w-[25rem] flex-col justify-center">
 		<header class="relative mx-auto mb-8 h-20 w-full max-w-[21rem]">
 			<a
+				data-auth-flip
+				data-flip-id="auth-logo"
 				href={resolve('/')}
 				class="ss03 absolute left-1/2 top-0 -translate-x-1/2 rounded-none font-jak-display text-5xl font-black leading-none text-[var(--rd-mint)] no-underline outline-none hover:text-[var(--rd-mint)] hover:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rd-bg)]"
 			>
 				sptfy.in
 			</a>
 			<div
-				class="rd-squircle rd-shadow-lift absolute left-1/2 top-14 flex h-6 -translate-x-1/2 rotate-[-3deg] items-center justify-center gap-1 rounded-full bg-[var(--rd-yellow)] px-3 text-xs font-semibold text-[#161517]"
+				data-auth-flip
+				data-flip-id="auth-chip"
+				class="rd-squircle rd-shadow-lift absolute left-1/2 top-14 flex h-6 min-w-[8.75rem] -translate-x-1/2 rotate-[-3deg] items-center justify-center gap-1 whitespace-nowrap rounded-full bg-[var(--rd-yellow)] px-3 text-xs font-semibold text-[#161517]"
 			>
 				<iconify-icon icon="lucide:key-round" width="13"></iconify-icon>
-				<span>sign in</span>
+				<span class="shrink-0">sign in</span>
 			</div>
 		</header>
 
 		<section
-			class="rd-squircle rd-shadow-panel rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] p-4"
+			data-auth-flip
+			data-flip-id="auth-panel"
+			class="rd-squircle rd-shadow-panel rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-4 pb-8 pt-4"
 		>
 			<div class="mb-4 flex items-start justify-between gap-3">
 				<div>
-					<h1 class="font-jak-display text-2xl font-black leading-none text-[var(--rd-ink)]">
+					<h1
+						data-flip-id="auth-title"
+						class="font-jak-display text-2xl font-black leading-none text-[var(--rd-ink)]"
+					>
 						welcome back
 					</h1>
 					<p class="mt-1 text-xs text-[var(--rd-muted)]">pick up where your links left off</p>
 				</div>
 				<a
+					data-auth-flip
+					data-flip-id="auth-switch"
 					href={resolve('/@/register')}
-					class="rounded-xl bg-[rgba(16,17,17,0.24)] px-3 py-2 text-xs font-semibold text-[var(--rd-mint)] no-underline hover:text-[var(--rd-mint)] hover:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)]"
+					class="hover:scale-80 flex h-8 w-fit items-center rounded-2xl border border-[rgba(57,54,77,0.2)] bg-[rgba(57,54,77,0.2)] px-4 py-2 text-xs font-light leading-none text-[#fafafa] no-underline shadow-[0px_1px_1.2px_0px_rgba(16,17,17,0.54),inset_0px_-3px_2px_0px_rgba(24,24,27,0.32),inset_0px_1.2px_2.7px_0px_rgba(145,95,183,0.78)] hover:transform hover:bg-secondary/80 hover:shadow-[0.1px_1px_1.7px_0px_rgba(62,56,88,0.49),inset_1px_3px_3px_2px_rgba(9,7,17,0.47)]"
 				>
 					register
 				</a>
@@ -99,7 +238,7 @@
 			{/if}
 
 			<div class="grid gap-2">
-				<p class="pl-1 text-xs font-normal text-[var(--rd-mint)]">quick sign in</p>
+				<!-- <p class="pl-1 text-xs font-normal text-[var(--rd-mint)]">quick sign in</p> -->
 				<button
 					type="button"
 					class="rd-squircle flex h-11 w-full items-center justify-start gap-3 rounded-2xl border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#1f1f1f] transition-transform duration-150 hover:scale-[1.01] hover:bg-[#d0d2d4] active:scale-[0.99] disabled:cursor-wait disabled:opacity-75"
@@ -142,27 +281,37 @@
 				{/if}
 			</div>
 
-			<div
-				class="my-4 flex items-center gap-3 text-[0.625rem] uppercase tracking-[0.18em] text-[var(--rd-muted)]"
-			>
-				<div class="h-px flex-1 bg-[var(--rd-line)]"></div>
-				<span>or</span>
-				<div class="h-px flex-1 bg-[var(--rd-line)]"></div>
+			<div class="my-4 flex items-center gap-3 text-[0.625rem] text-[var(--rd-muted)]">
+				<div class="h-px flex-1 bg-muted/80"></div>
+				<span>𓂃˖˳·˖ ִֶָ ⋆ or ͙⋆ ִֶָ˖·˳˖𓂃 ִֶָ</span>
+				<div class="h-px flex-1 bg-muted/80"></div>
 			</div>
 
-			<details class="group" open={Boolean(hasLoginError)}>
-				<summary
-					class="flex cursor-pointer list-none items-center justify-between rounded-xl px-1 py-2 text-sm font-semibold text-[var(--rd-ink)] outline-none transition-colors hover:text-[var(--rd-mint)] focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)]"
+			<div>
+				<button
+					type="button"
+					aria-expanded={emailAccordionOpen}
+					onclick={handleEmailAccordionClick}
+					class="flex w-full cursor-pointer list-none items-center justify-between rounded-xl px-1 py-2 text-sm font-semibold text-[var(--rd-ink)] outline-none transition-colors hover:text-[var(--rd-mint)] focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)]"
 				>
 					<span>sign in with email</span>
 					<iconify-icon
 						icon="lucide:chevron-down"
 						width="16"
-						class="transition-transform duration-200 group-open:rotate-180"
+						class="transition-transform duration-200 {emailAccordionOpen ? 'rotate-180' : ''}"
 					></iconify-icon>
-				</summary>
+				</button>
 
-				<form method="POST" action="?/login" class="mt-2 grid gap-3">
+				<form
+					bind:this={emailForm}
+					method="POST"
+					action="?/login"
+					aria-hidden={!emailAccordionOpen}
+					style={emailAccordionOpen
+						? undefined
+						: 'height: 0; overflow: hidden; opacity: 0; visibility: hidden;'}
+					class="grid gap-3 pt-2"
+				>
 					<div class="grid gap-1.5">
 						<label for="login-email" class="pl-1 text-xs text-[var(--rd-ink)]">Email</label>
 						<input
@@ -170,10 +319,15 @@
 							name="email"
 							type="email"
 							autocomplete="email"
-							value={form?.email || ''}
+							bind:value={email}
 							class="inverseShadow h-10 w-full rounded-2xl border border-[var(--rd-line)] bg-[rgba(16,17,17,0.2)] px-3 text-xs text-[var(--rd-ink)] outline-none placeholder:text-[#b9c0d08c] focus:shadow-[0px_0px_0px_2px_#101111,0px_0px_0px_4px_#00aa6a]"
 							required
 						/>
+						{#if email}
+							<p class="pl-1 text-xs {validationClass(emailValidation.valid)}">
+								{emailValidation.message}
+							</p>
+						{/if}
 					</div>
 
 					<div class="grid gap-1.5">
@@ -192,6 +346,7 @@
 								name="password"
 								type={showPassword ? 'text' : 'password'}
 								autocomplete="current-password"
+								bind:value={password}
 								class="inverseShadow h-10 w-full rounded-2xl border border-[var(--rd-line)] bg-[rgba(16,17,17,0.2)] px-3 pr-10 text-xs text-[var(--rd-ink)] outline-none placeholder:text-[#b9c0d08c] focus:shadow-[0px_0px_0px_2px_#101111,0px_0px_0px_4px_#00aa6a]"
 								required
 							/>
@@ -209,6 +364,11 @@
 								{/if}
 							</button>
 						</div>
+						{#if password}
+							<p class="pl-1 text-xs {validationClass(passwordValidation.valid)}">
+								{passwordValidation.message}
+							</p>
+						{/if}
 					</div>
 
 					{#if hasLoginError}
@@ -219,12 +379,13 @@
 
 					<button
 						type="submit"
-						class="rd-squircle h-10 rounded-xl bg-[var(--rd-mint)] text-sm font-bold text-[#161517] shadow-[inset_0_-3px_4px_0_#3b906b96] transition-transform duration-150 hover:scale-[1.01] active:scale-[0.99]"
+						class="rd-squircle h-10 rounded-xl bg-[var(--rd-mint)] text-sm font-bold text-[#161517] shadow-[inset_0_-3px_4px_0_#3b906b96] transition-transform duration-150 hover:scale-[1.01] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+						disabled={!canSubmitEmailLogin}
 					>
-						Log in
+						log in
 					</button>
 				</form>
-			</details>
+			</div>
 		</section>
 	</div>
 </div>

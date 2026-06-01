@@ -1,6 +1,13 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { DASHBOARD_PATH, redirectAfterAuth } from '$lib/server/auth-flow';
 import { GUEST_SESSION_COOKIE } from '$lib/server/guest-links';
+import {
+	normalizeEmail,
+	normalizeUsername,
+	validateEmailFormat,
+	validatePassword,
+	validateUsernameFormat
+} from '$lib/auth-validation';
 
 function normalizeFormString(value) {
 	return typeof value === 'string' ? value.trim() : '';
@@ -30,23 +37,35 @@ export const load = async ({ locals, cookies }) => {
 export const actions = {
 	default: async ({ locals, request, cookies, url }) => {
 		const form = await request.formData();
-		const email = normalizeFormString(form.get('email')).toLowerCase();
+		const email = normalizeEmail(form.get('email'));
 		const password = normalizeFormString(form.get('password'));
-		const username = normalizeFormString(form.get('username')) || usernameFromEmail(email);
+		const requestedUsername = normalizeUsername(form.get('username'));
+		const username = requestedUsername || usernameFromEmail(email);
+		const emailValidation = validateEmailFormat(email);
+		const passwordValidation = validatePassword(password);
+		const usernameValidation = validateUsernameFormat(username, { optional: false });
 
-		if (!email || !password) {
+		if (!emailValidation.valid) {
 			return fail(400, {
 				email,
 				username,
-				message: 'Email and password are required.'
+				message: emailValidation.message
 			});
 		}
 
-		if (password.length < 8) {
+		if (!passwordValidation.valid) {
 			return fail(400, {
 				email,
 				username,
-				message: 'Password must be at least 8 characters.'
+				message: passwordValidation.message
+			});
+		}
+
+		if (!usernameValidation.valid) {
+			return fail(400, {
+				email,
+				username,
+				message: usernameValidation.message
 			});
 		}
 

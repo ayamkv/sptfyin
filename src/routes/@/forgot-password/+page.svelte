@@ -9,25 +9,35 @@
 	<div class="mx-auto flex min-h-[calc(100dvh-10rem)] w-full max-w-[25rem] flex-col justify-center">
 		<header class="relative mx-auto mb-8 h-20 w-full max-w-[21rem]">
 			<a
+				data-auth-flip
+				data-flip-id="auth-logo"
 				href={resolve('/')}
 				class="ss03 absolute left-1/2 top-0 -translate-x-1/2 rounded-none font-jak-display text-5xl font-black leading-none text-[var(--rd-mint)] no-underline outline-none hover:text-[var(--rd-mint)] hover:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rd-bg)]"
 			>
 				sptfy.in
 			</a>
 			<div
-				class="rd-squircle rd-shadow-lift absolute left-1/2 top-14 flex h-6 -translate-x-1/2 rotate-[-2deg] items-center justify-center gap-1 rounded-full bg-[var(--rd-yellow)] px-3 text-xs font-semibold text-[#161517]"
+				data-auth-flip
+				data-flip-id="auth-chip"
+				class="rd-squircle rd-shadow-lift absolute left-1/2 top-14 flex h-6 min-w-[8.75rem] -translate-x-1/2 rotate-[-2deg] items-center justify-center gap-1 whitespace-nowrap rounded-full bg-[var(--rd-yellow)] px-3 text-xs font-semibold text-[#161517]"
 			>
 				<iconify-icon icon="lucide:mail" width="13"></iconify-icon>
-				<span>reset password</span>
+				<span class="shrink-0">reset password</span>
 			</div>
 		</header>
 
 		<section
+			data-auth-flip
+			data-flip-id="auth-panel"
 			class="rd-squircle rd-shadow-panel rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] p-4"
 		>
 			<div class="mb-4 flex items-start justify-between gap-3">
 				<div>
-					<h1 class="font-jak-display text-2xl font-black leading-none text-[var(--rd-ink)]">
+					<h1
+						data-auth-flip
+						data-flip-id="auth-title"
+						class="font-jak-display text-2xl font-black leading-none text-[var(--rd-ink)]"
+					>
 						forgot password?
 					</h1>
 					<p class="mt-1 text-xs text-[var(--rd-muted)]">
@@ -35,6 +45,8 @@
 					</p>
 				</div>
 				<a
+					data-auth-flip
+					data-flip-id="auth-switch"
 					href={resolve('/@/login')}
 					class="rounded-xl bg-[rgba(16,17,17,0.24)] px-3 py-2 text-xs font-semibold text-[var(--rd-mint)] no-underline hover:text-[var(--rd-mint)] hover:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)]"
 				>
@@ -42,7 +54,7 @@
 				</a>
 			</div>
 
-			<form method="POST" class="grid gap-3">
+			<form data-auth-flip method="POST" class="grid gap-3">
 				<div class="grid gap-1.5">
 					<label for="email" class="pl-1 text-xs text-[var(--rd-ink)]">Email</label>
 					<input
