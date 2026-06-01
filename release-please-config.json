@@ -4,6 +4,7 @@
 		".": {
 			"release-type": "node",
 			"package-name": "sptfyin",
+			"include-component-in-tag": false,
 			"changelog-path": "CHANGELOG.md",
 			"extra-files": [
 				{
