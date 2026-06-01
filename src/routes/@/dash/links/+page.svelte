@@ -10,7 +10,7 @@
 	import { Turnstile } from 'svelte-turnstile';
 	import { toast } from 'svelte-sonner';
 	import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/ui/avatar';
-	import { Plus, ExternalLink, Copy, Edit, Settings, Trash2 } from 'lucide-svelte';
+	import { Plus, ExternalLink, Copy, Edit, Settings, Trash2, LogOut } from 'lucide-svelte';
 	import 'iconify-icon';
 	import { strings } from '$lib/localization/languages/en.json';
 	import { findUrl, isSpotifyShortLink } from '$lib/utils';
@@ -1606,6 +1606,12 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 					</Label>
 				</div>
 				<div class="flex gap-2">
+					<form method="POST" action="/@/auth/logout">
+						<Button variant="outline" type="submit" class="gap-2" title="Log out">
+							<LogOut class="h-4 w-4" />
+							<span class="hidden md:inline">Logout</span>
+						</Button>
+					</form>
 					<Button
 						variant="outline"
 						onclick={toggleViewMode}
