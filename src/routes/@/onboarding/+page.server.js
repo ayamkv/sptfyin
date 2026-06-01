@@ -1,7 +1,8 @@
 import { redirect } from '@sveltejs/kit';
+import { DASHBOARD_PATH, LOGIN_PATH } from '$lib/server/auth-flow';
 
 export const load = async ({ locals, cookies }) => {
-	if (!locals.user) throw redirect(302, '/login');
+	if (!locals.user) throw redirect(302, LOGIN_PATH);
 
 	let record;
 	try {
@@ -14,7 +15,7 @@ export const load = async ({ locals, cookies }) => {
 		if (cookies.get('pb_onboarding') === '1') {
 			return { initial: locals.user?.username || '', canConfirm: true };
 		}
-		throw redirect(302, '/dash/links');
+		throw redirect(302, DASHBOARD_PATH);
 	}
 
 	const createdMs = record?.created ? Date.parse(record.created) : 0;
@@ -32,7 +33,7 @@ export const load = async ({ locals, cookies }) => {
 	});
 
 	if (!needsSetup) {
-		throw redirect(302, '/dash/links');
+		throw redirect(302, DASHBOARD_PATH);
 	}
 
 	return { initial: record?.username || '', canConfirm: true };

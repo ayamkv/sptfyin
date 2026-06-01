@@ -1,7 +1,8 @@
 import { redirect } from '@sveltejs/kit';
+import { LOGIN_PATH, ONBOARDING_PATH } from '$lib/server/auth-flow';
 
 export const load = async ({ locals }) => {
-	if (!locals.user) throw redirect(302, '/login');
+	if (!locals.user) throw redirect(302, LOGIN_PATH);
 	let record;
 
 	try {
@@ -21,7 +22,7 @@ export const load = async ({ locals }) => {
 
 	if (record?.onboarded === false || record?.onboarded === 0) {
 		console.log('[Dash] Redirecting to onboarding (flag)');
-		throw redirect(302, '/onboarding');
+		throw redirect(302, ONBOARDING_PATH);
 	}
 
 	// fallback tolerance for timestamp differences within 1s
@@ -29,7 +30,7 @@ export const load = async ({ locals }) => {
 	const updatedMs = record?.updated ? Date.parse(record.updated) : 0;
 	if (createdMs && updatedMs && Math.abs(updatedMs - createdMs) < 1000) {
 		console.log('[Dash] Redirecting to onboarding (timestamps close)');
-		throw redirect(302, '/onboarding');
+		throw redirect(302, ONBOARDING_PATH);
 	}
 
 	return { user: locals.user };

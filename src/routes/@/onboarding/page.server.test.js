@@ -18,7 +18,7 @@ function createCookies(value) {
 	};
 }
 
-describe('GET /onboarding load', () => {
+describe('GET /@/onboarding load', () => {
 	it('redirects unauthenticated users to login', async () => {
 		await expect(
 			load({
@@ -27,7 +27,7 @@ describe('GET /onboarding load', () => {
 			})
 		).rejects.toMatchObject({
 			status: 302,
-			location: '/login'
+			location: '/@/login'
 		});
 	});
 
@@ -71,7 +71,7 @@ describe('GET /onboarding load', () => {
 			})
 		).rejects.toMatchObject({
 			status: 302,
-			location: '/dash/links'
+			location: '/@/dash/links'
 		});
 	});
 
@@ -107,7 +107,7 @@ describe('GET /onboarding load', () => {
 			})
 		).rejects.toMatchObject({
 			status: 302,
-			location: '/dash/links'
+			location: '/@/dash/links'
 		});
 	});
 });

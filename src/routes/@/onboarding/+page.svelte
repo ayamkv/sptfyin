@@ -3,6 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { untrack } from 'svelte';
 
 	let { data } = $props();
@@ -24,7 +25,7 @@
 		}
 		console.log('[Onboarding] Username saved');
 		document.cookie = 'pb_onboarding=; Max-Age=0; path=/';
-		goto('/dash/links');
+		goto(resolve('/@/dash/links'));
 	}
 
 	async function confirm() {
@@ -51,8 +52,8 @@
 			{#if errorMsg}
 				<p class="text-xs text-red-400">{errorMsg}</p>
 			{/if}
-			<Button class="w-full" on:click={save}>Save</Button>
-			<Button class="w-full" on:click={confirm} variant="secondary">Keep current username</Button>
+			<Button class="w-full" onclick={save}>Save</Button>
+			<Button class="w-full" onclick={confirm} variant="secondary">Keep current username</Button>
 		</Card.Content>
 	</Card.Root>
 </div>

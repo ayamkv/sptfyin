@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { load } from './+page.server.js';
 
-describe('GET /login load', () => {
+describe('GET /@/login load', () => {
 	it('redirects authenticated users to dashboard', async () => {
 		await expect(
 			load({
@@ -11,7 +11,7 @@ describe('GET /login load', () => {
 			})
 		).rejects.toMatchObject({
 			status: 302,
-			location: '/dash/links'
+			location: '/@/dash/links'
 		});
 	});
 

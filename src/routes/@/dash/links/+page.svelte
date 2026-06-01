@@ -581,7 +581,7 @@
 				alert('Firefox does not support clipboard access');
 			} else if (error.includes('dismissed') || isIOS) {
 				alert(
-					'Sorry! iOS Safari does not support clipboard access, so you have to paste manually 😔'
+					'Sorry! iOS Safari does not support clipboard access, so you have to paste manually ≡ƒÿö'
 				);
 			}
 		}
@@ -658,7 +658,7 @@
 				alert('Firefox does not support clipboard access');
 			} else if (isIOS) {
 				alert(
-					'Sorry! iOS Safari does not support clipboard access, so you have to paste manually 😔'
+					'Sorry! iOS Safari does not support clipboard access, so you have to paste manually ≡ƒÿö'
 				);
 			}
 		}
@@ -1819,7 +1819,7 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 											<iconify-icon icon="lucide:calendar" width="12"></iconify-icon>
 											<span class="pl-1">{new Date(item.created).toLocaleDateString()}</span>
 										</span>
-										<span class="text-xs text-muted-foreground"> • </span>
+										<span class="text-xs text-muted-foreground"> ΓÇó </span>
 										<span
 											class="inline-flex items-center whitespace-nowrap text-xs text-muted-foreground"
 											title="Total views"
@@ -1827,7 +1827,7 @@ bg-background/40 pb-16 sm:pb-0 md:max-h-[96vh] md:min-h-[96vh] md:rounded-xl md:
 											<iconify-icon icon="lucide:eye" width="12"></iconify-icon>
 											<span class="pl-1">{item.utm_view || 0}</span>
 										</span>
-										<span class="text-xs text-muted-foreground"> • </span>
+										<span class="text-xs text-muted-foreground"> ΓÇó </span>
 										<span class="truncate text-xs text-muted-foreground">
 											{item.from}
 										</span>

@@ -33,7 +33,7 @@ function createMockFetch(viewListTotal, analyticsTotal, topItems) {
 	});
 }
 
-describe('GET /home-data.json', () => {
+describe('GET /api/home-data', () => {
 	it('returns counters and top links', async () => {
 		const topItems = [
 			{

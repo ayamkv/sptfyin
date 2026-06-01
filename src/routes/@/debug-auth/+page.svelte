@@ -1,6 +1,7 @@
 <script>
 	let { data } = $props();
 	import { onMount } from 'svelte';
+	import { resolve } from '$app/paths';
 
 	onMount(() => {
 		// Update cookies display
@@ -42,7 +43,7 @@ Current URL: {typeof window !== 'undefined' ? window.location.href : 'SSR'}
 			<h2 class="mb-2 text-lg font-semibold">Debug Actions</h2>
 			<div class="space-y-2">
 				<a
-					href="/auth/clear"
+					href={resolve('/@/auth/clear')}
 					class="inline-block rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
 				>
 					Clear All Auth State

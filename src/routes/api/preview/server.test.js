@@ -12,7 +12,7 @@ vi.mock('$env/dynamic/private', () => ({
 
 import { GET } from './+server.js';
 
-describe('GET /prev', () => {
+describe('GET /api/preview', () => {
 	beforeEach(() => {
 		envState.SCREENSHOTMACHINE_API_KEY = 'test-key';
 		global.fetch = vi.fn();

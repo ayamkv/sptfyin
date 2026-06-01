@@ -12,7 +12,7 @@ function createLocals(getOneImpl) {
 	};
 }
 
-describe('GET /dash layout load', () => {
+describe('GET /@/dash layout load', () => {
 	it('redirects unauthenticated users to login', async () => {
 		await expect(
 			load({
@@ -23,7 +23,7 @@ describe('GET /dash layout load', () => {
 			})
 		).rejects.toMatchObject({
 			status: 302,
-			location: '/login'
+			location: '/@/login'
 		});
 	});
 
@@ -39,7 +39,7 @@ describe('GET /dash layout load', () => {
 
 		await expect(load({ locals })).rejects.toMatchObject({
 			status: 302,
-			location: '/onboarding'
+			location: '/@/onboarding'
 		});
 	});
 
@@ -55,7 +55,7 @@ describe('GET /dash layout load', () => {
 
 		await expect(load({ locals })).rejects.toMatchObject({
 			status: 302,
-			location: '/onboarding'
+			location: '/@/onboarding'
 		});
 	});
 

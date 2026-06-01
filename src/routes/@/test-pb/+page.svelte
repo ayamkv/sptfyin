@@ -1,6 +1,7 @@
 <script>
 	let { data } = $props();
 	import { Button } from '$lib/components/ui/button';
+	import { resolve } from '$app/paths';
 
 	function refreshPage() {
 		window.location.reload();
@@ -88,13 +89,18 @@ Environment: {import.meta.env.MODE}
 				<div class="mt-4">
 					<p class="font-medium text-foreground">Quick Actions:</p>
 					<div class="mt-2 flex gap-2">
-						<a href="/debug-auth" class="text-sm text-primary hover:text-primary/80 hover:underline"
-							>Debug Auth State</a
+						<a
+							href={resolve('/@/debug-auth')}
+							class="text-sm text-primary hover:text-primary/80 hover:underline">Debug Auth State</a
 						>
-						<a href="/login" class="text-sm text-primary hover:text-primary/80 hover:underline"
-							>Try Login</a
+						<a
+							href={resolve('/@/login')}
+							class="text-sm text-primary hover:text-primary/80 hover:underline">Try Login</a
 						>
-						<a href="/" class="text-sm text-primary hover:text-primary/80 hover:underline">Home</a>
+						<a
+							href={resolve('/')}
+							class="text-sm text-primary hover:text-primary/80 hover:underline">Home</a
+						>
 					</div>
 				</div>
 			</div>
