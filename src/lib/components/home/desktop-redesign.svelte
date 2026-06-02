@@ -511,26 +511,28 @@
 			>
 				<BannerDonoShader />
 				<div
-					class="absolute right-0 top-0 h-full w-1/2 rounded-[9px]"
+					class="pointer-events-none absolute right-0 top-0 h-full w-1/2 rounded-[9px]"
 					style="background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(27, 25, 31, 1) 75%);"
 				></div>
 				<div
-					class="absolute right-0 top-0 h-full w-1/2 rounded-[9px] opacity-90 mix-blend-color-dodge"
+					class="pointer-events-none absolute right-0 top-0 h-full w-1/2 rounded-[9px] opacity-90 mix-blend-color-dodge"
 					style="background-image: radial-gradient(92% 145% at 84% -9%, rgba(95, 237, 156, 0.98) 0%, rgba(78, 184, 125, 0.74) 17%, rgba(61, 131, 94, 0.5) 33%, rgba(44, 78, 62, 0.24) 49%, rgba(27, 25, 31, 0) 70%);"
 				></div>
 				<div
-					class="absolute right-0 top-0 h-full w-1/2 rounded-[9px] opacity-95 mix-blend-color-dodge"
+					class="pointer-events-none absolute right-0 top-0 h-full w-1/2 rounded-[9px] opacity-95 mix-blend-color-dodge"
 					style="background-image: radial-gradient(90% 140% at 84% -9%, rgba(24, 241, 227, 0.92) 0%, rgba(25, 187, 178, 0.68) 17%, rgba(25, 133, 129, 0.45) 33%, rgba(26, 79, 80, 0.22) 49%, rgba(27, 25, 31, 0) 70%);"
 				></div>
 				<div
-					class="absolute bottom-0 left-0 h-full w-2/3 rounded-[9px] opacity-70 mix-blend-color-dodge"
+					class="pointer-events-none absolute bottom-0 left-0 h-full w-2/3 rounded-[9px] opacity-70 mix-blend-color-dodge"
 					style="background-image: radial-gradient(80% 85% at 0% 100%, rgba(89, 255, 155, 0.24) 0%, rgba(61, 131, 94, 0.14) 34%, rgba(27, 25, 31, 0) 72%);"
 				></div>
 				<div
-					class="absolute inset-0 rounded-[9px] shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)]"
+					class="pointer-events-none absolute inset-0 rounded-[9px] shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)]"
 				></div>
 
-				<div class="absolute right-8 top-[27px] w-[8.95rem] text-right text-white no-underline">
+				<div
+					class="pointer-events-none absolute right-8 top-[27px] w-[8.95rem] text-right text-white no-underline"
+				>
 					<p class="mb-[4px] text-[13px] font-light leading-[1.115] tracking-[-0.54px]">
 						°⋆.࿔*:･&nbsp;&nbsp;&nbsp;&nbsp; ദ്ദി ^-⩊-^≼
 					</p>

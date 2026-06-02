@@ -7,6 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import BannerDonoShader from '$lib/components/home/banner-dono-shader.svelte';
 	import HomeSubmitButton from '$lib/components/home/home-submit-button.svelte';
 	import QrDrawer from '$lib/components/home/qr-drawer.svelte';
 	import { localizeDate, formatNumber } from '$lib/utils';
@@ -606,6 +607,44 @@
 						</div>
 					</section>
 				</div>
+
+				<section class="mobile-home-dono mt-3 pb-5">
+					<a
+						href="https://ko-fi.com/freqtion"
+						target="_blank"
+						rel="noreferrer"
+						class="rd-squircle group relative block h-[6.75rem] w-full overflow-hidden rounded-[9px] bg-[#1b191f] text-white no-underline shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)] outline-none focus:no-underline focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rd-bg)]"
+						aria-label="Support sptfy.in on Ko-fi"
+					>
+						<BannerDonoShader />
+						<div
+							class="pointer-events-none absolute right-0 top-0 h-full w-2/3 rounded-[9px]"
+							style="background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(27, 25, 31, 0.96) 78%);"
+						></div>
+						<div
+							class="pointer-events-none absolute right-0 top-0 h-full w-2/3 rounded-[9px] opacity-90 mix-blend-color-dodge"
+							style="background-image: radial-gradient(92% 145% at 84% -9%, rgba(95, 237, 156, 0.98) 0%, rgba(78, 184, 125, 0.74) 17%, rgba(61, 131, 94, 0.5) 33%, rgba(44, 78, 62, 0.24) 49%, rgba(27, 25, 31, 0) 70%);"
+						></div>
+						<div
+							class="pointer-events-none absolute inset-0 rounded-[9px] shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)]"
+						></div>
+
+						<div
+							class="pointer-events-none absolute right-5 top-[1.1875rem] w-[8.25rem] text-right text-white no-underline"
+						>
+							<p class="mb-[4px] text-[0.6875rem] font-light leading-none tracking-[-0.04em]">
+								°⋆.࿔*:･&nbsp;&nbsp; ദ്ദി ^-⩊-^≼
+							</p>
+							<h2 class="text-[1.0625rem] font-normal leading-none tracking-[-0.08em]">
+								<span class="block">sptfy.in is entirely</span>
+								<span class="block">user funded</span>
+							</h2>
+							<p class="mt-[6px] text-[0.75rem] font-medium italic leading-none text-[#ffd050]">
+								consider supporting?
+							</p>
+						</div>
+					</a>
+				</section>
 			</div>
 		</div>
 	</div>

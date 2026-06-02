@@ -43,6 +43,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@mori2003/jsimgui": "0.14.0",
 		"clsx": "^2.1.1",
 		"cors": "^2.8.5",
 		"d3-scale": "^4.0.2",
@@ -54,7 +55,6 @@
 		"mode-watcher": "^0.3.1",
 		"nanoid": "^5.0.7",
 		"pocketbase": "^0.21.5",
-		"shaders": "^2.5.128",
 		"svelte-headless-table": "^0.18.3",
 		"svelte-sonner": "^0.3.27",
 		"tailwind-merge": "^2.3.0",
