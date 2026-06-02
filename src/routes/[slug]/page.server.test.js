@@ -148,6 +148,90 @@ describe('GET /[slug] load', () => {
 		});
 	});
 
+	it('returns 503 when slug lookup is unavailable', async () => {
+		const context = createRouteContext({
+			viewListGetList: vi.fn(async () => {
+				throw new Error('db unavailable');
+			})
+		});
+
+		await expect(
+			load({
+				params: { slug: 'lookup-fails' },
+				request: createRequest('Mozilla/5.0'),
+				locals: context.locals
+			})
+		).rejects.toMatchObject({
+			status: 503
+		});
+	});
+
+	it('redirects when analytics creation fails', async () => {
+		const context = createRouteContext({
+			viewListGetList: vi.fn(async () => ({
+				items: [
+					{
+						id: 'rec_analytics_fails',
+						from: 'https://open.spotify.com/track/analytics',
+						utm_view: 3
+					}
+				]
+			})),
+			analyticsCreate: vi.fn(async () => {
+				throw new Error('analytics unavailable');
+			})
+		});
+
+		await expect(
+			load({
+				params: { slug: 'analytics-fails' },
+				request: createRequest('Mozilla/5.0'),
+				locals: context.locals
+			})
+		).rejects.toMatchObject({
+			status: 301,
+			location: 'https://open.spotify.com/track/analytics'
+		});
+
+		expect(context.randomShortUpdate).toHaveBeenCalledWith('rec_analytics_fails', {
+			'utm_view+': 1
+		});
+	});
+
+	it('redirects when view count increment fails', async () => {
+		const context = createRouteContext({
+			viewListGetList: vi.fn(async () => ({
+				items: [
+					{
+						id: 'rec_view_fails',
+						from: 'https://open.spotify.com/track/views',
+						utm_view: 4
+					}
+				]
+			})),
+			randomShortUpdate: vi.fn(async () => {
+				throw new Error('view update unavailable');
+			})
+		});
+
+		await expect(
+			load({
+				params: { slug: 'view-fails' },
+				request: createRequest('Mozilla/5.0'),
+				locals: context.locals
+			})
+		).rejects.toMatchObject({
+			status: 301,
+			location: 'https://open.spotify.com/track/views'
+		});
+
+		expect(context.analyticsCreate).toHaveBeenCalledWith(
+			expect.objectContaining({
+				author: 'rec_view_fails'
+			})
+		);
+	});
+
 	it('does not leak redirect target across requests', async () => {
 		const context = createRouteContext({
 			viewListGetList: vi

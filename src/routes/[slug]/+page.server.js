@@ -38,68 +38,51 @@ export const prerender = false;
 
 export const load = async ({ params, request, locals }) => {
 	const slug = params.slug;
-	let link;
+	let record;
 
 	try {
 		const data = await locals.pb.collection('viewList').getList(1, 1, {
 			filter: locals.pb.filter('id_url = {:slug}', { slug })
 		});
 
-		const record = data?.items?.[0];
-		const recordId = record?.id;
-		link = record?.from;
-		const utmView = record?.utm_view;
-
-		if (!recordId || !link) {
-			throw error(404, LINK_NOT_FOUND_MESSAGE);
-		}
-
-		const userAgent = request.headers.get('user-agent') || 'Unknown'; // Log if it's a bot (for debugging) but don't block access
-		const botRequest = isBot(userAgent);
-
-		if (botRequest) {
-			console.log(`[Debug] Bot access detected: ${userAgent}`);
-		}
-
-		console.log(`[Debug] Current UTM view count for ${slug}:`, utmView);
-		console.log('record ID :', recordId);
-
-		// Analytics tracking
-		if (!botRequest) {
-			const cf_ipcountry = request.headers.get('CF-IPCountry');
-			console.log('CF IP', cf_ipcountry);
-			const forwardedFor = request.headers.get('x-forwarded-for');
-			console.log('Forwarded for', forwardedFor);
-
-			try {
-				await locals.pb.collection('analytics').create({
-					author: recordId,
-					utm_userAgent: userAgent,
-					utm_country: cf_ipcountry,
-					url_id: recordId,
-					rawData: cf_ipcountry,
-					created: new Date().toISOString()
-				});
-				console.log(`[Debug] Created analytics record for ${slug}`);
-			} catch (err) {
-				console.error('Error creating analytics record', err);
-			}
-		}
-
-		// View count increment
-		if (!botRequest) {
-			try {
-				await locals.pb.collection('random_short').update(recordId, {
-					'utm_view+': 1
-				});
-				console.log(`[Debug] Successfully incremented UTM view for ${slug}`);
-			} catch (err) {
-				console.error('Error incrementing UTM view', err);
-				throw err;
-			}
-		}
+		record = data?.items?.[0];
 	} catch {
+		throw error(503, 'Link lookup is temporarily unavailable.');
+	}
+
+	const recordId = record?.id;
+	const link = record?.from;
+
+	if (!recordId || !link) {
 		throw error(404, LINK_NOT_FOUND_MESSAGE);
+	}
+
+	const userAgent = request.headers.get('user-agent') || 'Unknown';
+	const botRequest = isBot(userAgent);
+
+	if (!botRequest) {
+		const cf_ipcountry = request.headers.get('CF-IPCountry');
+
+		try {
+			await locals.pb.collection('analytics').create({
+				author: recordId,
+				utm_userAgent: userAgent,
+				utm_country: cf_ipcountry,
+				url_id: recordId,
+				rawData: cf_ipcountry,
+				created: new Date().toISOString()
+			});
+		} catch {
+			// Analytics writes are best-effort and must never block redirects.
+		}
+
+		try {
+			await locals.pb.collection('random_short').update(recordId, {
+				'utm_view+': 1
+			});
+		} catch {
+			// View count updates are best-effort and must never block redirects.
+		}
 	}
 
 	redirect(301, link);
