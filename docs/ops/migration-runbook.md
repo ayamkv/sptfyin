@@ -1,7 +1,7 @@
 # PocketBase VPS Migration Runbook (v2)
 
 Owner: @ayamkv
-Last updated: 2026-02-27
+Last updated: 2026-06-04
 Audience: operations, engineering
 Status: active
 
@@ -18,14 +18,14 @@ Battle-tested migration guide for moving PocketBase between VPS providers with m
 
 ## Current Production Context
 
-| Component              | Details                              |
-| ---------------------- | ------------------------------------ |
-| Backend runtime        | PocketBase in Docker (`~/pb-docker`) |
-| Reverse proxy          | Nginx -> `127.0.0.1:8091`            |
-| Primary backend domain | `https://pb.sptfy.in`                |
-| Legacy backend domain  | `https://pbbase.sptfy.in`            |
-| Frontend               | Cloudflare Pages                     |
-| Status page            | `https://status.sptfy.in`            |
+| Component               | Details                                                                   |
+| ----------------------- | ------------------------------------------------------------------------- |
+| Backend runtime         | PocketBase in Docker (`~/pb-docker`)                                      |
+| Reverse proxy           | Nginx -> `127.0.0.1:8091`                                                 |
+| Primary backend domain  | `https://pb.sptfy.in`                                                     |
+| Previous backend domain | `https://pbbase.sptfy.in` (do not rely on this for current health checks) |
+| Frontend                | Cloudflare Pages                                                          |
+| Status page             | `https://status.sptfy.in`                                                 |
 
 > Security note: keep direct VPS IPs out of committed docs.
 

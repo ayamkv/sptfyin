@@ -1,30 +1,34 @@
 # Migrations folder
 
-This folder will be populated when you export/import schema from production PocketBase.
+This folder contains committed PocketBase schema migrations used by local development and backend deploys.
 
 ## How to set up
 
-1. Export collections from production PocketBase admin:
-   - Go to `https://pbbase.sptfy.in/_/`
-   - Settings > Export collections
-   - Download the JSON file
-
-2. Start local PocketBase:
+1. Start local PocketBase:
 
    ```bash
    cd pocketbase
    ./pocketbase.exe serve
    ```
 
-3. Create admin account at `http://127.0.0.1:8090/_/`
+2. Create an admin account at `http://127.0.0.1:8090/_/`
 
-4. Import the schema:
-   - Settings > Import collections
-   - Upload the JSON file from step 1
+3. Confirm the expected collections exist after startup.
 
-5. PocketBase will create the migration files automatically in this folder.
+If the local database does not apply the committed migrations cleanly, export the current collections from production PocketBase admin:
+
+- Go to `https://pb.sptfy.in/_/`
+- Settings > Export collections
+- Download the JSON file
+
+Then import locally:
+
+- Settings > Import collections
+- Upload the exported JSON file
+- Review and confirm the import
+
+After local schema changes, export or commit the generated migration files in this folder.
 
 ## Note
 
-The original migrations from the VPS backup used PocketBase v0.22 API (`Dao`) which is
-incompatible with v0.23+. That's why we need to re-export from the running production instance.
+Production is pinned to the PocketBase version in `docker-compose.yml`. Avoid generating migrations with a newer PocketBase binary unless the production image is upgraded in the same change.

@@ -1,18 +1,22 @@
 # Documentation Hub
 
+Owner: @ayamkv
+Last updated: 2026-06-04
+Audience: all
+Status: active
+
 Use this page as the single entry point for project docs.
 
 ## Core docs
 
-| Area             | Path                                   | Purpose                                               |
-| ---------------- | -------------------------------------- | ----------------------------------------------------- |
-| Product          | `docs/product/roadmap.md`              | Monetization, feature strategy, and rollout phases    |
-| Development      | `docs/dev/local-development.md`        | Local setup, PocketBase dev workflow, troubleshooting |
-| Development plan | `docs/dev/stability-sprint-2026-03.md` | Feature freeze and hardening timeline for March 2026  |
-| Releases         | `docs/dev/releases.md`                 | Versioning, changelog, and public update workflow     |
-| Operations       | `docs/ops/migration-runbook.md`        | PocketBase VPS migration and maintenance runbook      |
-| Agent rules      | `AGENTS.md`                            | Coding agent behavior and workflow requirements       |
-| Project overview | `README.md`                            | External-facing intro, infra summary, and entry links |
+| Area             | Path                            | Purpose                                               |
+| ---------------- | ------------------------------- | ----------------------------------------------------- |
+| Product          | `docs/product/roadmap.md`       | Monetization, feature strategy, and rollout phases    |
+| Development      | `docs/dev/local-development.md` | Local setup, PocketBase dev workflow, troubleshooting |
+| Releases         | `docs/dev/releases.md`          | Versioning, changelog, and public update workflow     |
+| Operations       | `docs/ops/migration-runbook.md` | PocketBase VPS migration and maintenance runbook      |
+| Agent rules      | `AGENTS.md`                     | Coding agent behavior and workflow requirements       |
+| Project overview | `README.md`                     | External-facing intro, infra summary, and entry links |
 
 ## Documentation standards
 
@@ -42,3 +46,7 @@ Template: `docs/templates/doc-template.md`
 ## Legacy and archive
 
 Historical path mappings and archived docs live in `docs/archive/README.md`.
+
+Archived plans:
+
+- `docs/dev/stability-sprint-2026-03.md` - March 2026 feature-freeze plan.

@@ -1,14 +1,16 @@
 # Stability Sprint Plan (March 2026)
 
 Owner: @ayamkv
-Last updated: 2026-02-28
+Last updated: 2026-06-04
 Audience: engineering, ops
-Status: draft
+Status: archived
 
 ## Purpose
 
 Stabilize the codebase before shipping major new features by focusing on security,
 auth/session reliability, redirect continuity, and maintainability.
+
+Archive note: this sprint window ended on 2026-03-27. Keep this document as historical planning context, not the current development plan.
 
 ## Scope
 

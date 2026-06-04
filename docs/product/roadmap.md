@@ -1,12 +1,12 @@
 # sptfy.in Product Roadmap & Monetization Plan
 
 Owner: @ayamkv
-Last updated: 2026-02-27
+Last updated: 2026-06-04
 Audience: product, engineering
 Status: active
 
 **Last Updated:** February 2026  
-**Status:** Approved - Ready for Implementation
+**Status:** Approved - Implementation in Progress
 
 > **Payment Provider Decision:** Polar.sh (developer-friendly, Indonesia available via testimonials, flexible payouts without minimum thresholds, subscription management)
 
@@ -55,7 +55,7 @@ sptfy.in will transition from a completely free service to a **freemium model** 
 | **Dashboard Access**  | ✅ Full access                                        |
 | **Link Count**        | ✅ Unlimited (relaxed rate limits)                    |
 | **Bulk Add**          | ✅ Up to 3 links per operation                        |
-| **Bulk Delete**       | ✅ Up to 3 links per operation                        |
+| **Bulk Delete**       | ✅ Up to 5 links per operation                        |
 | **CSV Import/Export** | ❌ Not available                                      |
 | **Analytics**         | ✅ Basic analytics (views, referrers, 30-day history) |
 | **Branded Subdomain** | ✅ Available (e.g., `artist.sptfy.in/your-link`)      |
@@ -114,7 +114,7 @@ sptfy.in will transition from a completely free service to a **freemium model** 
 | Link Creation      | Unlimited (strict limits) | Unlimited        | Unlimited           |
 | Dashboard          | ❌                        | ✅               | ✅                  |
 | Bulk Add           | ❌                        | 3 links          | 50 links            |
-| Bulk Delete        | ❌                        | 3 links          | 50 links            |
+| Bulk Delete        | ❌                        | 5 links          | 50 links            |
 | CSV Import         | ❌                        | ❌               | ✅                  |
 | CSV Export         | ❌                        | ❌               | ✅                  |
 | Basic Analytics    | 5 clicks only             | ✅               | ✅                  |
@@ -306,7 +306,7 @@ GET    /api/v1/analytics/:id  # Get analytics for link
 - [ ] Add Polar.sh integration for Pro subscriptions
 - [ ] Update user schema with plan fields
 - [ ] Implement tier-based rate limiting
-- [ ] Feature gate bulk operations (3 vs 50)
+- [ ] Feature gate bulk operations (5 free deletes per operation; Pro limits TBD)
 
 ### Phase 2: Pro Features (Month 3-4)
 
@@ -406,7 +406,7 @@ Keep `GET /[slug]` redirect reads online during PocketBase maintenance or tempor
 ## Open Questions
 
 1. **Guest to Free conversion:** Should we require email verification for Free accounts?
-2. **Free tier limits:** Are 3 bulk links too restrictive? Should it be 5?
+2. **Free tier limits:** Bulk delete currently allows 5 links per operation; should bulk add use the same limit?
 3. **Pro API limits:** 1000 requests/day - too high or too low?
 4. **Trial period:** Should Pro have a 7-day free trial?
 5. **Refund policy:** 7-day money-back guarantee?

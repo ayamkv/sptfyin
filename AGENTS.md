@@ -4,9 +4,10 @@
 
 - `pnpm dev` - Start development server
 - `pnpm build` - Build for production
+- `pnpm test` - Run Vitest suite
 - `pnpm lint` - Run ESLint and Prettier checks
 - `pnpm format` - Format code with Prettier
-- Test command: Use `vitest` for testing (see src/lib/**tests**)
+- Test command: Use `pnpm test` for the full suite or `vitest run <path>` for targeted tests
 - For browser verification on data-backed routes (e.g. `/recent`, `/top`, `/dash/links`), start local PocketBase first (`cd pocketbase && start-dev.bat` on Windows, or `CF_SECRET_KEY=1x0000000000000000000000000000000AA ./pocketbase serve` on Linux/macOS)
 
 ## Tech Stack
@@ -97,13 +98,14 @@ Only allowed for:
 **What Triggers a Release:**
 
 - Merge/push to `main` branch triggers:
-  - GitHub Action deploys PocketBase to VPS
+  - GitHub Action deploys PocketBase to VPS when backend deploy paths change
   - Cloudflare Pages auto-deploys frontend
-- Both deploy together for consistency
+- Frontend and backend deploy independently depending on which files changed
 
 **PR Quality Gates (Automatic):**
 
 - `pnpm lint` must pass
+- `pnpm test` must pass
 - `pnpm build` must pass
 
 ## Pull Request Workflow
@@ -111,7 +113,7 @@ Only allowed for:
 **When to Create a PR:**
 
 - Feature is complete and tested locally
-- All quality gates pass (`pnpm lint`, `pnpm build`)
+- All quality gates pass (`pnpm lint`, `pnpm test`, `pnpm build`)
 - Ready for review or merge
 - NOT for work-in-progress (use feature branches with checkpoint commits instead)
 
@@ -139,6 +141,7 @@ Brief description of what this PR does and why.
 ## Testing
 
 - [ ] Tested locally with `pnpm dev`
+- [ ] Tests pass (`pnpm test`)
 - [ ] Build passes (`pnpm build`)
 - [ ] Lint passes (`pnpm lint`)
 
@@ -244,6 +247,7 @@ bd sync
    ```
 2. **Run quality gates** (if code changed) - Tests, linters, builds:
    ```bash
+   pnpm test
    pnpm build
    pnpm lint
    ```
@@ -279,8 +283,8 @@ bd sync
 
 **Deployment is triggered by:**
 
-- Push to `main` branch
-- Changes to `pocketbase/pb_hooks/**`, `pocketbase/pb_migrations/**`, or `docker-compose.yml`
+- Push to `main` branch with changes to `pocketbase/pb_hooks/**`, `pocketbase/pb_migrations/**`, `docker-compose.yml`, or `.github/workflows/deploy.yml`
+- Manual workflow dispatch from GitHub Actions
 
 **Manual Deployment (if needed):**
 

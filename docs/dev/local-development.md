@@ -1,7 +1,7 @@
 # sptfy.in Local Development Setup
 
 Owner: @ayamkv
-Last updated: 2026-02-27
+Last updated: 2026-06-04
 Audience: engineering
 Status: active
 
@@ -30,7 +30,7 @@ This guide explains how to set up a complete local development environment with 
 cd pocketbase
 ./pocketbase serve
 
-# 2. First time only: Set up PocketBase admin & Spotify OAuth
+# 2. First time only: Set up PocketBase admin & OAuth providers
 #    Open http://127.0.0.1:8090/_/
 
 # 3. Start SvelteKit dev server
@@ -89,11 +89,13 @@ First run will:
 2. Create your admin email/password
 3. This is your local admin - use any credentials you want
 
-### 4. Import Schema from Production
+### 4. Apply or Import Schema
 
-The `pb_migrations/` folder is empty by default. You need to import the schema from production:
+The `pocketbase/pb_migrations/` folder now contains committed schema migrations. On a fresh local database, PocketBase should apply those migrations on startup.
 
-1. Go to production PocketBase admin: `https://pbbase.sptfy.in/_/`
+If the local database still does not have the expected collections after startup, import the current schema from production:
+
+1. Go to production PocketBase admin: `https://pb.sptfy.in/_/`
 2. Go to **Settings** > **Export collections**
 3. Click **Export** to download the JSON file
 4. In local PocketBase admin (`http://127.0.0.1:8090/_/`):
@@ -103,21 +105,22 @@ The `pb_migrations/` folder is empty by default. You need to import the schema f
 
 This imports all collections (users, random_short, analytics, etc.) with their rules and fields.
 
-### 5. Configure Spotify OAuth Provider
+### 5. Configure OAuth Providers
 
 In PocketBase Admin UI:
 
 1. Go to **Settings** > **Auth providers**
-2. Enable **Spotify**
-3. Enter your Spotify App credentials:
-   - **Client ID:** (from Spotify Developer Dashboard)
-   - **Client Secret:** (from Spotify Developer Dashboard)
-4. **IMPORTANT:** Make sure your Spotify app has this redirect URI:
-   ```
-   http://127.0.0.1:5173/auth/spotify/callback
+2. Enable **Google** and/or **Discord**
+3. Enter the provider credentials from the relevant developer dashboard
+4. Add these redirect URIs:
+   ```text
+   http://127.0.0.1:5173/@/auth/google/callback
+   http://127.0.0.1:5173/@/auth/discord/callback
    ```
 
-### 5. Environment Variables
+The current app login flow supports Google and Discord. Spotify OAuth is not used for account login.
+
+### 6. Environment Variables
 
 The `.env.development` file should have:
 
@@ -131,7 +134,7 @@ VITE_CF_SITE_KEY=1x00000000000000000000AA
 # Local PocketBase
 VITE_POCKETBASE_URL=http://127.0.0.1:8090
 
-# IMPORTANT: Use 127.0.0.1, NOT localhost (Spotify requirement since April 2025)
+# IMPORTANT: Use 127.0.0.1, NOT localhost, so OAuth redirect URIs match exactly.
 VITE_APP_URL=http://127.0.0.1:5173
 
 # Optional: screenshot provider key for /prev endpoint
@@ -172,7 +175,7 @@ The `pb_hooks/` folder contains server-side JavaScript hooks:
 | `onRecordCreateRequest` (analytics)    | Logs IP geolocation on record creation                |
 | `onRecordCreateRequest` (random_short) | Validates Turnstile token before creating short links |
 | `onRecordUpdateRequest`                | Protects fields from unauthorized modification        |
-| `onRecordAuthRequest` (users)          | Extracts Spotify user ID on OAuth login               |
+| `onRecordAuthRequest` (users)          | Handles OAuth metadata for supported providers        |
 
 ### `main.pb.js`
 
@@ -197,11 +200,13 @@ These are official Cloudflare test keys - no actual verification occurs.
 
 ### "localhost is not allowed as redirect URI"
 
-Spotify changed their rules in April 2025. Use `127.0.0.1` instead of `localhost`:
+Use `127.0.0.1` instead of `localhost` so local OAuth callback URLs match the configured provider redirect URIs:
 
 - In `.env.development`: `VITE_APP_URL=http://127.0.0.1:5173`
 - In browser: Access via `http://127.0.0.1:5173`
-- In Spotify Dashboard: Use `http://127.0.0.1:5173/auth/spotify/callback`
+- In provider dashboards, use:
+  - `http://127.0.0.1:5173/@/auth/google/callback`
+  - `http://127.0.0.1:5173/@/auth/discord/callback`
 
 ### "PocketBase connection refused"
 

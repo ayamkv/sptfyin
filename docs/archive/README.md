@@ -1,5 +1,10 @@
 # Archive and Legacy Paths
 
+Owner: @ayamkv
+Last updated: 2026-06-04
+Audience: all
+Status: active
+
 This folder tracks documentation history and legacy path mappings.
 
 ## Legacy path mapping
@@ -9,6 +14,10 @@ Moved on 2026-02-27:
 - `DEVELOPMENT.md` -> `docs/dev/local-development.md`
 - `ROADMAP.md` -> `docs/product/roadmap.md`
 - `docs/MIGRATION-RUNBOOK.md` -> `docs/ops/migration-runbook.md`
+
+Archived planning docs:
+
+- `docs/dev/stability-sprint-2026-03.md` - March 2026 feature-freeze and hardening plan.
 
 ## Archive policy
 
