@@ -23,5 +23,13 @@ export default defineConfig({
 			allow: [searchForWorkspaceRoot(process.cwd())]
 		}
 	},
+	test: {
+		coverage: {
+			provider: 'v8',
+			reporter: ['text', 'html', 'json-summary'],
+			reportsDirectory: 'coverage',
+			include: ['src/**/*.{js,svelte}']
+		}
+	},
 	plugins: [sveltekit()]
 });

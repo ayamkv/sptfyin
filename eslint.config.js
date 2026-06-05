@@ -18,7 +18,15 @@ export default [
 		}
 	},
 	{
-		ignores: ['build/', '.svelte-kit/', 'dist/', 'pocketbase/', '.beads/', '.wrangler/']
+		ignores: [
+			'build/',
+			'.svelte-kit/',
+			'dist/',
+			'coverage/',
+			'pocketbase/',
+			'.beads/',
+			'.wrangler/'
+		]
 	},
 	{
 		// Relax rules for the existing codebase - these can be tightened incrementally

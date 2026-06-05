@@ -13,6 +13,7 @@ Use this page as the single entry point for project docs.
 | ---------------- | ------------------------------- | ----------------------------------------------------- |
 | Product          | `docs/product/roadmap.md`       | Monetization, feature strategy, and rollout phases    |
 | Development      | `docs/dev/local-development.md` | Local setup, PocketBase dev workflow, troubleshooting |
+| Testing          | `docs/dev/testing.md`           | Automated checks, coverage, and manual smoke flows    |
 | Releases         | `docs/dev/releases.md`          | Versioning, changelog, and public update workflow     |
 | Operations       | `docs/ops/migration-runbook.md` | PocketBase VPS migration and maintenance runbook      |
 | Agent rules      | `AGENTS.md`                     | Coding agent behavior and workflow requirements       |

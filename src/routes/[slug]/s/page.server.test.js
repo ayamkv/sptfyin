@@ -98,6 +98,7 @@ describe('GET /[slug]/s load', () => {
 	});
 
 	it('returns 500 on unexpected PocketBase errors', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
 		const context = createContext({
 			viewListGetList: vi.fn(async () => ({
 				items: [{ id: 'url_2', from: 'https://open.spotify.com/album/xyz', utm_view: 2 }]

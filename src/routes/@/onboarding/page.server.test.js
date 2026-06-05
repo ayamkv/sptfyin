@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { load } from './+page.server.js';
 
 function createLocals(getOneImpl, user = { id: 'user_1', username: 'alpha' }) {
@@ -19,6 +19,10 @@ function createCookies(value) {
 }
 
 describe('GET /@/onboarding load', () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	it('redirects unauthenticated users to login', async () => {
 		await expect(
 			load({
@@ -76,6 +80,7 @@ describe('GET /@/onboarding load', () => {
 	});
 
 	it('falls back to onboarding cookie when record lookup fails', async () => {
+		vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const locals = createLocals(
 			vi.fn(async () => {
 				throw new Error('db failed');
@@ -94,6 +99,7 @@ describe('GET /@/onboarding load', () => {
 	});
 
 	it('redirects to dashboard when record lookup fails and no cookie hint exists', async () => {
+		vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const locals = createLocals(
 			vi.fn(async () => {
 				throw new Error('db failed');

@@ -25,13 +25,6 @@ export const load = async ({ locals, cookies }) => {
 		record?.onboarded === 0 ||
 		(createdMs && updatedMs && Math.abs(updatedMs - createdMs) < 1000);
 
-	console.log('[Onboarding] Load', {
-		userId: record?.id,
-		created: record?.created,
-		updated: record?.updated,
-		needsSetup
-	});
-
 	if (!needsSetup) {
 		throw redirect(302, DASHBOARD_PATH);
 	}

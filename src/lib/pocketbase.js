@@ -161,7 +161,6 @@ export async function generateRandomURL() {
 				});
 
 				if (!records.items.length) {
-					console.log('found id');
 					return shortId;
 				}
 				attempts++;

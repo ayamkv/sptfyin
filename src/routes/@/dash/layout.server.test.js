@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { load } from './+layout.server.js';
 
 function createLocals(getOneImpl) {
@@ -13,6 +13,10 @@ function createLocals(getOneImpl) {
 }
 
 describe('GET /@/dash layout load', () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	it('redirects unauthenticated users to login', async () => {
 		await expect(
 			load({
@@ -60,6 +64,7 @@ describe('GET /@/dash layout load', () => {
 	});
 
 	it('returns user when profile lookup fails', async () => {
+		vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const locals = createLocals(
 			vi.fn(async () => {
 				throw new Error('temporary failure');

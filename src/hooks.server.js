@@ -7,6 +7,11 @@ import {
 } from '$lib/server/guest-links';
 
 const pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
+const authDebug = import.meta.env.VITE_AUTH_DEBUG === 'true';
+
+function debugAuth(...args) {
+	if (authDebug) console.log(...args);
+}
 
 function shouldRefreshAuth(event) {
 	const { pathname } = event.url;
@@ -26,21 +31,21 @@ export const handle = async ({ event, resolve }) => {
 	const cookieHeader = event.request.headers.get('cookie') || '';
 	pb.authStore.loadFromCookie(cookieHeader);
 
-	console.log('[Auth] Request cookies:', cookieHeader ? 'present' : 'none');
-	console.log('[Auth] Auth store valid:', pb.authStore.isValid);
-	console.log('[Auth] User ID:', pb.authStore.model?.id || 'none');
+	debugAuth('[Auth] Request cookies:', cookieHeader ? 'present' : 'none');
+	debugAuth('[Auth] Auth store valid:', pb.authStore.isValid);
+	debugAuth('[Auth] User ID:', pb.authStore.model?.id || 'none');
 
 	if (pb.authStore.isValid && shouldRefreshAuth(event)) {
 		try {
 			await pb.collection('users').authRefresh();
-			console.log('[Auth] Session refreshed successfully');
+			debugAuth('[Auth] Session refreshed successfully');
 		} catch (error) {
-			console.log('[Auth] Session refresh failed:', error.message);
+			debugAuth('[Auth] Session refresh failed:', error.message);
 			if (error.status === 401 || error.status === 403) {
-				console.log('[Auth] Auth invalid, clearing store');
+				debugAuth('[Auth] Auth invalid, clearing store');
 				pb.authStore.clear();
 			} else {
-				console.log('[Auth] Temporary refresh failure, keeping auth store');
+				debugAuth('[Auth] Temporary refresh failure, keeping auth store');
 			}
 		}
 	}
@@ -62,7 +67,7 @@ export const handle = async ({ event, resolve }) => {
 				);
 
 				if (transferredCount > 0) {
-					console.log('[Guest Links] Transferred guest links:', transferredCount);
+					debugAuth('[Guest Links] Transferred guest links:', transferredCount);
 				}
 				clearGuestSession(event.cookies, event.url);
 			} catch (error) {
@@ -78,7 +83,7 @@ export const handle = async ({ event, resolve }) => {
 	const extraCookies = [];
 
 	if (pb.authStore.isValid && pb.authStore.token) {
-		console.log('[Auth] Appending valid auth cookie');
+		debugAuth('[Auth] Appending valid auth cookie');
 		const exported = pb.authStore.exportToCookie({
 			httpOnly: true,
 			secure: secureFlag,
@@ -88,7 +93,7 @@ export const handle = async ({ event, resolve }) => {
 		});
 		if (exported) extraCookies.push(exported);
 	} else if (!pb.authStore.isValid && hadPbAuthCookie) {
-		console.log('[Auth] Appending clear auth cookie');
+		debugAuth('[Auth] Appending clear auth cookie');
 		extraCookies.push(
 			`pb_auth=; Path=/; HttpOnly; Max-Age=0; SameSite=lax${secureFlag ? '; Secure' : ''}`
 		);
