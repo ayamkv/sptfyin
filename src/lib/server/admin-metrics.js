@@ -36,11 +36,13 @@ export async function buildAdminMetrics({ pb, days = DEFAULT_RANGE_DAYS }) {
 	const baseUrl = pb.baseUrl.replace(/\/+$/, '');
 	const url = `${baseUrl}/api/admin/stats?days=${rangeDays}`;
 
+	// The PB route checks the admin itself, so forward the caller's auth token.
+	const headers = { 'Content-Type': 'application/json' };
+	if (pb.authStore?.token) headers.Authorization = pb.authStore.token;
+
 	const response = await fetch(url, {
 		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json'
-		}
+		headers
 	});
 
 	if (!response.ok) {
