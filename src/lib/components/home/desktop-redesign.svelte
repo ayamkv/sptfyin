@@ -252,9 +252,7 @@
 					<Label for="url-desktop-redesign" class="pl-1 text-xs font-normal text-foreground"
 						>paste your long ass URL here</Label
 					>
-					<div
-						class="flex items-center rounded-2xl has-[input:focus]:shadow-[0px_0px_0px_2px_#101111,0px_0px_0px_4px_#00aa6a]"
-					>
+					<div class="has-[input:focus]:rd-shadow-focus flex items-center rounded-2xl">
 						<input
 							onpaste={handleInputOnPaste}
 							id="url-desktop-redesign"
@@ -363,17 +361,17 @@
 					{#if customizeExpanded && isCustomSlugProvided}
 						<p class="h-4 text-xs leading-none">
 							{#if sanitizedCustomShortId.length < 4}
-								<span class="text-red-400">{strings.SlugMinChars}</span>
+								<span class="text-error">{strings.SlugMinChars}</span>
 							{:else if reservedSlug}
-								<span class="text-red-400">{strings.SlugReserved}</span>
+								<span class="text-error">{strings.SlugReserved}</span>
 							{:else if slugChecking}
-								<span class="text-yellow-300">{strings.SlugChecking}</span>
+								<span class="text-warning">{strings.SlugChecking}</span>
 							{:else if slugCheckError}
-								<span class="text-yellow-300">{strings.SlugCheckFailed}</span>
+								<span class="text-warning">{strings.SlugCheckFailed}</span>
 							{:else if slugAvailable === true}
-								<span class="text-emerald-400">{strings.SlugAvailable}</span>
+								<span class="text-success">{strings.SlugAvailable}</span>
 							{:else if slugAvailable === false}
-								<span class="text-red-400">{strings.SlugTaken}</span>
+								<span class="text-error">{strings.SlugTaken}</span>
 							{/if}
 						</p>
 					{/if}
@@ -383,7 +381,7 @@
 						{maintenanceActive}
 						{turnstileStatus}
 						disabled={buttonDisabled}
-						class="submit-button align-center m-auto flex w-full flex-row items-center justify-center gap-2 rounded-xl text-center shadow-[inset_0_-3px_4px_0_#3b906b96] transition-all {loading
+						class="submit-button align-center rd-shadow-submit m-auto flex w-full flex-row items-center justify-center gap-2 rounded-xl text-center transition-all {loading
 							? 'bg-secondary text-foreground'
 							: ''}"
 					/>
@@ -472,7 +470,7 @@
 									{#if activeTab === 'mylinks'}
 										<button
 											type="button"
-											class="shrink-0 text-xs text-red-400 underline"
+											class="shrink-0 text-xs text-error underline"
 											onclick={() => requestDeleteOwnedLink(item)}
 											disabled={deletingOwnedLinkId === item.id}
 										>
@@ -502,7 +500,7 @@
 				href="https://ko-fi.com/freqtion"
 				target="_blank"
 				rel="noreferrer"
-				class="rd-squircle group relative mx-auto block h-32 w-[38rem] overflow-hidden rounded-[9px] bg-card text-white no-underline shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)] outline-none transition-transform duration-200 hover:no-underline focus:no-underline focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+				class="rd-squircle group relative mx-auto block h-32 w-[38rem] overflow-hidden rounded-[9px] bg-card text-secondary-foreground no-underline shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)] outline-none transition-transform duration-200 hover:no-underline focus:no-underline focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
 				aria-label="Support sptfy.in on Ko-fi"
 			>
 				<BannerDonoShader />
@@ -527,7 +525,7 @@
 				></div>
 
 				<div
-					class="pointer-events-none absolute right-8 top-[27px] w-[8.95rem] text-right text-white no-underline"
+					class="pointer-events-none absolute right-8 top-[27px] w-[8.95rem] text-right text-secondary-foreground no-underline"
 				>
 					<p class="mb-[4px] text-[13px] font-light leading-[1.115] tracking-[-0.54px]">
 						°⋆.࿔*:･&nbsp;&nbsp;&nbsp;&nbsp; ദ്ദി ^-⩊-^≼

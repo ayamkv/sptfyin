@@ -300,7 +300,7 @@
 							>paste your long ass URL here</Label
 						> -->
 						<div
-							class="mobile-home-main-box-input-row flex items-center rounded-2xl has-[input:focus]:shadow-[0px_0px_0px_2px_#101111,0px_0px_0px_4px_#00aa6a]"
+							class="mobile-home-main-box-input-row has-[input:focus]:rd-shadow-focus flex items-center rounded-2xl"
 						>
 							<div class="flex-1">
 								<input
@@ -322,7 +322,7 @@
 									onclick={() => handlePaste()}
 									disabled={isExpandingUrl}
 									aria-label="paste URL"
-									class="rd-shadow-raised flex h-10 w-14 items-center justify-center rounded-r-2xl border border-secondary/20 bg-transparent p-0 text-foreground transition-colors hover:bg-background/50 hover:shadow-[0.1px_1px_4px_0px_#3e3858,inset_1px_3px_3px_3px_rgba(9,7,17,0.47)] active:bg-primary active:text-card"
+									class="rd-shadow-raised hover:inverseShadow flex h-10 w-14 items-center justify-center rounded-r-2xl border border-secondary/20 bg-transparent p-0 text-foreground transition-colors hover:bg-background/50 active:bg-primary active:text-card"
 								>
 									<iconify-icon icon="lucide:clipboard-paste" width="20" class="text-inherit"
 									></iconify-icon>
@@ -416,23 +416,23 @@
 						{#if customizeExpanded && isCustomSlugProvided}
 							<p class="mobile-home-main-box-slug-status h-3 text-[0.5625rem] leading-none">
 								{#if sanitizedCustomShortId.length < 4}
-									<span class="text-red-400">{strings.SlugMinChars}</span>
+									<span class="text-error">{strings.SlugMinChars}</span>
 								{:else if reservedSlug}
-									<span class="text-red-400">{strings.SlugReserved}</span>
+									<span class="text-error">{strings.SlugReserved}</span>
 								{:else if slugChecking}
-									<span class="text-yellow-300">{strings.SlugChecking}</span>
+									<span class="text-warning">{strings.SlugChecking}</span>
 								{:else if slugCheckError}
-									<span class="text-yellow-300">{strings.SlugCheckFailed}</span>
+									<span class="text-warning">{strings.SlugCheckFailed}</span>
 								{:else if slugAvailable === true}
-									<span class="text-emerald-400">{strings.SlugAvailable}</span>
+									<span class="text-success">{strings.SlugAvailable}</span>
 								{:else if slugAvailable === false}
-									<span class="text-red-400">{strings.SlugTaken}</span>
+									<span class="text-error">{strings.SlugTaken}</span>
 								{/if}
 							</p>
 						{/if}
 
 						<!-- <Button
-							class="mobile-home-main-box-submit h-8 rounded-xl bg-primary text-xs font-bold text-rd-on-accent shadow-[inset_0_-3px_4px_0_#3b906b96] hover:bg-primary"
+							class="mobile-home-main-box-submit h-8 rounded-xl bg-primary text-xs font-bold text-rd-on-accent rd-shadow-submit hover:bg-primary"
 							type="submit"
 							disabled={buttonDisabled}
 						>
@@ -454,8 +454,8 @@
 							{maintenanceActive}
 							{turnstileStatus}
 							disabled={buttonDisabled}
-							class="submit-button align-center m-auto flex w-full flex-row items-center justify-center gap-2 rounded-xl text-center shadow-[inset_0_-3px_4px_0_#3b906b96]
-								{loading ? 'bg-secondary text-foreground shadow-[inset_0_-3px_4px_0_#3b906b96]' : ''}
+							class="submit-button align-center rd-shadow-submit m-auto flex w-full flex-row items-center justify-center gap-2 rounded-xl text-center
+								{loading ? 'rd-shadow-submit bg-secondary text-foreground' : ''}
 								transition-all"
 						/>
 					</form>
@@ -578,7 +578,7 @@
 											{#if activeTab === 'mylinks'}
 												<button
 													type="button"
-													class="shrink-0 text-[0.5625rem] text-red-400 underline"
+													class="shrink-0 text-[0.5625rem] text-error underline"
 													onclick={() => requestDeleteOwnedLink(item)}
 													disabled={deletingOwnedLinkId === item.id}
 												>
@@ -609,7 +609,7 @@
 						href="https://ko-fi.com/freqtion"
 						target="_blank"
 						rel="noreferrer"
-						class="rd-squircle group relative block h-[6.75rem] w-full overflow-hidden rounded-[9px] bg-card text-white no-underline shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)] outline-none focus:no-underline focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+						class="rd-squircle group relative block h-[6.75rem] w-full overflow-hidden rounded-[9px] bg-card text-secondary-foreground no-underline shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)] outline-none focus:no-underline focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
 						aria-label="Support sptfy.in on Ko-fi"
 					>
 						<BannerDonoShader />
@@ -626,7 +626,7 @@
 						></div>
 
 						<div
-							class="pointer-events-none absolute right-5 top-[1.1875rem] w-[8.25rem] text-right text-white no-underline"
+							class="pointer-events-none absolute right-5 top-[1.1875rem] w-[8.25rem] text-right text-secondary-foreground no-underline"
 						>
 							<p class="mb-[4px] text-[0.6875rem] font-light leading-none tracking-[-0.04em]">
 								°⋆.࿔*:･&nbsp;&nbsp; ദ്ദി ^-⩊-^≼

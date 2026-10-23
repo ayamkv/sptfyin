@@ -49,6 +49,9 @@ const config = {
 					DEFAULT: 'hsl(var(--card) / <alpha-value>)',
 					foreground: 'hsl(var(--card-foreground) / <alpha-value>)'
 				},
+				success: 'rgb(var(--status-success) / <alpha-value>)',
+				warning: 'rgb(var(--status-warning) / <alpha-value>)',
+				error: 'rgb(var(--status-error) / <alpha-value>)',
 				rd: {
 					'ink-soft': 'rgb(var(--rd-ink-soft) / <alpha-value>)',
 					muted: 'rgb(var(--rd-muted) / <alpha-value>)',
