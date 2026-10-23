@@ -22,28 +22,35 @@ export async function POST({ locals, request }) {
 		return json({ ...format, available: Boolean(format.valid), value: username });
 	}
 
+	let result;
 	try {
-		await locals.pb
-			.collection('users')
-			.getFirstListItem(locals.pb.filter('username = {:username}', { username }));
-		return json({ valid: false, available: false, value: username, message: 'Username is taken.' });
+		// Users are not publicly listable; PocketBase exposes a yes/no availability route instead.
+		result = await locals.pb.send(
+			`/api/sptfyin/username-available/${encodeURIComponent(username)}`,
+			{ method: 'GET' }
+		);
 	} catch (error) {
-		if (error?.status === 404) {
-			return json({
-				valid: true,
-				available: true,
-				value: username,
-				message: 'Username is available.'
-			});
-		}
-
 		console.error('[Auth Validate] Username availability check failed', {
 			message: error?.message,
 			status: error?.status
 		});
-		return json(
-			{ valid: false, available: false, value: username, message: 'Could not check username.' },
-			{ status: 503 }
-		);
 	}
+
+	// Only an explicit answer counts; anything else must never read as "available".
+	if (result?.available === true) {
+		return json({
+			valid: true,
+			available: true,
+			value: username,
+			message: 'Username is available.'
+		});
+	}
+	if (result?.available === false) {
+		return json({ valid: false, available: false, value: username, message: 'Username is taken.' });
+	}
+
+	return json(
+		{ valid: false, available: false, value: username, message: 'Could not check username.' },
+		{ status: 503 }
+	);
 }
