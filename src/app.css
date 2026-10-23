@@ -167,7 +167,7 @@
 		width: 100vw;
 		overflow-y: scroll;
 		overflow-x: hidden;
-		background: var(--background);
+		background: hsl(var(--background));
 	}
 }
 
@@ -183,6 +183,13 @@
 @layer utilities {
 	.ss03 {
 		font-feature-settings: 'ss03';
+	}
+	/* Desktop sidebar edge */
+	.highlightNav2 {
+		box-shadow:
+			inset 0.1px 1px 0 0 #5d5c62,
+			0 1px 20px 2px #090711b6,
+			0 0 0 2px #ffffff2f;
 	}
 	.rd-shadow-panel {
 		box-shadow:

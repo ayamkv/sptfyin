@@ -171,7 +171,7 @@
 	>
 		<div
 			data-collapsed={isCollapsed}
-			class="group fixed bottom-[7px] left-1/2 z-50 flex h-[86px] w-[calc(100%-33px)] max-w-[369px] -translate-x-1/2 flex-col bg-transparent data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto md:left-auto md:h-auto md:min-h-screen md:w-24 md:max-w-none md:translate-x-0 md:bg-card md:shadow-none"
+			class="md:highlightNav2 group fixed bottom-[7px] left-1/2 z-50 flex h-[86px] w-[calc(100%-33px)] max-w-[369px] -translate-x-1/2 flex-col bg-transparent data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto md:left-auto md:h-auto md:min-h-screen md:w-24 md:max-w-none md:translate-x-0 md:bg-card"
 		>
 			<!-- Logo (desktop only) -->
 			<a
