@@ -2,10 +2,13 @@
 #
 # This file is tracked in git. Secrets should be stored in .env file (not tracked).
 # On VPS: Create .env file with CF_SECRET_KEY=your_actual_secret
+# Optional admin allowlists (same values as Cloudflare Pages; either is enough):
+#   ADMIN_USER_ID_ALLOWLIST=id1,id2
+#   ADMIN_EMAIL_ALLOWLIST=you@example.com
 #
 # Usage:
-#   docker compose up -d        # Start container
-#   docker compose restart      # Restart after updates
+#   docker compose up -d        # Start container / apply .yml or .env changes (recreates it)
+#   docker compose restart      # Restart after hook updates (does NOT pick up env changes)
 #   docker compose logs -f      # View logs
 
 services:
@@ -31,3 +34,5 @@ services:
     environment:
       TZ: 'Asia/Jakarta'
       CF_SECRET_KEY: '${CF_SECRET_KEY}'
+      ADMIN_USER_ID_ALLOWLIST: '${ADMIN_USER_ID_ALLOWLIST:-}'
+      ADMIN_EMAIL_ALLOWLIST: '${ADMIN_EMAIL_ALLOWLIST:-}'

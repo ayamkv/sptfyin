@@ -9,7 +9,7 @@ vi.mock('$lib/pocketbase', () => ({
 	generateRandomURL: vi.fn(async () => 'rand1234')
 }));
 
-import { POST } from './+server.js';
+import { GET, POST } from './+server.js';
 
 function createRequest(body) {
 	return {
@@ -154,5 +154,99 @@ describe('POST /api/links', () => {
 		});
 
 		expect(create).not.toHaveBeenCalled();
+	});
+});
+
+describe('GET /api/links', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	function createSignedInLocals(getList) {
+		const filter = vi.fn((expression, params) => `${expression} ${JSON.stringify(params)}`);
+		const collection = vi.fn(() => ({ getList }));
+		return { user: { id: 'user_1' }, pb: { filter, collection } };
+	}
+
+	it("reads the signed-in user's links from random_short with their own auth", async () => {
+		const getList = vi.fn(async () => ({
+			items: [{ id: 'rec_1', id_url: 'abcd', utm_view: 3 }],
+			page: 2,
+			perPage: 10,
+			totalPages: 3,
+			totalItems: 25
+		}));
+		const locals = createSignedInLocals(getList);
+
+		const response = await GET({
+			locals,
+			url: new URL('https://sptfy.in/api/links?page=2&perPage=10'),
+			cookies: createCookies()
+		});
+
+		expect(locals.pb.collection).toHaveBeenCalledWith('random_short');
+		expect(locals.pb.filter).toHaveBeenCalledWith('user = {:userId}', { userId: 'user_1' });
+		expect(getList).toHaveBeenCalledWith(2, 10, {
+			sort: '-created',
+			filter: 'user = {:userId} {"userId":"user_1"}',
+			fields: 'id,id_url,from,subdomain,utm_view,created,user'
+		});
+		await expect(response.json()).resolves.toEqual({
+			items: [{ id: 'rec_1', id_url: 'abcd', utm_view: 3 }],
+			page: 2,
+			perPage: 10,
+			totalPages: 3,
+			totalItems: 25
+		});
+	});
+
+	it('caps perPage at 50', async () => {
+		const getList = vi.fn(async () => ({ items: [] }));
+
+		await GET({
+			locals: createSignedInLocals(getList),
+			url: new URL('https://sptfy.in/api/links?perPage=500'),
+			cookies: createCookies()
+		});
+
+		expect(getList).toHaveBeenCalledWith(1, 50, expect.any(Object));
+	});
+
+	it('returns an error status when PocketBase fails', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const getList = vi.fn(async () => {
+			const err = new Error('forbidden');
+			err.status = 403;
+			throw err;
+		});
+
+		await expect(
+			GET({
+				locals: createSignedInLocals(getList),
+				url: new URL('https://sptfy.in/api/links'),
+				cookies: createCookies()
+			})
+		).rejects.toMatchObject({ status: 403 });
+
+		vi.restoreAllMocks();
+	});
+
+	it('returns an empty list for guests without a guest cookie', async () => {
+		const collection = vi.fn();
+
+		const response = await GET({
+			locals: { user: null, pb: { collection } },
+			url: new URL('https://sptfy.in/api/links'),
+			cookies: createCookies()
+		});
+
+		expect(collection).not.toHaveBeenCalled();
+		await expect(response.json()).resolves.toEqual({
+			items: [],
+			page: 1,
+			perPage: 20,
+			totalPages: 0,
+			totalItems: 0
+		});
 	});
 });
