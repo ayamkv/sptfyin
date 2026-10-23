@@ -48,6 +48,13 @@ const config = {
 				card: {
 					DEFAULT: 'hsl(var(--card) / <alpha-value>)',
 					foreground: 'hsl(var(--card-foreground) / <alpha-value>)'
+				},
+				rd: {
+					'ink-soft': 'rgb(var(--rd-ink-soft) / <alpha-value>)',
+					muted: 'rgb(var(--rd-muted) / <alpha-value>)',
+					chip: 'rgb(var(--rd-chip) / <alpha-value>)',
+					yellow: 'rgb(var(--rd-yellow) / <alpha-value>)',
+					'on-accent': 'rgb(var(--rd-on-accent) / <alpha-value>)'
 				}
 			},
 			borderRadius: {

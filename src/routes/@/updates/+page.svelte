@@ -27,17 +27,17 @@
 </svelte:head>
 
 <div
-	class="relative h-dvh w-full overflow-hidden bg-[var(--rd-bg)] text-[var(--rd-ink)] md:h-full md:min-h-0 md:overflow-y-auto md:px-8 md:pb-14 md:pt-5"
+	class="relative h-dvh w-full overflow-hidden bg-card text-foreground md:h-full md:min-h-0 md:overflow-y-auto md:px-8 md:pb-14 md:pt-5"
 >
 	<div
-		class="rd-squircle border-3 absolute left-3.5 top-[0.6875rem] h-[calc(100dvh-7rem)] w-[calc(100%-1.8125rem)] overflow-y-auto rounded-2xl border-[var(--rd-line)] bg-[var(--rd-shell)] px-3 pb-8 pt-3 md:static md:h-auto md:min-h-full md:w-auto md:overflow-visible md:rounded-none md:border-0 md:bg-transparent md:p-0"
+		class="rd-squircle border-3 absolute left-3.5 top-[0.6875rem] h-[calc(100dvh-7rem)] w-[calc(100%-1.8125rem)] overflow-y-auto rounded-2xl border-border bg-background/50 px-3 pb-8 pt-3 md:static md:h-auto md:min-h-full md:w-auto md:overflow-visible md:rounded-none md:border-0 md:bg-transparent md:p-0"
 	>
 		<div class="mx-auto flex min-h-full w-full max-w-6xl flex-col">
 			<header class="mb-5 flex items-center justify-between gap-3">
 				<a
 					href={resolve('/')}
 					aria-label="back home"
-					class="rd-squircle rd-shadow-inset inline-flex items-center rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-4 py-2 text-sm font-semibold text-[var(--rd-ink)] no-underline hover:text-[var(--rd-mint)]"
+					class="rd-squircle rd-shadow-inset inline-flex items-center rounded-2xl border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground no-underline hover:text-primary"
 				>
 					<ArrowLeft class="size-4" aria-hidden="true" />
 				</a>
@@ -47,7 +47,7 @@
 						href="https://github.com/ayamkv/sptfyin/issues"
 						target="_blank"
 						rel="noreferrer"
-						class="hidden rounded-2xl px-3 py-2 text-sm font-semibold text-[var(--rd-muted)] no-underline hover:text-[var(--rd-mint)] sm:inline-flex"
+						class="hidden rounded-2xl px-3 py-2 text-sm font-semibold text-rd-muted no-underline hover:text-primary sm:inline-flex"
 					>
 						report bugs
 					</a>
@@ -55,7 +55,7 @@
 						href="https://ko-fi.com/freqtion"
 						target="_blank"
 						rel="noreferrer"
-						class="rd-squircle rd-shadow-lift inline-flex rotate-[-2deg] rounded-full bg-[var(--rd-yellow)] px-3 py-1.5 text-sm font-semibold text-[#161517] no-underline hover:rotate-0 hover:text-[#161517]"
+						class="rd-squircle rd-shadow-lift inline-flex rotate-[-2deg] rounded-full bg-rd-yellow px-3 py-1.5 text-sm font-semibold text-rd-on-accent no-underline hover:rotate-0 hover:text-rd-on-accent"
 					>
 						support
 					</a>
@@ -75,7 +75,7 @@
 							{#if newerRelease}
 								<a
 									href={`#${releaseAnchor(newerRelease.version)}`}
-									class="rd-squircle rd-shadow-inset sticky top-5 inline-flex h-11 items-center gap-2 rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-3 text-sm font-semibold text-[var(--rd-muted)] no-underline hover:text-[var(--rd-mint)]"
+									class="rd-squircle rd-shadow-inset sticky top-5 inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-card px-3 text-sm font-semibold text-rd-muted no-underline hover:text-primary"
 								>
 									<ArrowLeft class="size-4" aria-hidden="true" />
 									{versionNumber(newerRelease.version)}
@@ -85,10 +85,10 @@
 
 						<article
 							id={releaseAnchor(release.version)}
-							class="rd-squircle rd-shadow-panel overflow-hidden rounded-[2rem] border border-[var(--rd-line)] bg-[var(--rd-panel)]"
+							class="rd-squircle rd-shadow-panel overflow-hidden rounded-[2rem] border border-border bg-card"
 						>
 							<header
-								class="rd-shadow-inset flex flex-wrap items-end justify-between gap-3 border-b border-[var(--rd-line)] bg-[rgba(16,17,17,0.24)] px-5 py-5 md:px-7"
+								class="rd-shadow-inset flex flex-wrap items-end justify-between gap-3 border-b border-border bg-background/25 px-5 py-5 md:px-7"
 							>
 								<div class="flex items-end gap-3">
 									<p
@@ -96,11 +96,11 @@
 									>
 										{versionNumber(release.version)}
 									</p>
-									<p class="pb-1 text-sm font-normal text-[var(--rd-muted)]">
+									<p class="pb-1 text-sm font-normal text-rd-muted">
 										current {versionLabel(APP_VERSION)}
 									</p>
 								</div>
-								<time class="pb-1 text-sm font-normal text-[var(--rd-ink-soft)]">
+								<time class="pb-1 text-sm font-normal text-rd-ink-soft/80">
 									{formatReleaseDate(release.date)}
 								</time>
 							</header>
@@ -116,7 +116,7 @@
 							{#if olderRelease}
 								<a
 									href={`#${releaseAnchor(olderRelease.version)}`}
-									class="rd-squircle rd-shadow-inset sticky top-5 inline-flex h-11 items-center gap-2 rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-3 text-sm font-semibold text-[var(--rd-muted)] no-underline hover:text-[var(--rd-mint)]"
+									class="rd-squircle rd-shadow-inset sticky top-5 inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-card px-3 text-sm font-semibold text-rd-muted no-underline hover:text-primary"
 								>
 									{versionNumber(olderRelease.version)}
 									<ArrowRight class="size-4" aria-hidden="true" />
@@ -129,7 +129,7 @@
 								{#if newerRelease}
 									<a
 										href={`#${releaseAnchor(newerRelease.version)}`}
-										class="rd-squircle rd-shadow-inset inline-flex h-10 items-center gap-2 rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-3 text-sm font-semibold text-[var(--rd-muted)] no-underline hover:text-[var(--rd-mint)]"
+										class="rd-squircle rd-shadow-inset inline-flex h-10 items-center gap-2 rounded-2xl border border-border bg-card px-3 text-sm font-semibold text-rd-muted no-underline hover:text-primary"
 									>
 										<ArrowLeft class="size-4" aria-hidden="true" />
 										{versionNumber(newerRelease.version)}
@@ -139,7 +139,7 @@
 								{#if olderRelease}
 									<a
 										href={`#${releaseAnchor(olderRelease.version)}`}
-										class="rd-squircle rd-shadow-inset ml-auto inline-flex h-10 items-center gap-2 rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-3 text-sm font-semibold text-[var(--rd-muted)] no-underline hover:text-[var(--rd-mint)]"
+										class="rd-squircle rd-shadow-inset ml-auto inline-flex h-10 items-center gap-2 rounded-2xl border border-border bg-card px-3 text-sm font-semibold text-rd-muted no-underline hover:text-primary"
 									>
 										{versionNumber(olderRelease.version)}
 										<ArrowRight class="size-4" aria-hidden="true" />
@@ -153,17 +153,17 @@
 				<section class="grid items-start gap-4 lg:grid-cols-[7rem_minmax(0,48rem)_7rem] lg:gap-6">
 					<div></div>
 					<article
-						class="rd-squircle rd-shadow-panel overflow-hidden rounded-[2rem] border border-[var(--rd-line)] bg-[var(--rd-panel)]"
+						class="rd-squircle rd-shadow-panel overflow-hidden rounded-[2rem] border border-border bg-card"
 					>
 						<header
-							class="rd-shadow-inset flex flex-wrap items-center justify-between gap-3 border-b border-[var(--rd-line)] bg-[rgba(16,17,17,0.24)] px-5 py-5 md:px-7"
+							class="rd-shadow-inset flex flex-wrap items-center justify-between gap-3 border-b border-border bg-background/25 px-5 py-5 md:px-7"
 						>
-							<h2 class="text-2xl font-black leading-tight text-[var(--rd-ink)]">changelog</h2>
+							<h2 class="text-2xl font-black leading-tight text-foreground">changelog</h2>
 							<a
 								href="https://github.com/ayamkv/sptfyin/blob/main/CHANGELOG.md"
 								target="_blank"
 								rel="noreferrer"
-								class="rounded-2xl px-3 py-2 text-sm font-semibold text-[var(--rd-muted)] no-underline hover:text-[var(--rd-mint)]"
+								class="rounded-2xl px-3 py-2 text-sm font-semibold text-rd-muted no-underline hover:text-primary"
 							>
 								full changelog on GitHub
 							</a>
@@ -181,7 +181,7 @@
 
 <style>
 	:global(.updates-content) {
-		color: var(--rd-ink-soft);
+		color: rgb(var(--rd-ink-soft));
 		font-size: 0.98rem;
 		line-height: 1.8;
 	}
@@ -191,7 +191,7 @@
 	}
 
 	:global(.updates-content h1) {
-		color: var(--rd-ink);
+		color: hsl(var(--foreground));
 		font-family: 'Fixel Display', 'Fixel', sans-serif;
 		font-size: clamp(1.75rem, 6vw, 2.2rem);
 		font-weight: 800;
@@ -200,7 +200,7 @@
 	}
 
 	:global(.updates-content h2) {
-		color: var(--rd-ink);
+		color: hsl(var(--foreground));
 		font-size: 1.25rem;
 		font-weight: 600;
 		line-height: 1.2;
@@ -214,7 +214,7 @@
 	}
 
 	:global(.updates-content a) {
-		color: var(--rd-mint);
+		color: hsl(var(--primary));
 		font-weight: 500;
 		cursor: pointer;
 	}
@@ -222,7 +222,7 @@
 	:global(.updates-content code) {
 		background: hsl(var(--muted) / 0.8);
 		border-radius: 0.375rem;
-		color: var(--rd-ink);
+		color: hsl(var(--foreground));
 		font-size: 0.9em;
 		padding: 0.1rem 0.35rem;
 	}
@@ -241,13 +241,13 @@
 	}
 
 	:global(.changelog-content h2) {
-		color: var(--rd-ink);
+		color: hsl(var(--foreground));
 		font-size: 1.5rem;
 		margin-top: 0;
 	}
 
 	:global(.changelog-content h3) {
-		color: var(--rd-mint);
+		color: hsl(var(--primary));
 		font-size: 1rem;
 		font-weight: 600;
 		margin-top: 1.5rem;
