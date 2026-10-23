@@ -102,11 +102,6 @@ onRecordCreateRequest((e) => {
 		}
 	}
 
-	// Log the token extraction attempt.
-	$app.logger().debug('Extracted Turnstile Token', turnstileToken ? turnstileToken : 'N/A');
-	// log cf_secret_key
-	$app.logger().debug('CF_SECRET', process.env.CF_SECRET_KEY);
-
 	// If token not found then throw error.
 	if (!turnstileToken) {
 		throw new BadRequestError('Turnstile error', {
@@ -247,149 +242,65 @@ onRecordUpdateRequest((e) => {
 		);
 	}
 
-	// Configuration for protected and increment-only fields
-	const config = {
-		protectedFields: [
-			'name',
-			'from',
-			'id_url',
-			'subdomain',
-			'enable',
-			'analytics',
-			'utm_userAgent',
-			'guest_active',
-			'user'
-		],
-		incrementOnlyFields: [
-			{
-				name: 'utm_view',
-				defaultValue: 0
+	// Compare every field so new schema fields are protected by default.
+	function readComparableValue(record, name, type) {
+		if (type === 'select' || type === 'relation' || type === 'file') {
+			return record.getStringSlice(name).join('\n');
+		}
+		return record.getString(name);
+	}
+
+	function getChangedFields(originalRecord, newRecord) {
+		const fields = originalRecord.collection().fields;
+		const changed = [];
+
+		for (let i = 0; i < fields.length; i += 1) {
+			const name = fields[i].getName();
+			const type = fields[i].type();
+
+			if (name === 'id' || type === 'autodate') continue;
+
+			if (
+				readComparableValue(originalRecord, name, type) !==
+				readComparableValue(newRecord, name, type)
+			) {
+				changed.push(name);
 			}
-		],
-		// New: User-owned fields that can be updated by the record owner
-		userOwnedFields: ['id_url', 'from', 'subdomain']
-	};
+		}
 
-	$app.logger().debug('==== Update Request Debug ====');
+		return changed;
+	}
 
-	// Check if the request is from a superuser (admin panel)
-	const isSuperuser = e.hasSuperuserAuth();
-
-	$app.logger().debug('Authentication check', {
-		isSuperuser: isSuperuser,
-		hasAuth: !!e.auth,
-		authRecord: e.auth?.id || 'none'
-	});
-
-	// If superuser, allow all updates and skip protection checks
-	if (isSuperuser) {
-		$app.logger().info('Superuser detected - allowing all field updates');
+	if (e.hasSuperuserAuth()) {
 		return e.next();
 	}
 
+	const { checkLinkUpdate, VIEW_COUNTER_FIELD } = require(`${__hooks}/lib/link-update-policy.cjs`);
+
 	const originalRecord = e.record.original();
 	const newRecord = e.record;
-
-	// Check if the authenticated user owns this record (user field matches auth ID)
-	const recordOwnerId = originalRecord.get('user');
 	const authenticatedUserId = e.auth?.id;
-	const isOwner = authenticatedUserId && recordOwnerId === authenticatedUserId;
+	const changedFields = getChangedFields(originalRecord, newRecord);
 
-	$app.logger().debug('Ownership check', {
-		recordOwnerId: recordOwnerId,
-		authenticatedUserId: authenticatedUserId,
-		isOwner: isOwner
+	const rejection = checkLinkUpdate({
+		changedFields,
+		originalViews: originalRecord.getInt(VIEW_COUNTER_FIELD),
+		nextViews: newRecord.getInt(VIEW_COUNTER_FIELD),
+		isOwner: Boolean(authenticatedUserId && originalRecord.get('user') === authenticatedUserId),
+		canClaimGuestLink: canTransferGuestOwnership(originalRecord, newRecord)
 	});
 
-	// Debug current values
-	const logger = $app.logger().withGroup('record_values');
-
-	const originalValues = config.protectedFields
-		.concat(config.incrementOnlyFields.map((f) => f.name))
-		.reduce((acc, field) => {
-			acc[field] = originalRecord.get(field);
-			return acc;
-		}, {});
-
-	const newValues = config.protectedFields
-		.concat(config.incrementOnlyFields.map((f) => f.name))
-		.reduce((acc, field) => {
-			acc[field] = newRecord.get(field);
-			return acc;
-		}, {});
-
-	logger.debug('Record values comparison', 'original', originalValues, 'new', newValues);
-
-	// Check protected fields (with special handling for user-owned fields)
-	for (const field of config.protectedFields) {
-		const originalValue = originalRecord.get(field);
-		const newValue = newRecord.get(field);
-
-		if (originalValue !== newValue) {
-			if (field === 'user' && canTransferGuestOwnership(originalRecord, newRecord)) {
-				$app.logger().info('Transferring guest-owned link to authenticated user', {
-					field: field,
-					userId: authenticatedUserId,
-					recordId: originalRecord.id
-				});
-				continue;
-			}
-
-			// Check if this field can be updated by the owner
-			if (config.userOwnedFields.includes(field) && isOwner) {
-				$app.logger().info('Owner updating user-owned field', {
-					field: field,
-					userId: authenticatedUserId,
-					originalValue: originalValue,
-					newValue: newValue
-				});
-				continue; // Allow the update
-			}
-
-			// Field is protected and user is not owner or field is not user-owned
-			$app.logger().warn('Protected field modification attempted by non-owner', {
-				field: field,
-				userId: authenticatedUserId,
-				recordOwnerId: recordOwnerId,
-				isOwner: isOwner,
-				originalValue: originalValue,
-				attemptedValue: newValue
-			});
-			throw new BadRequestError(`Field "${field}" cannot be updated`);
-		}
-	}
-
-	// Check increment-only fields (only for non-superusers)
-	for (const field of config.incrementOnlyFields) {
-		const originalValue = originalRecord.getInt(field.name) ?? field.defaultValue;
-		const newValue = newRecord.getInt(field.name);
-
-		if (newValue === originalValue) {
-			continue; // No change to this field
-		}
-
-		if (newValue !== originalValue + 1) {
-			$app
-				.logger()
-				.warn(
-					'Invalid increment attempt by non-superuser',
-					'field',
-					field.name,
-					'originalValue',
-					originalValue,
-					'attemptedValue',
-					newValue
-				);
-			throw new BadRequestError(`Field "${field.name}" can only be incremented by 1`);
-		}
-
-		$app
-			.logger()
-			.info('Valid increment update', 'field', field.name, 'from', originalValue, 'to', newValue);
+	if (rejection) {
+		$app.logger().warn('Rejected random_short update', {
+			recordId: originalRecord.id,
+			userId: authenticatedUserId || '',
+			changedFields: changedFields.join(',')
+		});
+		throw new BadRequestError(rejection);
 	}
 
 	e.next();
-});
+}, 'random_short');
 
 onRecordUpdateExecute((e) => {
 	// Configuration needs to be duplicated in each hook
