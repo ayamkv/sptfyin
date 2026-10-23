@@ -30,7 +30,7 @@
 	let canSubmitEmailLogin = $derived(emailValidation.valid && passwordValidation.valid);
 
 	function validationClass(valid) {
-		return valid ? 'text-[var(--rd-mint)]' : 'text-[var(--rd-yellow)]';
+		return valid ? 'text-primary' : 'text-rd-yellow';
 	}
 
 	$effect(() => {
@@ -183,21 +183,21 @@
 	});
 </script>
 
-<div class="min-h-[calc(100vh-8rem)] bg-[var(--rd-bg)] px-4 py-8 text-[var(--rd-ink)]">
+<div class="min-h-[calc(100vh-8rem)] bg-card px-4 py-8 text-foreground">
 	<div class="mx-auto flex min-h-[calc(100dvh-10rem)] w-full max-w-[25rem] flex-col justify-center">
 		<header class="relative mx-auto mb-8 h-20 w-full max-w-[21rem]">
 			<a
 				data-auth-flip
 				data-flip-id="auth-logo"
 				href={resolve('/')}
-				class="ss03 absolute left-1/2 top-0 -translate-x-1/2 rounded-none font-jak-display text-5xl font-black leading-none text-[var(--rd-mint)] no-underline outline-none hover:text-[var(--rd-mint)] hover:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rd-bg)]"
+				class="ss03 absolute left-1/2 top-0 -translate-x-1/2 rounded-none font-jak-display text-5xl font-black leading-none text-primary no-underline outline-none hover:text-primary hover:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
 			>
 				sptfy.in
 			</a>
 			<div
 				data-auth-flip
 				data-flip-id="auth-chip"
-				class="rd-squircle rd-shadow-lift absolute left-1/2 top-14 flex h-6 min-w-[8.75rem] -translate-x-1/2 rotate-[-3deg] items-center justify-center gap-1 whitespace-nowrap rounded-full bg-[var(--rd-yellow)] px-3 text-xs font-semibold text-[#161517]"
+				class="rd-squircle rd-shadow-lift absolute left-1/2 top-14 flex h-6 min-w-[8.75rem] -translate-x-1/2 rotate-[-3deg] items-center justify-center gap-1 whitespace-nowrap rounded-full bg-rd-yellow px-3 text-xs font-semibold text-rd-on-accent"
 			>
 				<iconify-icon icon="lucide:key-round" width="13"></iconify-icon>
 				<span class="shrink-0">sign in</span>
@@ -207,23 +207,23 @@
 		<section
 			data-auth-flip
 			data-flip-id="auth-panel"
-			class="rd-squircle rd-shadow-panel rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-4 pb-8 pt-4"
+			class="rd-squircle rd-shadow-panel rounded-2xl border border-border bg-card px-4 pb-8 pt-4"
 		>
 			<div class="mb-4 flex items-start justify-between gap-3">
 				<div>
 					<h1
 						data-flip-id="auth-title"
-						class="font-jak-display text-2xl font-black leading-none text-[var(--rd-ink)]"
+						class="font-jak-display text-2xl font-black leading-none text-foreground"
 					>
 						welcome back
 					</h1>
-					<p class="mt-1 text-xs text-[var(--rd-muted)]">pick up where your links left off</p>
+					<p class="mt-1 text-xs text-rd-muted">pick up where your links left off</p>
 				</div>
 				<a
 					data-auth-flip
 					data-flip-id="auth-switch"
 					href={resolve('/@/register')}
-					class="hover:scale-80 flex h-8 w-fit items-center rounded-2xl border border-[rgba(57,54,77,0.2)] bg-[rgba(57,54,77,0.2)] px-4 py-2 text-xs font-light leading-none text-[#fafafa] no-underline shadow-[0px_1px_1.2px_0px_rgba(16,17,17,0.54),inset_0px_-3px_2px_0px_rgba(24,24,27,0.32),inset_0px_1.2px_2.7px_0px_rgba(145,95,183,0.78)] hover:transform hover:bg-secondary/80 hover:shadow-[0.1px_1px_1.7px_0px_rgba(62,56,88,0.49),inset_1px_3px_3px_2px_rgba(9,7,17,0.47)]"
+					class="hover:scale-80 rd-shadow-raised hover:rd-shadow-inset flex h-8 w-fit items-center rounded-2xl border border-secondary/20 bg-secondary/20 px-4 py-2 text-xs font-light leading-none text-secondary-foreground no-underline hover:transform hover:bg-secondary/80"
 				>
 					register
 				</a>
@@ -231,14 +231,14 @@
 
 			{#if data?.hasGuestSession}
 				<p
-					class="mb-4 rounded-xl border border-[var(--rd-line)] bg-[rgba(16,17,17,0.24)] p-3 text-xs leading-tight text-[var(--rd-muted)]"
+					class="mb-4 rounded-xl border border-border bg-background/25 p-3 text-xs leading-tight text-rd-muted"
 				>
 					You have guest links on this device. Signing in will move them into your account.
 				</p>
 			{/if}
 
 			<div class="grid gap-2">
-				<!-- <p class="pl-1 text-xs font-normal text-[var(--rd-mint)]">quick sign in</p> -->
+				<!-- <p class="pl-1 text-xs font-normal text-primary">quick sign in</p> -->
 				<button
 					type="button"
 					class="rd-squircle flex h-11 w-full items-center justify-start gap-3 rounded-2xl border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#1f1f1f] transition-transform duration-150 hover:scale-[1.01] hover:bg-[#d0d2d4] active:scale-[0.99] disabled:cursor-wait disabled:opacity-75"
@@ -277,11 +277,11 @@
 				</button>
 
 				{#if popupBlockedMessage}
-					<p class="pl-1 text-xs text-[var(--rd-yellow)]">{popupBlockedMessage}</p>
+					<p class="pl-1 text-xs text-rd-yellow">{popupBlockedMessage}</p>
 				{/if}
 			</div>
 
-			<div class="my-4 flex items-center gap-3 text-[0.625rem] text-[var(--rd-muted)]">
+			<div class="my-4 flex items-center gap-3 text-[0.625rem] text-rd-muted">
 				<div class="h-px flex-1 bg-muted/80"></div>
 				<span>𓂃˖˳·˖ ִֶָ ⋆ or ͙⋆ ִֶָ˖·˳˖𓂃 ִֶָ</span>
 				<div class="h-px flex-1 bg-muted/80"></div>
@@ -292,7 +292,7 @@
 					type="button"
 					aria-expanded={emailAccordionOpen}
 					onclick={handleEmailAccordionClick}
-					class="flex w-full cursor-pointer list-none items-center justify-between rounded-xl px-1 py-2 text-sm font-semibold text-[var(--rd-ink)] outline-none transition-colors hover:text-[var(--rd-mint)] focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)]"
+					class="flex w-full cursor-pointer list-none items-center justify-between rounded-xl px-1 py-2 text-sm font-semibold text-foreground outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
 				>
 					<span>sign in with email</span>
 					<iconify-icon
@@ -313,14 +313,14 @@
 					class="grid gap-3 pt-2"
 				>
 					<div class="grid gap-1.5">
-						<label for="login-email" class="pl-1 text-xs text-[var(--rd-ink)]">Email</label>
+						<label for="login-email" class="pl-1 text-xs text-foreground">Email</label>
 						<input
 							id="login-email"
 							name="email"
 							type="email"
 							autocomplete="email"
 							bind:value={email}
-							class="inverseShadow h-10 w-full rounded-2xl border border-[var(--rd-line)] bg-[rgba(16,17,17,0.2)] px-3 text-xs text-[var(--rd-ink)] outline-none placeholder:text-[#b9c0d08c] focus:shadow-[0px_0px_0px_2px_#101111,0px_0px_0px_4px_#00aa6a]"
+							class="inverseShadow h-10 w-full rounded-2xl border border-border bg-background/20 px-3 text-xs text-foreground outline-none placeholder:text-muted-foreground/55 focus:shadow-[0px_0px_0px_2px_#101111,0px_0px_0px_4px_#00aa6a]"
 							required
 						/>
 						{#if email}
@@ -332,10 +332,10 @@
 
 					<div class="grid gap-1.5">
 						<div class="flex items-center justify-between gap-3 pl-1">
-							<label for="login-password" class="text-xs text-[var(--rd-ink)]">Password</label>
+							<label for="login-password" class="text-xs text-foreground">Password</label>
 							<a
 								href={resolve('/@/forgot-password')}
-								class="text-xs font-semibold text-[var(--rd-mint)] no-underline hover:text-[var(--rd-mint)] hover:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)]"
+								class="text-xs font-semibold text-primary no-underline hover:text-primary hover:outline-none focus-visible:ring-2 focus-visible:ring-primary"
 							>
 								forgot?
 							</a>
@@ -347,12 +347,12 @@
 								type={showPassword ? 'text' : 'password'}
 								autocomplete="current-password"
 								bind:value={password}
-								class="inverseShadow h-10 w-full rounded-2xl border border-[var(--rd-line)] bg-[rgba(16,17,17,0.2)] px-3 pr-10 text-xs text-[var(--rd-ink)] outline-none placeholder:text-[#b9c0d08c] focus:shadow-[0px_0px_0px_2px_#101111,0px_0px_0px_4px_#00aa6a]"
+								class="inverseShadow h-10 w-full rounded-2xl border border-border bg-background/20 px-3 pr-10 text-xs text-foreground outline-none placeholder:text-muted-foreground/55 focus:shadow-[0px_0px_0px_2px_#101111,0px_0px_0px_4px_#00aa6a]"
 								required
 							/>
 							<button
 								type="button"
-								class="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-xl text-[var(--rd-muted)] transition-colors hover:bg-[rgba(16,17,17,0.5)] hover:text-[var(--rd-ink)]"
+								class="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-xl text-rd-muted transition-colors hover:bg-background/50 hover:text-foreground"
 								aria-label={showPassword ? 'Hide password' : 'Show password'}
 								aria-pressed={showPassword}
 								onclick={() => (showPassword = !showPassword)}
@@ -379,7 +379,7 @@
 
 					<button
 						type="submit"
-						class="rd-squircle h-10 rounded-xl bg-[var(--rd-mint)] text-sm font-bold text-[#161517] shadow-[inset_0_-3px_4px_0_#3b906b96] transition-transform duration-150 hover:scale-[1.01] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+						class="rd-squircle h-10 rounded-xl bg-primary text-sm font-bold text-rd-on-accent shadow-[inset_0_-3px_4px_0_#3b906b96] transition-transform duration-150 hover:scale-[1.01] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
 						disabled={!canSubmitEmailLogin}
 					>
 						log in

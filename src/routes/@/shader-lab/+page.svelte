@@ -58,24 +58,24 @@
 </svelte:head>
 
 <div
-	class="relative h-dvh w-full overflow-hidden bg-[var(--rd-bg)] text-[var(--rd-ink)] md:h-full md:min-h-0 md:overflow-y-auto md:px-8 md:pb-14 md:pt-5"
+	class="relative h-dvh w-full overflow-hidden bg-card text-foreground md:h-full md:min-h-0 md:overflow-y-auto md:px-8 md:pb-14 md:pt-5"
 >
 	<div
-		class="rd-squircle border-3 absolute left-3.5 top-[0.6875rem] h-[calc(100dvh-7rem)] w-[calc(100%-1.8125rem)] overflow-y-auto rounded-2xl border-[var(--rd-line)] bg-[var(--rd-shell)] px-3 pb-8 pt-3 md:static md:h-auto md:min-h-full md:w-auto md:overflow-visible md:rounded-none md:border-0 md:bg-transparent md:p-0"
+		class="rd-squircle border-3 absolute left-3.5 top-[0.6875rem] h-[calc(100dvh-7rem)] w-[calc(100%-1.8125rem)] overflow-y-auto rounded-2xl border-border bg-background/50 px-3 pb-8 pt-3 md:static md:h-auto md:min-h-full md:w-auto md:overflow-visible md:rounded-none md:border-0 md:bg-transparent md:p-0"
 	>
 		<div class="mx-auto flex min-h-full w-full max-w-7xl flex-col gap-6">
 			<header class="flex items-center justify-between gap-3">
 				<a
 					href={resolve('/')}
 					aria-label="back home"
-					class="rd-squircle rd-shadow-inset inline-flex items-center rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-4 py-2 text-sm font-semibold text-[var(--rd-ink)] no-underline hover:text-[var(--rd-mint)]"
+					class="rd-squircle rd-shadow-inset inline-flex items-center rounded-2xl border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground no-underline hover:text-primary"
 				>
 					<ArrowLeft class="size-4" aria-hidden="true" />
 				</a>
 
 				<button
 					type="button"
-					class="rd-squircle rd-shadow-lift inline-flex rotate-[-2deg] items-center gap-2 rounded-full bg-[var(--rd-yellow)] px-3 py-1.5 text-sm font-semibold text-[#161517] transition-transform hover:rotate-0"
+					class="rd-squircle rd-shadow-lift inline-flex rotate-[-2deg] items-center gap-2 rounded-full bg-rd-yellow px-3 py-1.5 text-sm font-semibold text-rd-on-accent transition-transform hover:rotate-0"
 					onclick={resetControls}
 				>
 					<RotateCcw class="size-4" aria-hidden="true" />
@@ -85,18 +85,16 @@
 
 			<section class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
 				<div
-					class="rd-squircle rd-shadow-panel overflow-hidden rounded-[2rem] border border-[var(--rd-line)] bg-[var(--rd-panel)]"
+					class="rd-squircle rd-shadow-panel overflow-hidden rounded-[2rem] border border-border bg-card"
 				>
-					<div
-						class="rd-shadow-inset border-b border-[var(--rd-line)] bg-[rgba(16,17,17,0.24)] px-5 py-5 md:px-7"
-					>
-						<p class="text-sm font-semibold text-[var(--rd-mint)]">local shader lab</p>
+					<div class="rd-shadow-inset border-b border-border bg-background/25 px-5 py-5 md:px-7">
+						<p class="text-sm font-semibold text-primary">local shader lab</p>
 						<h1
 							class="font-jak-display text-4xl font-black leading-none tracking-[-0.08em] text-white md:text-6xl"
 						>
 							dono banner, component pipeline
 						</h1>
-						<p class="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--rd-muted)]">
+						<p class="mt-3 max-w-2xl text-sm leading-relaxed text-rd-muted">
 							The preview is still one local WebGL2 shader, but its controls are split into
 							shader-style components: noise, gradient, cursor trail, pixelate, click ripple,
 							dither, and duotone.
@@ -105,7 +103,7 @@
 
 					<div class="grid gap-7 px-4 py-6 md:px-7 md:py-8">
 						<div
-							class="relative mx-auto h-32 w-full max-w-[38rem] overflow-hidden rounded-[9px] bg-[#1b191f] text-white shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)]"
+							class="relative mx-auto h-32 w-full max-w-[38rem] overflow-hidden rounded-[9px] bg-card text-white shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)]"
 						>
 							{#key shaderBackend}
 								<DonoWebglShader
@@ -144,14 +142,14 @@
 									<span class="block">sptfy.in&nbsp;&nbsp;is&nbsp;&nbsp;entirely</span>
 									<span class="block">user funded</span>
 								</h2>
-								<p class="mt-[6px] text-[13px] font-medium italic leading-[0.885] text-[#ffd050]">
+								<p class="mt-[6px] text-[13px] font-medium italic leading-[0.885] text-rd-yellow">
 									consider supporting?
 								</p>
 							</div>
 						</div>
 
 						<div
-							class="grid gap-3 rounded-2xl border border-[var(--rd-line)] bg-[rgba(16,17,17,0.24)] p-4 text-sm text-[var(--rd-muted)]"
+							class="grid gap-3 rounded-2xl border border-border bg-background/25 p-4 text-sm text-rd-muted"
 						>
 							<p>
 								Use the ImGui panel to hide/show each shader component and tune its controls. Dither
@@ -167,7 +165,7 @@
 				</div>
 
 				<aside
-					class="rd-squircle rd-shadow-panel overflow-hidden rounded-[2rem] border border-[var(--rd-line)] bg-[var(--rd-panel)] p-3"
+					class="rd-squircle rd-shadow-panel overflow-hidden rounded-[2rem] border border-border bg-card p-3"
 				>
 					<ImguiShaderControls
 						backend={shaderBackend}

@@ -3,7 +3,7 @@
 </script>
 
 <figure
-	class="rd-squircle rd-shadow-inset overflow-hidden rounded-3xl border border-[var(--rd-line)] bg-[var(--rd-chip)]"
+	class="rd-squircle rd-shadow-inset overflow-hidden rounded-3xl border border-border bg-rd-chip"
 >
 	<a href={href || src} target="_blank" rel="noreferrer" class="block no-underline">
 		<img

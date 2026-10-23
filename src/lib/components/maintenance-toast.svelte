@@ -121,8 +121,8 @@
 		<div
 			class="flex items-center gap-3 rounded-lg border px-4 py-3 shadow-lg backdrop-blur-sm {state.status ===
 			'active'
-				? 'border-red-500/30 bg-red-500/10 text-red-200'
-				: 'border-amber-500/30 bg-amber-500/10 text-amber-200'}"
+				? 'border-error/30 bg-error/10 text-error'
+				: 'border-warning/30 bg-warning/10 text-warning'}"
 		>
 			{#if state.status === 'active'}
 				<iconify-icon icon="lucide:construction" class="shrink-0 text-xl"></iconify-icon>
@@ -164,7 +164,7 @@
 			{#if isMigration}
 				<button
 					onclick={toggleMinimized}
-					class="shrink-0 rounded p-1 transition-colors hover:bg-white/10"
+					class="shrink-0 rounded p-1 transition-colors hover:bg-foreground/10"
 					aria-label={minimized
 						? 'Expand migration maintenance notice'
 						: 'Minimize migration maintenance notice'}
@@ -176,7 +176,7 @@
 			{:else}
 				<button
 					onclick={dismiss}
-					class="shrink-0 rounded p-1 transition-colors hover:bg-white/10"
+					class="shrink-0 rounded p-1 transition-colors hover:bg-foreground/10"
 					aria-label="Dismiss notification"
 				>
 					<iconify-icon icon="lucide:x" class="text-lg"></iconify-icon>

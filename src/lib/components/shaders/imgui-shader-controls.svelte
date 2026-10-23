@@ -361,7 +361,7 @@
 		padding: 1.25rem;
 		text-align: center;
 		font-size: 0.8125rem;
-		color: var(--rd-muted);
+		color: rgb(var(--rd-muted));
 	}
 
 	.hint {

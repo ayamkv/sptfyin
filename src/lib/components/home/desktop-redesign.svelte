@@ -123,33 +123,33 @@
 {#snippet linkItem(item)}
 	<a
 		href={resolve(`/${item.id_url}`)}
-		class="min-w-0 truncate font-normal text-[var(--rd-ink)]"
+		class="min-w-0 truncate font-normal text-foreground"
 		target="_blank"
 	>
-		<span class="text-[var(--rd-muted)]"
+		<span class="text-rd-muted"
 			>{item.subdomain === 'sptfy.in' ? 'sptfy.in' : `${item.subdomain}.sptfy.in`}/</span
 		><span>{item.id_url}</span>
 	</a>
 {/snippet}
 
-<div class="hidden min-h-[calc(100vh-10rem)] w-full text-[var(--rd-ink)] md:block">
+<div class="hidden min-h-[calc(100vh-10rem)] w-full text-foreground md:block">
 	<div
 		class="mx-auto flex min-h-[calc(100dvh-10rem)] w-full max-w-5xl flex-col px-6 pb-20 pt-2 lg:px-8"
 	>
 		<header class="relative mx-auto mb-5 h-20 w-[27rem] max-w-full">
 			<h1
-				class="ss03 absolute left-1/2 top-0 -translate-x-1/2 font-jak-display text-6xl font-black leading-none text-[var(--rd-mint)] lg:text-7xl"
+				class="ss03 absolute left-1/2 top-0 -translate-x-1/2 font-jak-display text-6xl font-black leading-none text-primary lg:text-7xl"
 			>
 				sptfy.in
 			</h1>
 			<div
-				class="rd-squircle rd-shadow-lift absolute left-12 top-16 flex h-6 min-w-20 rotate-[6deg] items-center justify-center gap-1 rounded-full bg-[var(--rd-yellow)] px-2.5 text-xs font-semibold text-[#161517]"
+				class="rd-squircle rd-shadow-lift absolute left-12 top-16 flex h-6 min-w-20 rotate-[6deg] items-center justify-center gap-1 rounded-full bg-rd-yellow px-2.5 text-xs font-semibold text-rd-on-accent"
 			>
 				<iconify-icon icon="lucide:link" width="14"></iconify-icon>
 				<span>{linkCount}</span>
 			</div>
 			<div
-				class="rd-squircle rd-shadow-lift absolute right-12 top-16 flex h-6 min-w-20 rotate-[-4deg] items-center justify-center gap-1 rounded-full bg-[var(--rd-yellow)] px-2.5 text-xs font-semibold text-[#161517]"
+				class="rd-squircle rd-shadow-lift absolute right-12 top-16 flex h-6 min-w-20 rotate-[-4deg] items-center justify-center gap-1 rounded-full bg-rd-yellow px-2.5 text-xs font-semibold text-rd-on-accent"
 			>
 				<iconify-icon icon="lucide:pointer" width="14"></iconify-icon>
 				<span>{clickCount}</span>
@@ -160,30 +160,29 @@
 			<a
 				href={resolve(latestUpdateHref)}
 				onclick={handleLatestUpdateClick}
-				class="rd-squircle rd-shadow-inset mx-auto mb-4 mt-3 flex max-w-md items-center justify-center gap-1.5 rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-4 py-2 text-xs font-semibold text-[var(--rd-ink)] no-underline hover:text-[var(--rd-mint)]"
+				class="rd-squircle rd-shadow-inset mx-auto mb-4 mt-3 flex max-w-md items-center justify-center gap-1.5 rounded-2xl border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground no-underline hover:text-primary"
 			>
-				<iconify-icon icon="lucide:sparkles" width="15" class="text-[var(--rd-mint)]"
-				></iconify-icon>
-				<span class="text-[var(--rd-muted)]">updates:</span>
+				<iconify-icon icon="lucide:sparkles" width="15" class="text-primary"></iconify-icon>
+				<span class="text-rd-muted">updates:</span>
 				<span class="truncate">{latestUpdate.chip}</span>
 			</a>
 		{:else}
 			<a
 				href={resolve('/@/updates')}
-				class="rd-squircle rd-shadow-inset mx-auto mb-4 mt-3 flex w-fit items-center rounded-full border border-[var(--rd-line)] bg-[var(--rd-panel)] px-3 py-1 text-xs font-semibold text-[var(--rd-muted)] no-underline hover:text-[var(--rd-mint)]"
+				class="rd-squircle rd-shadow-inset mx-auto mb-4 mt-3 flex w-fit items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-rd-muted no-underline hover:text-primary"
 			>
 				{versionText}
 			</a>
 		{/if}
 
 		<section
-			class="rd-squircle rd-shadow-inset mb-4 mt-3 grid min-h-[4.75rem] grid-cols-[1fr_auto] items-center gap-4 rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-5 py-4"
+			class="rd-squircle rd-shadow-inset mb-4 mt-3 grid min-h-[4.75rem] grid-cols-[1fr_auto] items-center gap-4 rounded-2xl border border-border bg-card px-5 py-4"
 		>
 			<div class="min-w-0">
-				<p class="mb-1.5 text-xs font-normal leading-none text-[var(--rd-mint)]">url preview</p>
-				<p class="truncate text-2xl italic leading-tight text-[var(--rd-ink-soft)] lg:text-xl">
+				<p class="mb-1.5 text-xs font-normal leading-none text-primary">url preview</p>
+				<p class="truncate text-2xl italic leading-tight text-rd-ink-soft/80 lg:text-xl">
 					<span class="font-normal">{qrDomain}/</span><span
-						class="font-light underline decoration-[rgba(74,227,161,0.5)] decoration-2 underline-offset-4"
+						class="font-light underline decoration-primary/50 decoration-2 underline-offset-4"
 						>{shortIdDisplay}</span
 					>
 				</p>
@@ -192,7 +191,7 @@
 				<QrDrawer
 					{qrUrl}
 					{shortIdDisplay}
-					triggerClass="rd-shadow-nav size-10 rounded-2xl border border-[var(--rd-action)] bg-[var(--rd-action)] p-0 text-[var(--rd-ink)] hover:bg-[rgba(16,17,17,0.5)]"
+					triggerClass="rd-shadow-nav size-10 rounded-2xl border border-secondary/20 bg-secondary/20 p-0 text-foreground hover:bg-background/50"
 					iconWidth="22"
 					imageClass="w-[200px] rounded-b-lg shadow-lg lg:w-[350px]"
 					skeletonClass="absolute left-0 top-0 h-[200px] w-[200px] lg:h-[350px] lg:w-[350px]"
@@ -203,7 +202,7 @@
 				<Button
 					type="button"
 					variant="ghost"
-					class="rd-shadow-nav size-10 rounded-2xl border border-[var(--rd-action)] bg-[var(--rd-action)] p-0 text-[var(--rd-ink)] hover:bg-[rgba(16,17,17,0.5)]"
+					class="rd-shadow-nav size-10 rounded-2xl border border-secondary/20 bg-secondary/20 p-0 text-foreground hover:bg-background/50"
 					onclick={handlePreviewCopy}
 					aria-label="copy short URL"
 				>
@@ -247,15 +246,13 @@
 				</div>
 			{/if}
 			<section
-				class="rd-squircle rd-shadow-panel relative overflow-hidden rounded-2xl border border-[var(--rd-line)] bg-[var(--rd-panel)] px-4 pb-8 pt-4"
+				class="rd-squircle rd-shadow-panel relative overflow-hidden rounded-2xl border border-border bg-card px-4 pb-8 pt-4"
 			>
 				<form onsubmit={preventDefault(handleSubmit)} class="grid gap-3">
-					<Label for="url-desktop-redesign" class="pl-1 text-xs font-normal text-[var(--rd-ink)]"
+					<Label for="url-desktop-redesign" class="pl-1 text-xs font-normal text-foreground"
 						>paste your long ass URL here</Label
 					>
-					<div
-						class="flex items-center rounded-2xl has-[input:focus]:shadow-[0px_0px_0px_2px_#101111,0px_0px_0px_4px_#00aa6a]"
-					>
+					<div class="has-[input:focus]:rd-shadow-focus flex items-center rounded-2xl">
 						<input
 							onpaste={handleInputOnPaste}
 							id="url-desktop-redesign"
@@ -264,7 +261,7 @@
 								? 'Expanding link...'
 								: 'https://open.spotify.com/xxxx....'}
 							bind:value={inputText}
-							class="inverseShadow h-10 w-full rounded-l-2xl border border-[var(--rd-line)] bg-[rgba(16,17,17,0.2)] px-3 text-xs text-[var(--rd-ink)] outline-none placeholder:text-[#b9c0d08c]"
+							class="inverseShadow h-10 w-full rounded-l-2xl border border-border bg-background/20 px-3 text-xs text-foreground outline-none placeholder:text-muted-foreground/55"
 							required
 							disabled={isExpandingUrl}
 						/>
@@ -273,7 +270,7 @@
 							onclick={() => handlePaste()}
 							disabled={isExpandingUrl}
 							aria-label="paste URL"
-							class="flex h-10 w-14 items-center justify-center rounded-r-2xl border border-[rgba(57,54,77,0.2)] bg-transparent p-0 text-[var(--rd-ink)] shadow-[0px_1px_1.2px_0px_rgba(16,17,17,0.54),inset_0px_1.2px_2.7px_0px_rgba(145,95,183,0.78),inset_0px_-3px_2px_0px_rgba(24,24,27,0.32)] transition-colors hover:bg-[rgba(16,17,17,0.5)] active:bg-[var(--rd-mint)] active:text-[var(--rd-bg)]"
+							class="rd-shadow-raised flex h-10 w-14 items-center justify-center rounded-r-2xl border border-secondary/20 bg-transparent p-0 text-foreground transition-colors hover:bg-background/50 active:bg-primary active:text-card"
 						>
 							<iconify-icon icon="lucide:clipboard-paste" width="20" class="text-inherit"
 							></iconify-icon>
@@ -284,7 +281,7 @@
 						role="button"
 						tabindex="0"
 						onkeydown={(e) => e.key === 'Enter' && toggleCustomize()}
-						class="relative flex h-9 w-full items-center justify-between rounded-xl text-left text-xs text-[var(--rd-ink)]"
+						class="relative flex h-9 w-full items-center justify-between rounded-xl text-left text-xs text-foreground"
 					>
 						{#if !customizeExpanded}
 							<button
@@ -301,7 +298,7 @@
 									: 'translate-x-0 opacity-100'}"
 							>
 								<span>customize</span>
-								<span class="ml-1 text-[var(--rd-muted)]">(optional)</span>
+								<span class="ml-1 text-rd-muted">(optional)</span>
 							</div>
 							<div
 								class="absolute inset-0 flex items-center gap-2 transition-all duration-300 ease-out {customizeExpanded
@@ -310,7 +307,7 @@
 							>
 								<Select.Root type="single" name="desktopDomainSelect" bind:value={selected}>
 									<Select.Trigger
-										class="h-9 w-[10rem] rounded-xl border-[var(--rd-action)] bg-[#201f28] text-xs"
+										class="h-9 w-[10rem] rounded-xl border-secondary/20 bg-rd-chip text-xs"
 									>
 										{selectedLabel || 'sptfy.in'}
 									</Select.Trigger>
@@ -338,7 +335,7 @@
 									bind:value={customShortId}
 									oninput={(e) => updateCustomShortId(e.currentTarget.value)}
 									class={[
-										'h-9 flex-1 rounded-xl border-[var(--rd-action)] bg-[#201f28] text-xs text-[var(--rd-ink)] placeholder:text-[var(--rd-muted)]',
+										'h-9 flex-1 rounded-xl border-secondary/20 bg-rd-chip text-xs text-foreground placeholder:text-rd-muted',
 										slugInputClass
 									]}
 								/>
@@ -354,7 +351,7 @@
 						>
 							<iconify-icon
 								icon="lucide:chevron-down"
-								class="h-4 w-4 text-[var(--rd-ink)] transition-transform duration-300 {customizeExpanded
+								class="h-4 w-4 text-foreground transition-transform duration-300 {customizeExpanded
 									? 'rotate-180'
 									: ''}"
 							></iconify-icon>
@@ -364,17 +361,17 @@
 					{#if customizeExpanded && isCustomSlugProvided}
 						<p class="h-4 text-xs leading-none">
 							{#if sanitizedCustomShortId.length < 4}
-								<span class="text-red-400">{strings.SlugMinChars}</span>
+								<span class="text-error">{strings.SlugMinChars}</span>
 							{:else if reservedSlug}
-								<span class="text-red-400">{strings.SlugReserved}</span>
+								<span class="text-error">{strings.SlugReserved}</span>
 							{:else if slugChecking}
-								<span class="text-yellow-300">{strings.SlugChecking}</span>
+								<span class="text-warning">{strings.SlugChecking}</span>
 							{:else if slugCheckError}
-								<span class="text-yellow-300">{strings.SlugCheckFailed}</span>
+								<span class="text-warning">{strings.SlugCheckFailed}</span>
 							{:else if slugAvailable === true}
-								<span class="text-emerald-400">{strings.SlugAvailable}</span>
+								<span class="text-success">{strings.SlugAvailable}</span>
 							{:else if slugAvailable === false}
-								<span class="text-red-400">{strings.SlugTaken}</span>
+								<span class="text-error">{strings.SlugTaken}</span>
 							{/if}
 						</p>
 					{/if}
@@ -384,21 +381,19 @@
 						{maintenanceActive}
 						{turnstileStatus}
 						disabled={buttonDisabled}
-						class="submit-button align-center m-auto flex w-full flex-row items-center justify-center gap-2 rounded-xl text-center shadow-[inset_0_-3px_4px_0_#3b906b96] transition-all {loading
+						class="submit-button align-center rd-shadow-submit m-auto flex w-full flex-row items-center justify-center gap-2 rounded-xl text-center transition-all {loading
 							? 'bg-secondary text-foreground'
 							: ''}"
 					/>
 				</form>
-				<p class="mt-4 text-xs leading-tight text-[var(--rd-muted)]">
+				<p class="mt-4 text-xs leading-tight text-rd-muted">
 					by continuing, you agree to
 					<a href={resolve('/@/about/privacy')} class="underline">privacy policy</a> and
 					<a href={resolve('/@/about/terms')} class="underline">terms</a>.
 				</p>
 			</section>
 
-			<section
-				class="rd-squircle rd-shadow-panel overflow-hidden rounded-2xl bg-[var(--rd-panel)] pb-4"
-			>
+			<section class="rd-squircle rd-shadow-panel overflow-hidden rounded-2xl bg-card pb-4">
 				<div class="flex items-center justify-between gap-4 px-4 pt-4">
 					<div class="flex w-fit items-center">
 						{#each tabs as tab, i (tab.id)}
@@ -406,7 +401,7 @@
 								type="button"
 								onclick={() => (activeTab = tab.id)}
 								class={[
-									'h-9 w-fit cursor-pointer border border-[rgba(57,54,77,0.2)] px-4 text-xs font-light leading-none transition-colors',
+									'h-9 w-fit cursor-pointer border border-secondary/20 px-4 text-xs font-light leading-none transition-colors',
 									i === 0 && 'rounded-l-2xl border-r-0',
 									i === tabs.length - 1 && 'rounded-r-2xl border-l-0',
 									i === 1 && 'border-l-0 border-r-0',
@@ -419,7 +414,7 @@
 					</div>
 					<a
 						href={resolve(tabContent.viewAllHref)}
-						class="offset-0 flex h-9 w-fit items-center rounded-2xl border border-[rgba(57,54,77,0.2)] bg-[rgba(57,54,77,0.2)] px-5 text-xs font-light leading-none text-[#fafafa] shadow-[0px_1px_1.2px_0px_rgba(16,17,17,0.54),inset_0px_-3px_2px_0px_rgba(24,24,27,0.32),inset_0px_1.2px_2.7px_0px_rgba(145,95,183,0.78)] hover:bg-secondary/80"
+						class="offset-0 rd-shadow-raised flex h-9 w-fit items-center rounded-2xl border border-secondary/20 bg-secondary/20 px-5 text-xs font-light leading-none text-secondary-foreground hover:bg-secondary/80"
 					>
 						view all
 					</a>
@@ -428,7 +423,7 @@
 				<div class="space-y-2 px-4 py-3 font-normal">
 					{#if activeTab === 'mylinks' && deleteTurnstileVisible && pendingDeleteLink}
 						<div
-							class="mb-3 rounded-xl border border-[var(--rd-line)] bg-[rgba(16,17,17,0.24)] p-3 text-xs leading-tight text-[var(--rd-muted)]"
+							class="mb-3 rounded-xl border border-border bg-background/25 p-3 text-xs leading-tight text-rd-muted"
 						>
 							<p class="mb-2">verify to delete {pendingDeleteLink.id_url}</p>
 							<Turnstile
@@ -462,9 +457,9 @@
 					{/if}
 
 					{#if tabContent.loading}
-						<p class="text-sm text-[var(--rd-muted)]">{tabContent.loadingMsg}</p>
+						<p class="text-sm text-rd-muted">{tabContent.loadingMsg}</p>
 					{:else if tabContent.empty}
-						<p class="text-sm text-[var(--rd-muted)]">{tabContent.emptyMsg}</p>
+						<p class="text-sm text-rd-muted">{tabContent.emptyMsg}</p>
 					{:else}
 						<div class="space-y-1.5">
 							{#each tabContent.items as item (tabContent.getId(item))}
@@ -475,7 +470,7 @@
 									{#if activeTab === 'mylinks'}
 										<button
 											type="button"
-											class="shrink-0 text-xs text-red-400 underline"
+											class="shrink-0 text-xs text-error underline"
 											onclick={() => requestDeleteOwnedLink(item)}
 											disabled={deletingOwnedLinkId === item.id}
 										>
@@ -486,13 +481,12 @@
 													: 'delete'}
 										</button>
 									{:else if activeTab === 'top'}
-										<span class="flex shrink-0 items-center gap-1 text-[var(--rd-mint)]">
+										<span class="flex shrink-0 items-center gap-1 text-primary">
 											<iconify-icon icon="lucide:mouse-pointer-click" width="12"></iconify-icon>
 											{formatNumber(item.utm_view)}
 										</span>
 									{:else}
-										<span class="shrink-0 text-[var(--rd-muted)]">{localizeDate(item.created)}</span
-										>
+										<span class="shrink-0 text-rd-muted">{localizeDate(item.created)}</span>
 									{/if}
 								</div>
 							{/each}
@@ -506,7 +500,7 @@
 				href="https://ko-fi.com/freqtion"
 				target="_blank"
 				rel="noreferrer"
-				class="rd-squircle group relative mx-auto block h-32 w-[38rem] overflow-hidden rounded-[9px] bg-[#1b191f] text-white no-underline shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)] outline-none transition-transform duration-200 hover:no-underline focus:no-underline focus-visible:ring-2 focus-visible:ring-[var(--rd-mint)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rd-bg)]"
+				class="rd-squircle group relative mx-auto block h-32 w-[38rem] overflow-hidden rounded-[9px] bg-card text-secondary-foreground no-underline shadow-[inset_0px_5px_4px_0px_rgba(21,19,27,0.46)] outline-none transition-transform duration-200 hover:no-underline focus:no-underline focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
 				aria-label="Support sptfy.in on Ko-fi"
 			>
 				<BannerDonoShader />
@@ -531,7 +525,7 @@
 				></div>
 
 				<div
-					class="pointer-events-none absolute right-8 top-[27px] w-[8.95rem] text-right text-white no-underline"
+					class="pointer-events-none absolute right-8 top-[27px] w-[8.95rem] text-right text-secondary-foreground no-underline"
 				>
 					<p class="mb-[4px] text-[13px] font-light leading-[1.115] tracking-[-0.54px]">
 						°⋆.࿔*:･&nbsp;&nbsp;&nbsp;&nbsp; ദ്ദി ^-⩊-^≼
@@ -540,7 +534,7 @@
 						<span class="block">sptfy.in&nbsp;&nbsp;is&nbsp;&nbsp;entirely</span>
 						<span class="block">user funded</span>
 					</h2>
-					<p class="mt-[6px] text-[13px] font-medium italic leading-[0.885] text-[#ffd050]">
+					<p class="mt-[6px] text-[13px] font-medium italic leading-[0.885] text-rd-yellow">
 						consider supporting?
 					</p>
 				</div>

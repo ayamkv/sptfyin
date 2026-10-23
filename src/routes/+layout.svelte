@@ -11,7 +11,6 @@
 	import logo from '$lib/images/logo.png';
 	import MaintenanceToast from '$lib/components/maintenance-toast.svelte';
 
-	import { onMount } from 'svelte';
 	/**
 	 * @typedef {Object} Props
 	 * @property {import('./$types').LayoutData} data
@@ -157,14 +156,6 @@
 			avatarLoading = false;
 		}
 	});
-
-	// enable background decorations globally via class toggle
-	onMount(() => {
-		if (typeof document !== 'undefined') {
-			document.body.classList.add('bg-decor-enabled');
-			return () => document.body.classList.remove('bg-decor-enabled');
-		}
-	});
 </script>
 
 <Toaster duration={4000} position="top-center" />
@@ -175,12 +166,12 @@
 
 <Tooltip.Provider>
 	<div
-		class="scrollbar-gutter-stable md:highlightN fixed inset-0 flex
+		class="scrollbar-gutter-stable fixed inset-0 flex
     rounded-md bg-background/30 md:flex-row md:rounded-none"
 	>
 		<div
 			data-collapsed={isCollapsed}
-			class="md:highlightNav2 group fixed bottom-[7px] left-1/2 z-50 flex h-[86px] w-[calc(100%-33px)] max-w-[369px] -translate-x-1/2 flex-col bg-transparent data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto md:left-auto md:h-auto md:min-h-screen md:w-24 md:max-w-none md:translate-x-0 md:bg-[#1b191e] md:shadow-none"
+			class="group fixed bottom-[7px] left-1/2 z-50 flex h-[86px] w-[calc(100%-33px)] max-w-[369px] -translate-x-1/2 flex-col bg-transparent data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto md:left-auto md:h-auto md:min-h-screen md:w-24 md:max-w-none md:translate-x-0 md:bg-card md:shadow-none"
 		>
 			<!-- Logo (desktop only) -->
 			<a
@@ -204,10 +195,10 @@
 									href={route.label.startsWith('/') ? resolve(route.label) : route.label}
 									variant={route.variant}
 									size="icon"
-									class="h-[74px] w-full flex-col items-center justify-center gap-1 rounded-2xl px-0 text-[var(--rd-ink)] no-underline hover:bg-transparent hover:outline-primary md:h-20 md:w-20 md:gap-1 md:rounded-md
+									class="h-[74px] w-full flex-col items-center justify-center gap-1 rounded-2xl px-0 text-foreground no-underline hover:bg-transparent hover:outline-primary md:h-20 md:w-20 md:gap-1 md:rounded-md
 									{route.mobileVisible === false ? 'hidden md:flex' : 'flex'}
 									{isActive(route.label)
-										? 'rd-shadow-nav-active md:inverseShadow md:hover:highlight bg-[#10111199] md:bg-background/60 md:text-foreground md:hover:bg-primary/90 md:hover:text-background'
+										? 'inverseShadow md:hover:highlight bg-background/60 md:text-foreground md:hover:bg-primary/90 md:hover:text-background'
 										: route.variant === 'default'
 											? 'md:highlightCard bg-transparent md:dark:bg-muted md:dark:text-muted-foreground md:dark:hover:bg-secondary/40'
 											: 'bg-transparent'}"
