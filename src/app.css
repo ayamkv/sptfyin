@@ -167,7 +167,7 @@
 		width: 100vw;
 		overflow-y: scroll;
 		overflow-x: hidden;
-		background: var(--background);
+		background: hsl(var(--background));
 	}
 }
 
