@@ -171,7 +171,7 @@
 	>
 		<div
 			data-collapsed={isCollapsed}
-			class="md:highlightNav2 group fixed bottom-[7px] left-1/2 z-50 flex h-[86px] w-[calc(100%-33px)] max-w-[369px] -translate-x-1/2 flex-col bg-transparent data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto md:left-auto md:h-auto md:min-h-screen md:w-24 md:max-w-none md:translate-x-0 md:bg-card"
+			class="group fixed bottom-[7px] left-1/2 z-50 flex h-[86px] w-[calc(100%-33px)] max-w-[369px] -translate-x-1/2 flex-col bg-transparent data-[collapsed=true]:py-0 sm:rounded-none md:static md:bottom-auto md:left-auto md:h-auto md:min-h-screen md:w-24 md:max-w-none md:translate-x-0 md:bg-card md:shadow-none"
 		>
 			<!-- Logo (desktop only) -->
 			<a
@@ -246,7 +246,7 @@
 			</nav>
 		</div>
 		<main
-			class="h-screen max-w-full flex-1 overflow-y-auto overflow-x-hidden bg-card/95 selection:bg-primary selection:text-background sm:overflow-y-hidden md:rounded-lg md:py-4 md:pl-0 md:pr-4"
+			class="h-screen max-w-full flex-1 overflow-y-auto overflow-x-hidden bg-card/95 selection:bg-primary selection:text-background sm:overflow-y-hidden md:py-4 md:pl-0 md:pr-4"
 		>
 			{@render children?.()}
 		</main>
