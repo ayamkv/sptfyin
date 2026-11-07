@@ -94,6 +94,37 @@ describe('buildAdminMetrics', () => {
 		expect(result.rangeDays).toBe(30);
 	});
 
+	it("forwards the caller's auth token so PocketBase can check admin access", async () => {
+		mockFetch.mockResolvedValueOnce({
+			ok: true,
+			json: async () => MOCK_RESPONSE
+		});
+
+		await buildAdminMetrics({
+			pb: { baseUrl: 'https://pb.sptfy.in', authStore: { token: 'admin-token' } },
+			days: 30
+		});
+
+		expect(mockFetch).toHaveBeenCalledWith(
+			'https://pb.sptfy.in/api/admin/stats?days=30',
+			expect.objectContaining({
+				headers: expect.objectContaining({ Authorization: 'admin-token' })
+			})
+		);
+	});
+
+	it('omits the Authorization header when there is no token', async () => {
+		mockFetch.mockResolvedValueOnce({
+			ok: true,
+			json: async () => MOCK_RESPONSE
+		});
+
+		await buildAdminMetrics({ pb: createPb(), days: 30 });
+
+		const [, options] = mockFetch.mock.calls[0];
+		expect(options.headers).not.toHaveProperty('Authorization');
+	});
+
 	it('strips trailing slash from baseUrl', async () => {
 		mockFetch.mockResolvedValueOnce({
 			ok: true,

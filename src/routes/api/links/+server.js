@@ -8,9 +8,8 @@ import {
 	hashGuestSessionSecret,
 	listOwnedGuestLinks
 } from '$lib/server/guest-links';
-const pocketBaseURL = import.meta.env.VITE_POCKETBASE_URL;
 
-export async function GET({ locals, url, fetch, cookies }) {
+export async function GET({ locals, url, cookies }) {
 	const page = Number(url.searchParams.get('page') || 1);
 	const perPage = Math.min(Number(url.searchParams.get('perPage') || 20), 50);
 
@@ -36,32 +35,18 @@ export async function GET({ locals, url, fetch, cookies }) {
 		});
 	}
 
-	console.log('[API Links GET] Fetching links for user:', locals.user.id);
-
-	// Read via viewList to avoid superuser requirement
-	const qs = new URLSearchParams({
-		page: String(page),
-		perPage: String(perPage),
-		sort: '-created',
-		filter: locals.pb.filter('user.id = {:userId}', { userId: locals.user.id })
-	});
-
-	const fetchUrl = `${pocketBaseURL}/api/collections/viewList/records?${qs.toString()}`;
-	console.log('[API Links GET] Fetching from:', fetchUrl);
-
-	const resp = await fetch(fetchUrl);
-	if (!resp.ok) {
-		console.error('[API Links GET] Fetch failed:', resp.status, resp.statusText);
-		throw error(resp.status, 'failed to fetch links');
+	// random_short's list rule lets a signed-in user read their own links.
+	let data;
+	try {
+		data = await locals.pb.collection('random_short').getList(page, perPage, {
+			sort: '-created',
+			filter: locals.pb.filter('user = {:userId}', { userId: locals.user.id }),
+			fields: 'id,id_url,from,subdomain,utm_view,created,user'
+		});
+	} catch (e) {
+		console.error('[API Links GET] Failed to fetch links:', e?.status, e?.message);
+		throw error(e?.status >= 400 ? e.status : 502, 'failed to fetch links');
 	}
-
-	const data = await resp.json();
-	console.log(
-		'[API Links GET] Retrieved',
-		data.items?.length || 0,
-		'links for user:',
-		locals.user.id
-	);
 
 	return json({
 		items: data.items || [],

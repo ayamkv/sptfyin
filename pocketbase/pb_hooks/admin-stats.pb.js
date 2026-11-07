@@ -1,9 +1,33 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 // Admin stats endpoint — returns pre-computed analytics via SQL aggregation.
-// Auth is enforced at the SvelteKit layer, not here.
+// Callers must be superusers or allowlisted admins. The allowlists use the same
+// env vars and rules as src/lib/server/admin-auth.js (either list may be unset).
 
 routerAdd('GET', '/api/admin/stats', (e) => {
+	function parseAllowlist(value, lowercase) {
+		return String(value || '')
+			.split(/[\n,;]/)
+			.map((entry) => entry.trim())
+			.filter(Boolean)
+			.map((entry) => (lowercase ? entry.toLowerCase() : entry));
+	}
+
+	function isAdmin() {
+		if (e.hasSuperuserAuth()) return true;
+		if (!e.auth) return false;
+
+		const userIds = parseAllowlist(process.env.ADMIN_USER_ID_ALLOWLIST, false);
+		const emails = parseAllowlist(process.env.ADMIN_EMAIL_ALLOWLIST, true);
+		const email = e.auth.getString('email').trim().toLowerCase();
+
+		return userIds.includes(e.auth.id) || (email !== '' && emails.includes(email));
+	}
+
+	if (!isAdmin()) {
+		return e.json(403, { message: 'Admin access required.' });
+	}
+
 	const daysParam = e.request.url.query().get('days') || '30';
 	const days = parseInt(daysParam, 10);
 	const validDays = [0, 7, 30, 90];
