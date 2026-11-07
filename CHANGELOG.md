@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.2.0](https://github.com/ayamkv/sptfyin/compare/v0.1.0...v0.2.0) (2026-11-07)
+
+
+### Features
+
+* replace dono shader with local renderer ([1f72198](https://github.com/ayamkv/sptfyin/commit/1f72198eda3c66021a61d011f232c7e1ed58042d))
+
+
+### Bug Fixes
+
+* check admin access in the stats route and read dashboard links with user auth ([#63](https://github.com/ayamkv/sptfyin/issues/63)) ([86e3d3a](https://github.com/ayamkv/sptfyin/commit/86e3d3ace3439db4c88d9cdac0dd6807f71260dd))
+* harden redirect analytics failures ([04da230](https://github.com/ayamkv/sptfyin/commit/04da2303e0369445737f7ebb37e84c2cf832b3bf))
+* limit users collection reads to own record ([#55](https://github.com/ayamkv/sptfyin/issues/55)) ([0e2740d](https://github.com/ayamkv/sptfyin/commit/0e2740d905fd0e8702e127d996abdd514684a869))
+* tighten random_short update rules and stop logging secrets ([#54](https://github.com/ayamkv/sptfyin/issues/54)) ([9f2d93b](https://github.com/ayamkv/sptfyin/commit/9f2d93b3094d07fb0c6783fd03f67078e944af39))
+
 ## [0.1.0](https://github.com/ayamkv/sptfyin/releases/tag/v0.1.0) - 2026-06-01
 
 ### New
